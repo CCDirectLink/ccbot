@@ -48,7 +48,7 @@ export default class JSONCommand extends CCBotCommand {
                 await message.react(react);
         // Actually send resulting message if necessary
         if (this.command.format || hasMeta)
-            return await message.say(this.command.format || '', opts);
+            return await message.say((this.command.format || '').replace('%%', '%'), opts);
         return [];
     }
 }

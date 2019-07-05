@@ -8,6 +8,11 @@ import {CCBot} from './ccbot';
 // Not nice.
 (commando as any).CommandRegistry = require('discord.js-commando/src/registry');
 
+/**
+ * A modified version of the CommandRegistry which maintains a set of JSON commands.
+ * JSON commands are read from the 'commands.json' dynamicData file.
+ * Their structure is defined in: data/structures.js
+ */
 export default class CCBotCommandRegistry extends commando.CommandRegistry {
     client!: CCBot;
     private allJSONCommands: commando.Command[];

@@ -10,10 +10,12 @@ export interface Command {
     options?: object;
 
     // The text. At some point, may be expanded to contain formatting directives (hence the name).
+    // The character '%' is reserved for said formatting directives.
+    // As such, '%%' will be replaced with '%' as a form of escaping.
     format?: string;
     // Embed (ID of an embed from embed.json)
     embed?: string;
-    // Reactions to commands.
+    // Reactions to the command.
     commandReactions?: string[];
 }
 export interface CommandGroup {[command: string]: Command}
