@@ -6,11 +6,13 @@ import {CCBot, CCBotCommand} from '../ccbot';
 
 /**
  * A JSON-run "command", but really more like a responder.
+ * For format details, please see the structures file.
  */
 export default class JSONCommand extends CCBotCommand {
-    readonly command: structures.Command;
+    // The JSON command structure.
+    private readonly command: structures.Command;
     
-    constructor(client: CCBot, group: string, name: string, json: structures.Command) {
+    public constructor(client: CCBot, group: string, name: string, json: structures.Command) {
         const opt = {
             name: name.toLowerCase(),
             description: json.description || 'No description.',
@@ -24,14 +26,14 @@ export default class JSONCommand extends CCBotCommand {
         this.command = json;
     }
     
-    async run(message: commando.CommandMessage, args: string | object | string[], fromPattern: boolean): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         if (this.command.nsfw && !nsfw(message.channel)) {
             // Need to log & use channel NSFWness
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
         }
         // Message Options
         const opts: discord.MessageOptions = {};
-        let hasMeta: boolean = false;
+        let hasMeta = false;
         if (this.command.embed) {
             if (!(this.command.embed in this.client.dynamicData.embeds.data)) {
                 return await message.say('The embed \'' + this.command.embed + '\' was not available.');
@@ -49,4 +51,4 @@ export default class JSONCommand extends CCBotCommand {
             return await message.say(this.command.format || '', opts);
         return [];
     }
-};
+}
