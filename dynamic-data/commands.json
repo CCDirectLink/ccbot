@@ -1,0 +1,49 @@
+{
+    "general": {
+        "satoshi": {
+            "format": "is karoshi"
+        },
+        "hi": {
+            "description": "Lea greets you",
+            "format": "hi!!! <:leaCheese:257888171772215296>"
+        },
+        "bye": {
+            "description": "Lea says goodbye to you",
+            "format": "bye!!! <:leaCheese:257888171772215296>"
+        },
+        "bugs": {
+            "embed": "the_it_crowd_turinging"
+        },
+        "hug": {
+            "format": "*hugs everybody*"
+        },
+        "language": {
+            "embed": "lea_javascript_brainwashing"
+        },
+        "lewd": {
+            "commandReactions": ["454382402920251415"]
+        },
+        "thinking": {
+            "commandReactions": ["397961863805140992"]
+        },
+        "vote": {
+            "commandReactions": ["337987483788902410", "397961863805140992", "453150959875522560"]
+        },
+        "ohno": {
+            "format": ":(",
+            "embed": "ohno_stretched"
+        }
+    },
+    "nsfw": {
+        "-nsfw lewd": {
+            "nsfw": true,
+            "embed": "lea_dakimakura"
+        }
+    },
+    "anime": {
+        "-anime EXPLOSION!": {
+            "format": "💥",
+            "embed": "magical_girl_casts_explosion"
+        }
+    }
+}
