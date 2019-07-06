@@ -1,4 +1,5 @@
 import ReloadCommand from './commands/reload';
+import CounterCommand from './commands/counter';
 import {CCBot} from './ccbot';
 
 /**
@@ -7,4 +8,5 @@ import {CCBot} from './ccbot';
 export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerDefaults();
     cr.registry.registerCommand(new ReloadCommand(cr));
+    cr.registry.registerCommand(new CounterCommand(cr));
 }

@@ -1,3 +1,4 @@
+import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import CCBotCommandRegistry from './command-registry';
 import DynamicDataManager from './dynamic-data';
@@ -17,8 +18,25 @@ export abstract class CCBot extends commando.CommandoClient {
         this.dynamicData = new DynamicDataManager();
         this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, this.dynamicData.entities);
         // This implicitly occurs after entity registration in ccbot-impl.
-        this.once("ready", () => {
+        this.once('ready', () => {
             this.entities.start();
+        });
+        // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
+        // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
+        // WTF
+        this.on('raw', (event: any): void => {
+            if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
+                const guild = this.guilds.get(event.d.guild_id);
+                if (guild) {
+                    const user = this.users.get(event.d.user_id);
+                    if (user) {
+                        const emoji = new discord.Emoji(guild, event.d.emoji);
+                        const entity = this.entities.entities['message-' + event.d.message_id];
+                        if (entity)
+                            entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
+                    }
+                }
+            }
         });
     }
 };
@@ -41,5 +59,24 @@ export class CCBotCommand extends commando.Command {
 export class CCBotEntity extends Entity<CCBot> {
     public constructor(c: CCBot, data: any) {
         super(c, data);
+    }
+    
+    public kill(): void {
+        if (!this.killed)
+            this.client.entities.killEntity(this.id);
+    }
+    
+    public updated(): void {
+        if (!this.killed)
+            this.client.entities.markPendingFlush();
+    }
+    
+    /**
+     * For those entities with ID 'message-{id}' (such as 'message-597047171090743308'),
+     *  this callback receives emote add/remove events.
+     * This thus basically turns entities with those IDs into 'message managers'.
+     */
+    public emoteReactionTouched(emote: discord.Emoji, user: discord.User, add: boolean): void {
+        
     }
 }

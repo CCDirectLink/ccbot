@@ -14,3 +14,9 @@ export function nsfw(channel: discord.Channel): boolean {
     }
     return false;
 };
+
+export function channelAsTBF(channel: discord.Channel | undefined): discord.TextBasedChannelFields | undefined {
+    if (channel && ((channel as any).sendEmbed))
+        return (channel as unknown) as discord.TextBasedChannelFields;
+    return undefined;
+}

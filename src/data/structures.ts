@@ -34,4 +34,4 @@ export interface Secrets {
 // embeds.json - maps an embed ID to the RichEmbedOptions for it.
 export interface EmbedSet {[id: string]: RichEmbedOptions}
 // entities.json - array of newEntity data objects
-export type EntitySet = any[];
+export type EntitySet = object[];

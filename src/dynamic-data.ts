@@ -128,6 +128,5 @@ export class DynamicData<T> {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
     embeds: DynamicData<structures.EmbedSet> = new DynamicData('embeds', false, {});
-    // Entities. Immediate because this is only a JSON copy of the actual entity data.
-    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', true, []);
+    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, []);
 }
