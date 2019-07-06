@@ -6,14 +6,20 @@ import {Entity, EntityRegistry} from './entity-registry';
 /**
  * The modified CommandoClient used by this bot.
  * This contains all of the fields and methods for the extension,
- *  but not the constructor, and must not be constructed.
+ *  but not the full constructor, and must not be constructed.
  * See ccbot-impl.ts for why this is.
  */
 export abstract class CCBot extends commando.CommandoClient {
-    dynamicData: DynamicDataManager = new DynamicDataManager();
-    entities: EntityRegistry<CCBot, CCBotEntity> = new EntityRegistry<CCBot, CCBotEntity>(this);
+    dynamicData: DynamicDataManager;
+    entities: EntityRegistry<CCBot, CCBotEntity>;
     constructor(co: commando.CommandoClientOptions) {
         super(co);
+        this.dynamicData = new DynamicDataManager();
+        this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, this.dynamicData.entities);
+        // This implicitly occurs after entity registration in ccbot-impl.
+        this.once("ready", () => {
+            this.entities.start();
+        });
     }
 };
 

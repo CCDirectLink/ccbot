@@ -1,4 +1,4 @@
-import DateActivityEntity from './entities/date-activity-entity';
+import DateActivityEntity from './entities/date-activity';
 import {CCBot} from './ccbot';
 
 /**

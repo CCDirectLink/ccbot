@@ -1,3 +1,6 @@
+import {DynamicData} from './dynamic-data';
+import {EntitySet} from './data/structures';
+
 /**
  * Entities are persistent mutable objects within the bot's system.
  * They are used to provide configurable behaviors that aren't tied to any specific invocation like a command is.
@@ -58,12 +61,44 @@ export class EntityRegistry<C, T extends Entity<C>> {
     public readonly client: C;
     public readonly entityTypes: {[type: string]: new(c: C, data: any) => T} = {};
     public readonly entities: {[id: string]: T} = {};
+    // A reference to the entity DynamicData.
+    private readonly entityData: DynamicData<EntitySet>;
+    // Prevents unnecessary entity resets during save-to-dynamic-data.
+    private duringOurModification: boolean = false;
+    // Until this is true, the EntityRegistry does nothing.
+    // This is important because until the bot is ready,
+    //  certain things might not exist that entities might want to access.
+    private started: boolean = false;
     
-    public constructor(c: C) {
+    public constructor(c: C, data: DynamicData<EntitySet>) {
         this.client = c;
+        this.entityData = data;
+        this.entityData.onModify(() => {
+            if (this.started)
+                if (!this.duringOurModification)
+                    this.resetEntities();
+        });
     }
     
+    /**
+     * Starts entities (i.e. creates them & such).
+     * Before this point, entity-related operations do nothing.
+     * This allows the entity system to be present (so commands run at the 'right' time fail gracefully),
+     *  without entities having to account for the bot not being ready.
+     */
+    public start(): void {
+        if (this.started)
+            return;
+        this.started = true;
+        this.resetEntities();
+    }
+    
+    /**
+     * Creates a new entity from the JSON data for that entity.
+     */
     public newEntity(data: any): T | null {
+        if (!this.started)
+            return null;
         // If no ID is provided, make one.
         if (!('id' in data)) {
             data.id = '0';
@@ -104,4 +139,31 @@ export class EntityRegistry<C, T extends Entity<C>> {
             v.onKill();
         }
     }
+    
+    /**
+     * 
+     */
+    public resetEntities(): void {
+        if (!this.started)
+            return;
+        this.killAllEntities();
+        for (const entity of this.entityData.data)
+            this.newEntity(entity);
+    }
+    
+    /**
+     * Writes all entities to the DynamicData.
+     * If saveSync is true, then the DynamicData is immediately saved.
+     */
+     public saveToDynamicData(): void {
+        if (!this.started)
+            return;
+         this.duringOurModification = true;
+         this.entityData.modify((d: EntitySet) => {
+             d.splice(0, d.length);
+             for (const k in this.entities)
+                 d.push(this.entities[k].toSaveData());
+         });
+         this.duringOurModification = false;
+     }
 }

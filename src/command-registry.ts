@@ -1,7 +1,7 @@
 import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import DynamicDataManager from './dynamic-data';
-import JSONCommand from './commands/json-command';
+import JSONCommand from './commands/json';
 import {CCBot} from './ccbot';
 
 // Not nice.

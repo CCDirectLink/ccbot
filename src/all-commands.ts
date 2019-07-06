@@ -1,4 +1,4 @@
-import ReloadCommand from './commands/reload-command';
+import ReloadCommand from './commands/reload';
 import {CCBot} from './ccbot';
 
 /**

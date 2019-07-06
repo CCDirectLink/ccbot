@@ -8,17 +8,20 @@ export class DynamicData<T> {
     // The data. Please treat as read-only - use modify to modify it.
     data: T;
 
-    // Read-only (makes modify throw an error)
-    ro: boolean;
+    // Immediate access (prevents change-buffering behavior)
+    immediate: boolean;
 
     private path: string;
-    private modifyTimeoutActive: boolean = false;
+    
+    // Used for the write buffering
+    private modifyTimeoutActive: (() => void)[] | null = null;
+    private modifyTimeoutReject: ((err: any) => void)[] | null = null;
+    
     private modifyActions: (() => void)[] = [];
     
-    // The 'readonly' flag implies any changes to the file are developer-caused, allowing for live changes
-    constructor(name: string, readonly: boolean, defaultContent: T) {
+    constructor(name: string, immediate: boolean, defaultContent: T) {
         this.path = 'dynamic-data/' + name + '.json';
-        this.ro = readonly;
+        this.immediate = immediate;
         this.data = defaultContent;
         this.reload();
     }
@@ -34,25 +37,63 @@ export class DynamicData<T> {
             v();
     }
     
-    // Used to neatly wrap modifying accesses.
-    modify(modifier: (value: T) => void) {
-        if (this.ro)
-            throw new Error('Attempt to modify read-only dynamic data!');
+    private saveImmediate(): Promise<void> {
+        return new Promise((resolve: () => void, reject: (err: any) => void) => {
+            console.log('saving ' + this.path);
+            fs.writeFile(this.path, JSON.stringify(this.data, null, "    "), (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+    
+    /*
+     * Used to neatly wrap modifying accesses.
+     * The promise is resolved when the data is written. It may be rejected if saving fails.
+     * Note: saveSync should only be used if you really absolutely want to be sure it's saved now.
+     */
+    modify(modifier: (value: T) => void): Promise<void> {
         modifier(this.data);
-        if (!this.modifyTimeoutActive) {
-            this.modifyTimeoutActive = true;
-            setTimeout(() => {
-                this.modifyTimeoutActive = false;
-                console.log('saving ' + this.path);
-                fs.writeFileSync(this.path, JSON.stringify(this.data, null, "    "));
-            }, 30000);
-        }
         this.callOnModify();
+        if (this.immediate) {
+            return this.saveImmediate();
+        } else {
+            // This logic ensures only one write is ongoing at a time.
+            let mta: (() => void)[] = [];
+            let mtj: ((err: any) => void)[] = [];
+            if ((this.modifyTimeoutActive == null) || (this.modifyTimeoutReject == null)) {
+                this.modifyTimeoutActive = mta;
+                this.modifyTimeoutReject = mtj;
+                setTimeout(() => {
+                    this.saveImmediate().then(() => {
+                        this.modifyTimeoutActive = null;
+                        this.modifyTimeoutReject = null;
+                        for (const f of mta)
+                            f();
+                    }, (err: any) => {
+                        this.modifyTimeoutActive = null;
+                        this.modifyTimeoutReject = null;
+                        for (const f of mtj)
+                            f(err);
+                    });
+                }, 30000);
+            } else {
+                mta = this.modifyTimeoutActive;
+                mtj = this.modifyTimeoutReject;
+            }
+            return new Promise((resolve: () => void, reject: (err: any) => void) => {
+                mta.push(resolve);
+                mtj.push(reject);
+            });
+        }
     }
     
     // Reloads the object. Note that the promise won't be rejected on reload failure.
     reload(): Promise<void> {
-        return new Promise((resolve: () => void, reject: () => void) => {
+        return new Promise((resolve: () => void, reject: (err: any) => void) => {
             fs.readFile(this.path, 'utf8', (err: any, data: string) => {
                 if (!err) {
                     try {
@@ -87,5 +128,6 @@ export class DynamicData<T> {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
     embeds: DynamicData<structures.EmbedSet> = new DynamicData('embeds', false, {});
-    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, {});
+    // Entities. Immediate because this is only a JSON copy of the actual entity data.
+    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', true, []);
 }
