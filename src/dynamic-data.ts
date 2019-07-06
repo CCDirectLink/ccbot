@@ -87,4 +87,5 @@ export class DynamicData<T> {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
     embeds: DynamicData<structures.EmbedSet> = new DynamicData('embeds', false, {});
+    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, {});
 }

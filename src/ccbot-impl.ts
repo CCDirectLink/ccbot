@@ -1,6 +1,9 @@
 import * as commando from 'discord.js-commando';
 import CCBotCommandRegistry from './command-registry';
 import {CCBot} from './ccbot';
+import {EntityRegistry} from './entity-registry';
+import registerAllCommands from './all-commands';
+import registerAllEntities from './all-entities';
 
 /**
  * This separate class prevents a dependency loop that would otherwise occur.
@@ -12,6 +15,7 @@ export default class CCBotImpl extends CCBot {
         super(co);
         this.registry = new CCBotCommandRegistry(this);
         this.dispatcher.registry = this.registry;
-        this.registry.registerDefaults();
+        registerAllCommands(this);
+        registerAllEntities(this);
     }
 };

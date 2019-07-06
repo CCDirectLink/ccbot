@@ -9,9 +9,10 @@ export default class ReloadCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
             name: 'reload-json',
-            description: 'Reloads all JSON commands.',
+            description: 'Reloads all JSON commands. Only usable by bot owner.',
             group: 'commands',
-            memberName: 'reload-json'
+            memberName: 'reload-json',
+            ownerOnly: true
         };
         super(client, opt);
     }

@@ -2,7 +2,6 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import DynamicDataManager from './dynamic-data';
 import JSONCommand from './commands/json-command';
-import ReloadCommand from './commands/reload-command';
 import {CCBot} from './ccbot';
 
 // Not nice.
@@ -27,7 +26,6 @@ export default class CCBotCommandRegistry extends commando.CommandRegistry {
     }
     registerDefaults(): commando.CommandRegistry {
         super.registerDefaults();
-        this.registerCommand(new ReloadCommand(this.client));
         this.loadJSONCommands();
         return this;
     }
