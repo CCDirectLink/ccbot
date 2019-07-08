@@ -6,7 +6,6 @@ import {EntitySet} from './data/structures';
  */
 export interface EntityData {
     type: string;
-    id: string;
     createTime?: number;
     killTime?: number;
 }
@@ -22,11 +21,18 @@ export interface EntityData {
 export abstract class Entity<C> {
     // Used to alert callbacks to the entity's death.
     public killed: boolean = false;
+    
+    // This is more complicated than just a unique ID,
+    //  because various entities have various fixed names as part of the event
+    //  structure.
+    // As such, the ID is not part of data, as that would require dynamically altering source JSON data in some cases.
+    public readonly id: string;
     public readonly client: C;
     public readonly type: string;
-    public readonly id: string;
+
     // The new Date().getTime() of initial creation, more or less.
     public readonly createTime: number;
+
     // NOTE: If this is 0, the entity won't die.
     // If this is 0 on creation, the entity still won't die until the next time the bot is run;
     //  entities that are loaded with a 0 killTime are assumed to be relatively permanent.
@@ -35,11 +41,11 @@ export abstract class Entity<C> {
     // Setting killTime to 0 potentially stops the kill checks, making it permanent for that run.
     public killTime: number;
 
-    public constructor(c: C, data: EntityData) {
+    public constructor(c: C, id: string, data: EntityData) {
         this.client = c;
         // These carry over.
         this.type = data.type;
-        this.id = data.id;
+        this.id = id;
         // If the creation time isn't in the data, this has just been created.
         if ('createTime' in data) {
             this.createTime = data.createTime as number;
@@ -65,6 +71,7 @@ export abstract class Entity<C> {
         const time = new Date().getTime();
         if (time >= this.killTime) {
             this.kill();
+            setTimeout((): void => this.entityCheckIfShouldKill(), 1000);
         } else {
             setTimeout((): void => this.entityCheckIfShouldKill(), this.killTime - time);
         }
@@ -72,6 +79,7 @@ export abstract class Entity<C> {
     
     /**
      * Used in the subclass to connect to killEntity.
+     * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
      */
     public kill(): void {
         throw new Error('Subclass did not implement kill()');
@@ -79,6 +87,7 @@ export abstract class Entity<C> {
     
     /**
      * Used in the subclass to connect to markPendingFlush.
+     * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
      */
     public updated(): void {
         throw new Error('Subclass did not implement updated()');
@@ -99,7 +108,6 @@ export abstract class Entity<C> {
     public toSaveData(): EntityData {
         const sd: EntityData = {
             type: this.type,
-            id: this.id,
             createTime: this.createTime
         };
         if ('killTime' in this)
@@ -115,7 +123,7 @@ export abstract class Entity<C> {
  */
 export class EntityRegistry<C, T extends Entity<C>> {
     public readonly client: C;
-    public readonly entityTypes: {[type: string]: new(c: C, data: any) => T} = {};
+    public readonly entityTypes: {[type: string]: (c: C, data: any) => Promise<T>} = {};
     public readonly entities: {[id: string]: T} = {};
     // A reference to the entity DynamicData.
     private readonly entityData: DynamicData<EntitySet>;
@@ -154,28 +162,42 @@ export class EntityRegistry<C, T extends Entity<C>> {
     /**
      * Creates a new entity from the JSON data for that entity.
      */
-    public newEntity(data: any): T | null {
-        if (!this.started)
-            return null;
-        // If no ID is provided, make one.
-        if (!('id' in data)) {
-            data.id = '0';
-            let idn = 0;
-            while (data.id in this.entities) {
-                idn++;
-                data.id = idn.toString();
+    public newEntity(data: any): Promise<T> {
+        return new Promise((resolve: (a: T) => void, reject: () => void) => {
+            if (!this.started) {
+                reject();
+                return;
             }
-        }
-        // Then create the entity by type.
-        if (this.entityTypes[data.type]) {
-            this.killEntity(data.id);
-            const e = this.entities[data.id] = new this.entityTypes[data.type](this.client, data);
-            this.markPendingFlush();
-            return e;
-        } else {
-            console.log('invalid entity type ' + data.type + ' was in registry');
-        }
-        return null;
+            // Then create the entity by type.
+            if (this.entityTypes[data.type]) {
+                // Begins entity startup.
+                // Notably, the entity doesn't get put in the registry until after activation.
+                const newEntP = this.entityTypes[data.type](this.client, data);
+                newEntP.then((newEnt: T) => {
+                    // If no ID is provided, cheat to make one.
+                    if (!('id' in newEnt)) {
+                        let nid = '0';
+                        let idn = 0;
+                        while (nid in this.entities) {
+                            idn++;
+                            nid = idn.toString();
+                        }
+                        (newEnt as any).id = nid;
+                    }
+                    // Entity finished, let's go
+                    this.killEntity(newEnt.id);
+                    this.entities[newEnt.id] = newEnt;
+                    this.markPendingFlush();
+                    resolve(newEnt);
+                }, (err: any) => {
+                    console.log('entity failed to load', err);
+                    reject();
+                });
+            } else {
+                console.log('invalid entity type ' + data.type + ' was in registry');
+                reject();
+            }
+        });
     }
 
     /**

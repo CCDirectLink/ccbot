@@ -57,10 +57,10 @@ export class CCBotCommand extends commando.Command {
  * A version of Entity with fixed generics and the relevant callbacks.
  */
 export class CCBotEntity extends Entity<CCBot> {
-    public constructor(c: CCBot, data: any) {
-        super(c, data);
+    public constructor(c: CCBot, id: string, data: any) {
+        super(c, id, data);
     }
-    
+
     public kill(): void {
         if (!this.killed)
             this.client.entities.killEntity(this.id);

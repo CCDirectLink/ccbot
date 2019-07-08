@@ -2,29 +2,23 @@ import * as discord from 'discord.js';
 import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {channelAsTBF} from '../utils';
-
-export interface PageSwitcherInit {
-    // Channel ID.
-    channel: string;
-    // User ID.
-    user: string;
-    pages: discord.RichEmbedOptions[];
-    // Kill timeout (relative to when the message appears, or the last interaction)
-    killTimeout: number;
-}
+import {silence} from '../utils';
 
 export interface PageSwitcherData extends EntityData {
-    type: 'page-switcher';
     // Channel ID.
     channel: string;
-    // Message ID.
-    message: string;
+    // Message ID (not present if it must be created)
+    message?: string;
     // User ID.
     user: string;
+    // Page number (0 to pages.length - 1)
     page: number;
+    // Pages, cannot be empty
     pages: discord.RichEmbedOptions[];
     // Kill timeout (relative to when the message appears, or the last interaction)
     killTimeout: number;
+    // Used if the bot appears to have remove-reaction permission.
+    ignoreRemovals?: boolean;
 }
 
 function formatHeader(a: number, b: number): string {
@@ -34,31 +28,21 @@ function formatHeader(a: number, b: number): string {
 /**
  * Creates a page switcher.
  */
-export function newPageSwitcher(bot: CCBot, psi: PageSwitcherInit): void {
-    if (psi.pages.length == 0)
-        psi.pages.push({
-            title: 'No results.'
-        });
-    const channel = channelAsTBF(bot.channels.get(psi.channel));
-    if (channel) {
-        (async (): Promise<void> => {
-            const message: discord.Message = await channel.send(formatHeader(0, psi.pages.length), new discord.RichEmbed(psi.pages[0])) as discord.Message;
-            await message.react('⬅');
-            await message.react('➡');
-            const psd: PageSwitcherData = {
-                id: 'message-' + message.id,
-                type: 'page-switcher',
-                channel: psi.channel,
-                message: message.id,
-                user: psi.user,
-                page: 0,
-                pages: psi.pages,
-                killTimeout: psi.killTimeout
-            };
-            psd.killTime = new Date().getTime() + psi.killTimeout;
-            bot.entities.newEntity(psd);
-        })();
+export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
+    const channel = channelAsTBF(c.channels.get(data.channel));
+    if (!channel)
+        throw Error('involved channel no longer exists');
+    let message: discord.Message;
+    if (!data.message) {
+        // New
+        message = await channel.send(formatHeader(0, data.pages.length), new discord.RichEmbed(data.pages[0])) as discord.Message;
+        await message.react('⬅');
+        await message.react('➡');
+    } else {
+        // Reused
+        message = await channel.fetchMessage(data.message);
     }
+    return new PageSwitcherEntity(c, channel, message, data);
 }
 
 /**
@@ -66,50 +50,58 @@ export function newPageSwitcher(bot: CCBot, psi: PageSwitcherInit): void {
  * Additional fields: See PageSwitcherInit, but:
  * 'channel' is replaced with 'message' after activation.
  */
-export class PageSwitcherEntity extends CCBotEntity {
-    private channel: string;
-    private message: string;
+class PageSwitcherEntity extends CCBotEntity {
+    private channel: discord.Channel & discord.TextBasedChannelFields;
+    private message: discord.Message;
     private user: string;
     private page: number;
     private pages: discord.RichEmbedOptions[];
     private killTimeout: number;
+    // Starts out true. Changes to false if it can't get rid of the user's reaction.
+    private ignoreRemovals: boolean;
     
-    public constructor(c: CCBot, data: PageSwitcherData) {
-        super(c, data);
-        this.channel = data.channel;
-        this.message = data.message;
+    public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: PageSwitcherData) {
+        super(c, 'message-' + message.id, data);
+        this.channel = channel;
+        this.message = message;
         this.user = data.user;
         this.page = data.page;
         this.pages = data.pages;
         this.killTimeout = data.killTimeout;
+        if (!this.killTime)
+            this.killTime = new Date().getTime() + this.killTimeout;
+        if (data.ignoreRemovals === undefined) {
+            this.ignoreRemovals = true;
+        } else {
+            this.ignoreRemovals = data.ignoreRemovals;
+        }
     }
     
     public toSaveData(): PageSwitcherData {
-        const data: PageSwitcherData = super.toSaveData() as PageSwitcherData;
-        data.channel = this.channel;
-        data.message = this.message;
-        data.user = this.user;
-        data.page = this.page;
-        data.pages = this.pages;
-        data.killTimeout = this.killTimeout;
-        return data;
+        return Object.assign(super.toSaveData(), {
+            channel: this.channel.id,
+            message: this.message.id,
+            user: this.user,
+            page: this.page,
+            pages: this.pages,
+            killTimeout: this.killTimeout
+        });
     }
     
     public onKill(): void {
         super.onKill();
-        const channel = channelAsTBF(this.client.channels.get(this.channel));
-        if (channel) {
-            (async (): Promise<void> => {
-                const msg = await channel.fetchMessage(this.message);
-                msg.delete();
-            })();
-        }
+        this.message.delete();
     }
     
     public emoteReactionTouched(target: discord.Emoji, user: discord.User, add: boolean): void {
         super.emoteReactionTouched(target, user, add);
+
         if (user.id != this.user)
             return;
+        
+        if (this.ignoreRemovals && !add)
+            return;
+
         if (target.name == '⬅') {
             this.page--;
             if (this.page < 0)
@@ -118,14 +110,18 @@ export class PageSwitcherEntity extends CCBotEntity {
             this.page++;
             this.page %= this.pages.length;
         }
-        const channel = channelAsTBF(this.client.channels.get(this.channel));
-        if (channel) {
-            (async (): Promise<void> => {
-                const msg = await channel.fetchMessage(this.message);
-                msg.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page]));
-            })();
-            this.killTime = new Date().getTime() + this.killTimeout;
-            this.updated();
+        this.killTime = new Date().getTime() + this.killTimeout;
+        this.updated();
+
+        // Update display...
+        this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page]));
+        // Try to remove reaction (Nnubes256's suggestion)
+        const reaction = this.message.reactions.get(target.name);
+        if (this.ignoreRemovals && reaction) {
+            reaction.remove(user).catch(() => {
+                this.ignoreRemovals = false;
+                this.updated();
+            });
         }
     }
 }

@@ -15,8 +15,15 @@ export function nsfw(channel: discord.Channel): boolean {
     return false;
 };
 
-export function channelAsTBF(channel: discord.Channel | undefined): discord.TextBasedChannelFields | undefined {
+export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
     if (channel && ((channel as any).sendEmbed))
-        return (channel as unknown) as discord.TextBasedChannelFields;
+        return (channel as unknown) as (discord.Channel & discord.TextBasedChannelFields);
     return undefined;
+}
+
+/**
+ * Use if you think a failed promise really doesn't matter.
+ */
+export function silence(n: Promise<any>) {
+    n.catch(() => {});
 }

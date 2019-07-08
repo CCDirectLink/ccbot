@@ -1,12 +1,17 @@
 import {CCBotEntity, CCBot} from '../ccbot';
+import {EntityData} from '../entity-registry';
+
+export default async function load(c: CCBot, data: EntityData): Promise<CCBotEntity> {
+    return new DateActivityEntity(c, data);
+}
 
 /**
  * Updates a visible date every 10 seconds.
  * Additional fields: None.
  */
-export default class DateActivityEntity extends CCBotEntity {
-    public constructor(c: CCBot, data: object) {
-        super(c, data);
+class DateActivityEntity extends CCBotEntity {
+    public constructor(c: CCBot, data: EntityData) {
+        super(c, 'activity-manager', data);
         this.updateDate();
     }
     
@@ -17,10 +22,5 @@ export default class DateActivityEntity extends CCBotEntity {
         setTimeout((): void => {
             this.updateDate();
         }, 10000);
-    }
-
-    public onKill(): void {
-        super.onKill();
-        this.client.user.setActivity(null);
     }
 }
