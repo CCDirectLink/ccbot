@@ -1,10 +1,6 @@
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 
-export default async function load(c: CCBot, data: EntityData): Promise<CCBotEntity> {
-    return new DateActivityEntity(c, data);
-}
-
 /**
  * Updates a visible date every 10 seconds.
  * Additional fields: None.
@@ -23,4 +19,8 @@ class DateActivityEntity extends CCBotEntity {
             this.updateDate();
         }, 10000);
     }
+}
+
+export default async function load(c: CCBot, data: EntityData): Promise<CCBotEntity> {
+    return new DateActivityEntity(c, data);
 }

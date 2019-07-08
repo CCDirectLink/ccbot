@@ -2,7 +2,6 @@ import * as discord from 'discord.js';
 import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {channelAsTBF} from '../utils';
-import {silence} from '../utils';
 
 export interface PageSwitcherData extends EntityData {
     // Channel ID.
@@ -23,26 +22,6 @@ export interface PageSwitcherData extends EntityData {
 
 function formatHeader(a: number, b: number): string {
     return 'Page ' + (a + 1) + ' of ' + b;
-}
-
-/**
- * Creates a page switcher.
- */
-export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
-    const channel = channelAsTBF(c.channels.get(data.channel));
-    if (!channel)
-        throw Error('involved channel no longer exists');
-    let message: discord.Message;
-    if (!data.message) {
-        // New
-        message = await channel.send(formatHeader(0, data.pages.length), new discord.RichEmbed(data.pages[0])) as discord.Message;
-        await message.react('⬅');
-        await message.react('➡');
-    } else {
-        // Reused
-        message = await channel.fetchMessage(data.message);
-    }
-    return new PageSwitcherEntity(c, channel, message, data);
 }
 
 /**
@@ -118,10 +97,30 @@ class PageSwitcherEntity extends CCBotEntity {
         // Try to remove reaction (Nnubes256's suggestion)
         const reaction = this.message.reactions.get(target.name);
         if (this.ignoreRemovals && reaction) {
-            reaction.remove(user).catch(() => {
+            reaction.remove(user).catch((): void => {
                 this.ignoreRemovals = false;
                 this.updated();
             });
         }
     }
+}
+
+/**
+ * Creates a page switcher.
+ */
+export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
+    const channel = channelAsTBF(c.channels.get(data.channel));
+    if (!channel)
+        throw Error('involved channel no longer exists');
+    let message: discord.Message;
+    if (!data.message) {
+        // New
+        message = await channel.send(formatHeader(0, data.pages.length), new discord.RichEmbed(data.pages[0])) as discord.Message;
+        await message.react('⬅');
+        await message.react('➡');
+    } else {
+        // Reused
+        message = await channel.fetchMessage(data.message);
+    }
+    return new PageSwitcherEntity(c, channel, message, data);
 }
