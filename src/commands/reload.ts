@@ -8,7 +8,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export default class ReloadCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: 'reload-json',
+            name: '-commands reload-json',
             description: 'Reloads all JSON commands. Only usable by bot owner.',
             group: 'commands',
             memberName: 'reload-json',
@@ -19,7 +19,6 @@ export default class ReloadCommand extends CCBotCommand {
     
     public run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         this.client.dynamicData.commands.reload();
-        this.client.dynamicData.embeds.reload();
         return message.say('[nods] <:leaNOD:400777547991744523>');
     }
 }

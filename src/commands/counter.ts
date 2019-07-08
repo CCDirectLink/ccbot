@@ -4,14 +4,14 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {PageSwitcherData} from '../entities/page-switcher';
 
 /**
- * Reloads the JSON commands.
+ * A counter.
  */
-export default class ReloadCommand extends CCBotCommand {
+export default class CounterCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: 'counter',
-            description: 'Test',
-            group: 'commands',
+            name: '-util counter',
+            description: 'Creates a 50-page bunch of nonsense to read through for bot testing.',
+            group: 'util',
             memberName: 'counter'
         };
         super(client, opt);

@@ -16,9 +16,6 @@ describe('DynamicDataManager', (): void => {
                 expect(name.constructor).to.equal(String);
                 const cmd = ddm.commands.data[group][name];
                 expect(cmd.constructor).to.equal(Object);
-                // Confirm embeds exist.
-                if (cmd.embed)
-                    expect(ddm.embeds.data).to.haveOwnProperty(cmd.embed);
             }
         }
     });

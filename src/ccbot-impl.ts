@@ -1,5 +1,6 @@
 import * as commando from 'discord.js-commando';
 import CCBotCommandRegistry from './command-registry';
+import CCBotCommandDispatcher from './command-dispatcher';
 import {CCBot} from './ccbot';
 import {EntityRegistry} from './entity-registry';
 import registerAllCommands from './all-commands';
@@ -14,7 +15,7 @@ export default class CCBotImpl extends CCBot {
     constructor(co: commando.CommandoClientOptions) {
         super(co);
         this.registry = new CCBotCommandRegistry(this);
-        this.dispatcher.registry = this.registry;
+        this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
         registerAllCommands(this);
         registerAllEntities(this);
     }

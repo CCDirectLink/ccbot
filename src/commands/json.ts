@@ -14,7 +14,7 @@ export default class JSONCommand extends CCBotCommand {
     
     public constructor(client: CCBot, group: string, name: string, json: structures.Command) {
         const opt = {
-            name: name.toLowerCase(),
+            name: '-' + group.toLowerCase() + ' ' + name.toLowerCase(),
             description: json.description || 'No description.',
             group: group.toLowerCase(),
             memberName: name.toLowerCase()
@@ -35,12 +35,8 @@ export default class JSONCommand extends CCBotCommand {
         const opts: discord.MessageOptions = {};
         let hasMeta = false;
         if (this.command.embed) {
-            if (!(this.command.embed in this.client.dynamicData.embeds.data)) {
-                return await message.say('The embed \'' + this.command.embed + '\' was not available.');
-            } else {
-                opts.embed = this.client.dynamicData.embeds.data[this.command.embed];
-                hasMeta = true;
-            }
+            opts.embed = this.command.embed;
+            hasMeta = true;
         }
         // Side-effects (reacts)
         if (this.command.commandReactions)

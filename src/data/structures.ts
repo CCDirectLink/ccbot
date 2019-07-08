@@ -13,8 +13,8 @@ export interface Command {
     // The character '%' is reserved for said formatting directives.
     // As such, '%%' will be replaced with '%' as a form of escaping.
     format?: string;
-    // Embed (ID of an embed from embed.json)
-    embed?: string;
+    // Embed
+    embed?: RichEmbedOptions;
     // Reactions to the command.
     commandReactions?: string[];
 }
@@ -31,7 +31,5 @@ export interface Secrets {
     owner: string | string[];
 }
 
-// embeds.json - maps an embed ID to the RichEmbedOptions for it.
-export interface EmbedSet {[id: string]: RichEmbedOptions}
 // entities.json - array of newEntity data objects
 export type EntitySet = object[];

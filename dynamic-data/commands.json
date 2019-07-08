@@ -12,38 +12,149 @@
             "format": "bye!!! <:leaCheese:257888171772215296>"
         },
         "bugs": {
-            "embed": "the_it_crowd_turinging"
+            "description": "HAVE YOU TRIED TURNING IT OFF AND ON AGAIN?",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/380588134712475665/383705658731659266/tumblr_mtud5kX2T71r7fahjo1_250.gif"
+                }
+            }
+        },
+        "BUG": {
+            "description": ":emilieWhy: alias",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/286824914604916747/446126154303406080/emilieWhyyyyyyyy.gif"
+                }
+            }
+        },
+        "cloudlea": {
+            "description": "displays an image of Lea on a cloud",
+            "embed": {
+                "image": {
+                    "url": "https://images-ext-1.discordapp.net/external/C8ZfRnUDaIaHkZNgR6TP81kCEbc1YJrtsnG5J-TTSzM/https/cdn.discordapp.com/attachments/373163281755537420/380813466354843649/steam-cloud-600x368.png?width=500&height=307"
+                }
+            }
         },
         "hug": {
-            "format": "*hugs everybody*"
+            "nsfw": true,
+            "20kdc is a troll": true,
+            "description": "TODO"
         },
         "language": {
-            "embed": "lea_javascript_brainwashing"
+            "description": "displays that gif of Lea and the JS sign",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/376138665954377728/381560390384877578/Javascript_DeathStareLea.gif"
+                }
+            }
         },
         "lewd": {
             "commandReactions": ["454382402920251415"]
         },
+        "popsicle": {
+            "description": "displays Lea eating a popsicle",
+            "embed": {
+                "image": {
+                    "url": "https://media.discordapp.net/attachments/397800800736378880/400833387725586434/unknown.png"
+                }
+            }
+        },
         "thinking": {
+            "description": "reacts with the standard thonk",
             "commandReactions": ["397961863805140992"]
         },
+        "triggered": {
+            "description": "mildly angery Lea",
+            "embed": {
+                "image": {
+                    "title": "...WHY?!?!",
+                    "url": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif"
+                }
+            }
+        },
+        "verytriggered": {
+            "description": "*severely* angery Lea",
+            "embed": {
+                "image": {
+                    "title": "何？",
+                    "url": "https://cdn.discordapp.com/attachments/381866628108910593/382331699213893632/triggeredlea.gif"
+                }
+            }
+        },
+        "HI!": {
+            "description": "Deal With It Lea™.",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/373163281755537420/381790329550143488/Deal_with_it_Lea.gif"
+                }
+            }
+        },
         "vote": {
+            "description": "reacts with the proper vote emotes for ease of vote",
             "commandReactions": ["337987483788902410", "397961863805140992", "453150959875522560"]
         },
         "ohno": {
             "format": ":(",
-            "embed": "ohno_stretched"
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/emojis/400836365295812619.png"
+                }
+            }
+        },
+        "work": {
+            "description": "Why?",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/emojis/337987528625881090.png"
+                }
+            }
+        },
+        "balls": {
+            "description": "displays that one image that Lachsen is oh-so \"proud\" of",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/143364538958348288/368033879162093581/balls.png"
+                }
+            }
+        },
+        "vrps": {
+            "description": "TheRusty22's oh-so-strange and beautiful mashup of Sergey, `balls`, and `language`",
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/143364538958348288/409861255046889472/CC_SergayVRPs_062.gif"
+                }
+            }
+        },
+        "get it": {
+            "description": "Gives you links to various places where you can get CrossCode.",
+            "format": "Steam: https://store.steampowered.com/app/368340/\nGOG: https://www.gog.com/game/crosscode"
         }
     },
     "nsfw": {
-        "-nsfw lewd": {
+        "lewd": {
+            "description": "The LeaDaki™. 'Nuff said.",
             "nsfw": true,
-            "embed": "lea_dakimakura"
+            "embed": {
+                "image": {
+                    "title": "( ͡° ͜ʖ ͡°)",
+                    "url": "https://images-ext-1.discordapp.net/external/RNdA2IorjgoHeslQ9Rh8oos1nkK56Y6_w4sjUaFVBC4/https/image.ibb.co/jJLNiG/leadaki.png?width=185&height=250"
+                }
+            }
+        },
+        "error": {
+            "description": "A command that errors if run in a non-NSFW channel. Does nothing else.",
+            "nsfw": true
         }
     },
     "anime": {
-        "-anime EXPLOSION!": {
+        "EXPLOSION!": {
+            "description": "the megumin meme",
             "format": "💥",
-            "embed": "magical_girl_casts_explosion"
+            "embed": {
+                "image": {
+                    "url": "https://cdn.discordapp.com/attachments/380588134712475665/383777401529696256/tenor.gif"
+                }
+            }
         }
     }
 }

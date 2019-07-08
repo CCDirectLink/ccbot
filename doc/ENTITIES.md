@@ -125,3 +125,9 @@ If it's particularly needed to clear the current activity,
  acts as the manager for that message.
 This ensures that message-related events are sent to the entity, but it also
  implies that killing the manager may delete the message in some cases.
+
+`old-behaviors-manager`: RESERVED
+
+`game-character-{user-id}`: RESERVED
+
+`game-match-{arbitrary-id}`: RESERVED

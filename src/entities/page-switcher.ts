@@ -14,8 +14,6 @@ export interface PageSwitcherData extends EntityData {
     page: number;
     // Pages, cannot be empty
     pages: discord.RichEmbedOptions[];
-    // Kill timeout (relative to when the message appears, or the last interaction)
-    killTimeout: number;
     // Used if the bot appears to have remove-reaction permission.
     ignoreRemovals?: boolean;
 }
@@ -35,7 +33,6 @@ class PageSwitcherEntity extends CCBotEntity {
     private user: string;
     private page: number;
     private pages: discord.RichEmbedOptions[];
-    private killTimeout: number;
     // Starts out true. Changes to false if it can't get rid of the user's reaction.
     private ignoreRemovals: boolean;
     
@@ -46,9 +43,6 @@ class PageSwitcherEntity extends CCBotEntity {
         this.user = data.user;
         this.page = data.page;
         this.pages = data.pages;
-        this.killTimeout = data.killTimeout;
-        if (!this.killTime)
-            this.killTime = new Date().getTime() + this.killTimeout;
         if (data.ignoreRemovals === undefined) {
             this.ignoreRemovals = true;
         } else {
@@ -62,8 +56,7 @@ class PageSwitcherEntity extends CCBotEntity {
             message: this.message.id,
             user: this.user,
             page: this.page,
-            pages: this.pages,
-            killTimeout: this.killTimeout
+            pages: this.pages
         });
     }
     
@@ -89,8 +82,7 @@ class PageSwitcherEntity extends CCBotEntity {
             this.page++;
             this.page %= this.pages.length;
         }
-        this.killTime = new Date().getTime() + this.killTimeout;
-        this.updated();
+        this.postponeDeathAndUpdate();
 
         // Update display...
         this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page]));

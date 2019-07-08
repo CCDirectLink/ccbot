@@ -7,7 +7,10 @@ import {EntitySet} from './data/structures';
 export interface EntityData {
     type: string;
     createTime?: number;
+    // If killTime is not provided, but killTimeout is,
+    //  then killTime is set relative to createTime.
     killTime?: number;
+    killTimeout?: number;
 }
 
 /**
@@ -39,7 +42,10 @@ export abstract class Entity<C> {
     // Lowering a killTime (making it happen sooner) may not actually work,
     //  due to measures to avoid kill-checks eating CPU.
     // Setting killTime to 0 potentially stops the kill checks, making it permanent for that run.
-    public killTime: number;
+    private killTime: number;
+    
+    // This is how much from the current time postponeDeathAndUpdate postpones death for.
+    private killTimeout: number;
 
     public constructor(c: C, id: string, data: EntityData) {
         this.client = c;
@@ -50,15 +56,44 @@ export abstract class Entity<C> {
         if ('createTime' in data) {
             this.createTime = data.createTime as number;
         } else {
-            this.createTime = new Date().getTime();
+            this.createTime = Date.now();
         }
-        this.killTime = data.killTime || 0;
+        this.killTimeout = data.killTimeout || 0;
+        if (data.killTime === undefined) {
+            if (this.killTimeout) {
+                this.killTime = this.createTime + this.killTimeout;
+            } else {
+                this.killTime = 0;
+            }
+        } else {
+            this.killTime = data.killTime || 0;
+        }
         if (this.killTime) {
             // The setImmediate ensures the entity isn't killed before insertion.
             setImmediate((): void => this.entityCheckIfShouldKill());
         }
     }
+
+    /**
+     * Grants immunity to killTime.
+     */
+    public becomeImmortalAndUpdate() {
+        this.killTime = 0;
+        this.updated();
+    }
     
+    /**
+     * Postpones killTime relative to now by the timeout value.
+     */
+    public postponeDeathAndUpdate() {
+        if (this.killTime) {
+            const ntk = Date.now() + this.killTimeout;
+            if (this.killTime < ntk)
+                this.killTime = ntk;
+        }
+        this.updated();
+    }
+
     /**
      * Checks if the entity should be killed, and if not, waits until it should.
      * This is only run if killTime was set in the first place.
@@ -68,10 +103,9 @@ export abstract class Entity<C> {
             return;
         if (!this.killTime)
             return;
-        const time = new Date().getTime();
+        const time = Date.now();
         if (time >= this.killTime) {
             this.kill();
-            setTimeout((): void => this.entityCheckIfShouldKill(), 1000);
         } else {
             setTimeout((): void => this.entityCheckIfShouldKill(), this.killTime - time);
         }
@@ -116,6 +150,13 @@ export abstract class Entity<C> {
     }
 }
 
+// Used as part of unique-ish-ID-generation.
+// The idea here is that if the log-entry-number and time aren't unique (due to some multi-instancing in future),
+//  'stardate' probably will disambiguate.
+// There's also a postfixed number just in case a collision were to somehow occur.
+const stardate = Date.now();
+let logEntryNumber = 0;
+
 /**
  * The EntityRegistry is the registry and processor for all Entity objects.
  * Entities are derived from the Entity class,
@@ -159,6 +200,19 @@ export class EntityRegistry<C, T extends Entity<C>> {
         this.resetEntities();
     }
     
+    // Generates a unique-ish entity ID with a given prefix.
+    public generateEntityID(prefix: string): string {
+        prefix = prefix + stardate + '-' + Date.now() + '-' + logEntryNumber + '-';
+        logEntryNumber++;
+        let nid = prefix + '0';
+        let idn = 0;
+        while (nid in this.entities) {
+            idn++;
+            nid = prefix + idn.toString();
+        }
+        return nid;
+    }
+    
     /**
      * Creates a new entity from the JSON data for that entity.
      */
@@ -174,16 +228,6 @@ export class EntityRegistry<C, T extends Entity<C>> {
                 // Notably, the entity doesn't get put in the registry until after activation.
                 const newEntP = this.entityTypes[data.type](this.client, data);
                 newEntP.then((newEnt: T) => {
-                    // If no ID is provided, cheat to make one.
-                    if (!('id' in newEnt)) {
-                        let nid = '0';
-                        let idn = 0;
-                        while (nid in this.entities) {
-                            idn++;
-                            nid = idn.toString();
-                        }
-                        (newEnt as any).id = nid;
-                    }
                     // Entity finished, let's go
                     this.killEntity(newEnt.id);
                     this.entities[newEnt.id] = newEnt;
