@@ -1,6 +1,10 @@
+# dev env!
 node_modules/
 dist/
-src/data/secrets.json
-# yes, there's one in-repo; *changes* to this should be ignored
-dynamic-data/entities.json
 nbproject
+# secrets!
+src/data/secrets.json
+# dynamics!
+dynamic-data/entities.json
+dynamic-data/settings.json
+

@@ -6,10 +6,13 @@ import * as structures from './data/structures';
  */
 export class DynamicData<T> {
     // The data. Please treat as read-only - use modify to modify it.
-    data: T;
+    public data: T;
 
     // Immediate access (prevents change-buffering behavior)
-    immediate: boolean;
+    public immediate: boolean;
+    
+    // Resolves after the initial load.
+    public initialLoad: Promise<void>;
 
     private path: string;
     
@@ -23,7 +26,7 @@ export class DynamicData<T> {
         this.path = 'dynamic-data/' + name + '.json';
         this.immediate = immediate;
         this.data = defaultContent;
-        this.reload();
+        this.initialLoad = this.reload();
     }
 
     // Adds a modification callback.
@@ -65,6 +68,7 @@ export class DynamicData<T> {
             let mta: (() => void)[] = [];
             let mtj: ((err: any) => void)[] = [];
             if ((this.modifyTimeoutActive == null) || (this.modifyTimeoutReject == null)) {
+                console.log('opening save window on ' + this.path);
                 this.modifyTimeoutActive = mta;
                 this.modifyTimeoutReject = mtj;
                 setTimeout(() => {
@@ -128,5 +132,5 @@ export class DynamicData<T> {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
     entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, []);
-    guildIndex: DynamicData<structures.GuildIndex> = new DynamicData('guild-index', true, {});
+    settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, {});
 }

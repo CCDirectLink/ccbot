@@ -35,8 +35,6 @@ export interface Secrets {
 export type EntitySet = object[];
 
 // Implements the persistence backend.
-export interface GuildData {
-    
-}
+export interface GuildData {[setting: string]: any}
 
 export interface GuildIndex {[guildID: string]: GuildData}
