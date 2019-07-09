@@ -128,4 +128,5 @@ export class DynamicData<T> {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
     entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, []);
+    guildIndex: DynamicData<structures.GuildIndex> = new DynamicData('guild-index', true, {});
 }

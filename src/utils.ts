@@ -27,3 +27,10 @@ export function channelAsTBF(channel: discord.Channel | undefined): (discord.Cha
 export function silence(n: Promise<any>) {
     n.catch(() => {});
 }
+
+/**
+ * A random array element picker.
+ */
+export function randomArrayElement<T>(array: T[]): T {
+    return array[Math.floor(Math.random() * array.length)];
+}

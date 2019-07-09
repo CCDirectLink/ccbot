@@ -1,0 +1,59 @@
+[
+    {
+        "type": "old-behaviors"
+    },
+    {
+        "type": "random-activity",
+        "intervalMs": 30000,
+        "activities": [
+            {
+                "type": "WATCHING",
+                "name": "...Lea. -.-"
+            },
+            {
+                "type": "PLAYING",
+                "name": "...bye!"
+            },
+            {
+                "type": "PLAYING",
+                "name": "...hi?"
+            },
+            {
+                "type": "PLAYING",
+                "name": "CrossCode v1"
+            },
+            {
+                "type": "PLAYING",
+                "name": "Hi-5!!!"
+            },
+            {
+                "type": "LISTENING",
+                "name": "Intero's Music"
+            },
+            {
+                "type": "PLAYING",
+                "name": "cc.ig"
+            },
+            {
+                "type": "PLAYING",
+                "name": "in multiplayer"
+            },
+            {
+                "type": "PLAYING",
+                "name": "santiballs"
+            },
+            {
+                "type": "WATCHING",
+                "name": "the devs code :)"
+            },
+            {
+                "type": "PLAYING",
+                "name": "with CCLoader"
+            },
+            {
+                "type": "PLAYING",
+                "name": "with mods"
+            }
+        ]
+    }
+]

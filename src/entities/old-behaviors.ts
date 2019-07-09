@@ -19,10 +19,10 @@ class OldBehaviorsEntity extends CCBotEntity {
 
             // Where the actual behaviors are
             if (lowerContent.startsWith('failed to load')) {
-                silence(m.reply('oof'));
+                silence(m.channel.send('oof'));
             } else if (lowerContent.startsWith('?release')) {
                 // Might need to be part of a relevant activity manager
-                silence(m.reply('Watching the final countdown'));
+                silence(m.channel.send('Watching the final countdown'));
             } else if ((m.channel as any).name === 'media') {
                 // Yes, the continued requirement of using any to do things is awkward.
                 const cc = m.guild.channels.find('name', 'crosscode');
