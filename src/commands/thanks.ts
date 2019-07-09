@@ -24,8 +24,14 @@ export default class ThanksCommand extends CCBotCommand {
             thankYouMessage = 'You guys are awesome.';
         }
         
+        let nick: string;
+        if (message.member) {
+            nick = message.member.nickname;
+        } else {
+            nick = message.author.username;
+        }
         return message.replyEmbed(new discord.RichEmbed({
-            description: 'From ' + message.member.nickname + ',\n\t' + thankYouMessage + '\nTo,\n\t\tRadical Fish Games'
+            description: 'From ' + nick + ',\n\t' + thankYouMessage + '\nTo,\n\t\tRadical Fish Games'
         }));
     }
 }
