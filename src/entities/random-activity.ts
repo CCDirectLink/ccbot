@@ -2,9 +2,11 @@ import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {randomArrayElement} from '../utils';
 
+type ActivityType = ('PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING');
+
 export interface Activity {
-    type: ("PLAYING" | "STREAMING" | "LISTENING" | "WATCHING"),
-    name: string
+    type: ActivityType;
+    name: string;
 }
 
 export interface RandomActivityData extends EntityData {
@@ -31,7 +33,7 @@ class RandomActivityEntity extends CCBotEntity {
         const element = randomArrayElement(this.activities);
         this.client.user.setPresence({
             game: {
-                type: element.type as ("PLAYING" | "STREAMING" | "LISTENING" | "WATCHING"),
+                type: element.type as ActivityType,
                 name: element.name
             }
         });

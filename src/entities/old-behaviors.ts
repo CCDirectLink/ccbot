@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {silence, channelAsTBF} from '../utils';
+import {silence} from '../utils';
 
 /**
  * Implements old behaviors into the bot.
@@ -11,7 +11,7 @@ class OldBehaviorsEntity extends CCBotEntity {
     
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'old-behaviors-manager', data);
-        this.messageListener = (m: discord.Message) => {
+        this.messageListener = (m: discord.Message): void => {
             if (this.killed)
                 return;
 
@@ -23,15 +23,15 @@ class OldBehaviorsEntity extends CCBotEntity {
             } else if (lowerContent.startsWith('?release')) {
                 // Might need to be part of a relevant activity manager
                 silence(m.channel.send('Watching the final countdown'));
-            } else if ((m.channel as any).name === 'media') {
+            } else if ((m.channel as discord.TextChannel).name === 'media') {
                 // Yes, the continued requirement of using any to do things is awkward.
-                const cc = m.guild.channels.find('name', 'crosscode');
+                //const cc = m.guild.channels.find('name', 'crosscode');
             }
         };
         this.client.on('message', this.messageListener);
     }
     
-    public onKill() {
+    public onKill(): void {
         super.onKill();
         this.client.removeListener('message', this.messageListener);
     }
