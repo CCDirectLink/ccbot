@@ -32,10 +32,14 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         } else {
             commandPrefix = this.client.commandPrefix;
         }
-        commandPrefix = commandPrefix || '<@' + this.client.user.id + '>';
+
+        const universalPrefix: string = '<@' + this.client.user.id + '>';
+        commandPrefix = commandPrefix || universalPrefix;
         
         if (text.startsWith(commandPrefix)) {
             text = text.substring(commandPrefix.length);
+        } else if (text.startsWith(universalPrefix)) {
+            text = text.substring(universalPrefix.length);
         } else if (!message.guild) {
             text = text;
         } else {
@@ -50,7 +54,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         text = text.replace(/^\s+|\s+$/g, '');
 
         // Stage 3: Parse The Command
-        let group = '-general';
+        let group = 'general';
         if (text.startsWith('-')) {
             const cutPoint1 = text.indexOf(' ');
             if (cutPoint1 != -1) {

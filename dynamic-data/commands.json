@@ -1,4 +1,8 @@
 {
+    "util": {
+    },
+    "commands": {
+    },
     "general": {
         "satoshi": {
             "format": "is karoshi"
@@ -125,7 +129,7 @@
                 }
             }
         },
-        "get it": {
+        "get": {
             "description": "Gives you links to various places where you can get CrossCode.",
             "format": "Steam: https://store.steampowered.com/app/368340/\nGOG: https://www.gog.com/game/crosscode"
         }

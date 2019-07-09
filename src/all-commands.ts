@@ -2,6 +2,7 @@ import ReloadCommand from './commands/reload';
 import CounterCommand from './commands/counter';
 import ThanksCommand from './commands/thanks';
 import PingCommand from './commands/ping';
+import HelpCommand from './commands/help';
 import {CCBot} from './ccbot';
 
 /**

@@ -2,6 +2,7 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import DynamicDataManager from './dynamic-data';
 import JSONCommand from './commands/json';
+import HelpCommand from './commands/help';
 import {CCBot} from './ccbot';
 
 // Not nice.
@@ -33,9 +34,14 @@ export default class CCBotCommandRegistry extends commando.CommandRegistry {
     loadJSONCommands(): void {
         const commands = this.client.dynamicData.commands.data;
         for (const g in commands) {
+            if (!this.groups.has(g))
+                this.registerGroup(g);
+            
+            const gcmd: commando.Command = new HelpCommand(this.client, g);
+            this.allJSONCommands.push(gcmd);
+            this.registerCommand(gcmd);
+            
             for (const k in commands[g]) {
-                if (!this.groups.has(g))
-                    this.registerGroup(g);
                 const cmd: commando.Command = new JSONCommand(this.client, g, k, commands[g][k]);
                 this.allJSONCommands.push(cmd);
                 this.registerCommand(cmd);
