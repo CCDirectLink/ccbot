@@ -3,6 +3,7 @@ import CounterCommand from './commands/counter';
 import ThanksCommand from './commands/thanks';
 import PingCommand from './commands/ping';
 import HelpCommand from './commands/help';
+import {RolesConfigureCommand, RolesAddCommand, RolesRmCommand} from './commands/roles';
 import {CCBot} from './ccbot';
 
 /**
@@ -23,4 +24,8 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerGroup("general");
     cr.registry.registerCommand(new ThanksCommand(cr));
     cr.registry.registerCommand(new PingCommand(cr));
+    cr.registry.registerGroup("roles");
+    cr.registry.registerCommand(new RolesConfigureCommand(cr));
+    cr.registry.registerCommand(new RolesAddCommand(cr));
+    cr.registry.registerCommand(new RolesRmCommand(cr));
 }

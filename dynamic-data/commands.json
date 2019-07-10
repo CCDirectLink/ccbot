@@ -3,6 +3,8 @@
     },
     "commands": {
     },
+    "roles": {
+    },
     "general": {
         "satoshi": {
             "format": "is karoshi"

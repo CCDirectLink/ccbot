@@ -12,6 +12,8 @@ countdown isn't there (should be separate entity really)
 
 stream drawing monitor isn't done, but a skeleton's in the old behaviors entity
 
-member enter/leave & roles control is completely not there.
+member enter/leave stuff isn't there
+
+roles control is sort of there, but no auto-roles
 
 part of this is OldBehaviors territory, part of this should be the roles commands

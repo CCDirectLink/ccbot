@@ -1,2 +1,22 @@
 {
+    "562379828330889236": {
+        "comment": "20kdc Bot Dev",
+        "roles-group-admin": [
+            "bot-admin"
+        ],
+        "roles-group-self-serve": [
+            "apple",
+            "banana"
+        ],
+        "roles-group-fruit": [
+            "apple",
+            "banana"
+        ],
+        "roles-exclusive": [
+            "fruit"
+        ],
+        "roles-inclusive": [
+            "fruit"
+        ]
+    }
 }

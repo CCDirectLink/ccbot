@@ -103,6 +103,7 @@ export class DynamicData<T> {
                     try {
                         this.data = this.migrate(JSON.parse(data));
                     } catch (e) {
+                        console.log('in ' + this.path);
                         console.error(e);
                     }
                     this.callOnModify();

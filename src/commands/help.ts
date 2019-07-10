@@ -29,8 +29,10 @@ export default class HelpCommand extends CCBotCommand {
             lines.push('');
         }
         
-        for (const cmd of this.group.commands.values())
-            lines.push('** -' + this.group.id + ' ' + cmd.memberName + ' **: ' + cmd.description);
+        for (const cmd of this.group.commands.values()) {
+            const fmt = cmd.format ? ' ' + cmd.format : '';
+            lines.push('** -' + this.group.id + ' ' + cmd.memberName + fmt + ' **: ' + cmd.description);
+        }
         
         // Append some details on other groups
         const allGroups = this.client.registry.groups.keyArray();
