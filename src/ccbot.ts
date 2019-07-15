@@ -21,23 +21,33 @@ export abstract class CCBot extends commando.CommandoClient {
         this.once('ready', () => {
             this.entities.start();
         });
-        // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
-        // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
-        // WTF
         this.on('raw', (event: any): void => {
-            if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
-                const guild = this.guilds.get(event.d.guild_id);
-                if (guild) {
-                    const user = this.users.get(event.d.user_id);
-                    if (user) {
-                        const emoji = new discord.Emoji(guild, event.d.emoji);
-                        const entity = this.entities.entities['message-' + event.d.message_id];
-                        if (entity)
-                            entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
-                    }
-                }
-            }
+            this.handleRawEvent(event);
         });
+    }
+    
+    /**
+     * You really, really shouldn't have to add something here.
+     * As far as I know the only kinds of events that need this kind of thing are reaction events,
+     *  and I have already solved those... well enough.
+     */
+    handleRawEvent(event: any): void {
+        if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
+            // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
+            // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
+            // WTF
+            const guild = this.guilds.get(event.d.guild_id);
+            if (!guild)
+                return;
+            const user = this.users.get(event.d.user_id);
+            if (!user)
+                return;
+            const emoji = new discord.Emoji(guild, event.d.emoji);
+            const entity = this.entities.entities['message-' + event.d.message_id];
+            if (!entity)
+                return;
+            entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
+        }
     }
 };
 
