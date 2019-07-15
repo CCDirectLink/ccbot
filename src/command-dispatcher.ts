@@ -2,6 +2,7 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import JSONCommand from './commands/json';
 import {CCBot} from './ccbot';
+import {mentionRegex} from './utils';
 
 // Not nice.
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
@@ -48,8 +49,8 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         
         // Stage 2: Further Stuff
 
-        // Remove mentions
-        text = text.replace(/<@!?(.*?)>/g, '');
+        // Remove mentions, but keep the content so they work properly for findCheaterByRef
+        text = text.replace(mentionRegex, '$1');
         // Trim (again!)
         text = text.replace(/^\s+|\s+$/g, '');
 

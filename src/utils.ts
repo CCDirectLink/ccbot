@@ -91,3 +91,31 @@ export function localAdminCheck(t: commando.CommandMessage): boolean {
                 return true;
     return false;
 }
+
+export const mentionRegex = /^\<\@!?([0-9]*)\>$/g;
+
+export function findCheaterByRef(t: commando.CommandMessage, ref: string): discord.User | null {
+    const mention = mentionRegex.exec(ref);
+    if (mention)
+        return t.client.users.get(mention[1]) || null;
+
+    const byId = t.client.users.get(ref);
+    if (byId)
+        return byId;
+
+    if (t.guild) {
+        const candidates: discord.GuildMember[] = t.guild.members.filterArray((v: discord.GuildMember): boolean => {
+            return (v.user.username.includes(ref)) || (ref == (v.user.username + '#' + v.user.discriminator)) || (ref == v.user.id) || (ref == v.nickname);
+        });
+        if (candidates.length == 1)
+            return candidates[0].user;
+    } else {
+        const candidates: discord.User[] = t.client.users.filterArray((v: discord.User): boolean => {
+            return (ref == (v.username + '#' + v.discriminator)) || (ref == v.id);
+        });
+        if (candidates.length == 1)
+            return candidates[0];
+    }
+
+    return null;
+}

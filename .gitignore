@@ -3,7 +3,7 @@ node_modules/
 dist/
 nbproject
 # secrets!
-assets/data/secrets.json
+secrets.json
 # dynamics!
 dynamic-data/entities.json
 dynamic-data/settings.json

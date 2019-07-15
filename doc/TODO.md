@@ -1,6 +1,6 @@
 # The Grand TODO List
 
-missing commands from general: leaCheeseArmy, say, emote, lsemotes, react, cheater
+missing commands from general: say, emote, lsemotes, react
 
 commands that won't be added in my PR (#9),
  since issue #10 is unsure, doesn't specify, or I'm sleepy: poll, box, rbox, cube, sleep, purge, setname
