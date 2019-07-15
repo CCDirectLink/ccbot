@@ -32,7 +32,7 @@
             },
             {
                 "type": "PLAYING",
-                "name": "cc.ig"
+                "name": "cc.CrossCode"
             },
             {
                 "type": "PLAYING",
@@ -49,6 +49,10 @@
             {
                 "type": "PLAYING",
                 "name": "with CCLoader"
+            },
+            {
+                "type": "PLAYING",
+                "name": "with CCInjector"
             },
             {
                 "type": "PLAYING",
