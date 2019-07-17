@@ -16,6 +16,16 @@ export function nsfw(channel: discord.Channel): boolean {
     return false;
 };
 
+/**
+ * Returns if a given guild is considered a liability SFW-wise.
+ */
+export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild): boolean {
+    if (client.provider.get('global', 'nsfw-' + guild.id, false))
+        return true;
+    const val = client.provider.get(guild, 'nsfw', false);
+    return (val || false) && true;
+}
+
 export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
     if (channel && ((channel as any).sendEmbed))
         return (channel as unknown) as (discord.Channel & discord.TextBasedChannelFields);

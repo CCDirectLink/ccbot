@@ -28,6 +28,12 @@ export abstract class CCBot extends commando.CommandoClient {
         this.on('raw', (event: any): void => {
             this.handleRawEvent(event);
         });
+        const callbackUpdateGER = () => {
+            this.updateGlobalEmoteRegistry();
+        };
+        this.on('emojiCreate', callbackUpdateGER);
+        this.on('emojiDelete', callbackUpdateGER);
+        this.on('emojiUpdate', callbackUpdateGER);
     }
     
     /**
@@ -141,13 +147,13 @@ export abstract class CCBot extends commando.CommandoClient {
      */
     getEmoteRefs(guild: discord.Guild | null): string[] {
         const a: string[] = [];
-        for (const k in this.globalEmoteRegistry)
+        for (const k of this.globalEmoteRegistry.keys())
             a.push(k);
-        for (const v of this.provider.get(guild || 'global', 'emotes', []))
+        for (const v of this.provider.get('global', 'emotes', []))
             if (!a.includes(v))
                 a.push(v.toString());
         if (guild)
-            for (const v of this.provider.get(guild || 'global', 'emotes', []))
+            for (const v of this.provider.get(guild, 'emotes', []))
                 if (!a.includes(v))
                     a.push(v.toString());
         return a;

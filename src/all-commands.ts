@@ -6,7 +6,7 @@ import HelpCommand from './commands/help';
 import ArmyCommand from './commands/army';
 import CheaterCommand from './commands/cheater';
 import {RolesAddCommand, RolesRmCommand} from './commands/roles';
-import {SettingsSetCommand, SettingsGetCommand} from './commands/settings';
+import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
 import {CCBot} from './ccbot';
 
@@ -37,7 +37,13 @@ export default function registerAllCommands(cr: CCBot) {
         prompt: 'What value would you like today?',
         type: 'string'
     }));
+    cr.registry.registerCommand(new SettingsSetCommand(cr, 'boolean', {
+        key: 'value',
+        prompt: 'What value would you like today?',
+        type: 'boolean'
+    }));
     cr.registry.registerCommand(new SettingsGetCommand(cr));
+    cr.registry.registerCommand(new SettingsRmCommand(cr));
     cr.registry.registerCommand(new CounterCommand(cr));
     
     cr.registry.registerGroup("general");

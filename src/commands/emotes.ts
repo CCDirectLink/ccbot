@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {localAdminCheck} from '../utils';
+import {localAdminCheck, nsfw, nsfwGuild} from '../utils';
 import {PageSwitcherData} from '../entities/page-switcher';
 
 /**
@@ -19,18 +19,21 @@ export class ListEmotesCommand extends CCBotCommand {
     }
     
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+        
         const refs: string[] = this.client.getEmoteRefs(message.guild || null);
         refs.sort();
         const pages: discord.RichEmbedOptions[] = [{description: ''}];
         let pageContent = 0;
         
         for (const eref of refs) {
+            const emote = this.client.getEmote(message.guild || null, eref);
+            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
+                continue;
             if (pageContent == 5) {
                 pages.push({description: ''});
                 pageContent = 0;
             }
-            const emote = this.client.getEmote(message.guild || null, eref).toString();
-            pages[pages.length - 1].description += eref + ' ' + emote + '\n';
+            pages[pages.length - 1].description += eref + ' ' + emote.toString() + '\n';
             pageContent++;
         }
         
@@ -78,8 +81,12 @@ export class EmoteCommand extends CCBotCommand {
             }
         }
         const texts = [];
-        for (let i = 0; i < args.emotes.length; i++)
-            texts.push(this.client.getEmote(message.guild || null, args.emotes[i]).toString());
+        for (let i = 0; i < args.emotes.length; i++) {
+            const emote = this.client.getEmote(message.guild || null, args.emotes[i]);
+            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
+                continue;
+            texts.push(emote.toString());
+        }
         return message.say(texts.join(' '));
     }
 }
@@ -109,8 +116,12 @@ export class ReactCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if (args.emotes.length > 8)
             return await message.say('Why?');
-        for (let i = 0; i < args.emotes.length; i++)
+        for (let i = 0; i < args.emotes.length; i++) {
+            const emote = this.client.getEmote(message.guild || null, args.emotes[i]);
+            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
+                continue;
             await message.react(this.client.getEmote(message.guild || null, args.emotes[i]));
+        }
         return [];
     }
 }

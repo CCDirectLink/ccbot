@@ -42,6 +42,41 @@ export class SettingsSetCommand extends CCBotCommand {
 /**
  * A command for the local administrator group to configure bot systems.
  */
+export class SettingsRmCommand extends CCBotCommand {
+    public constructor(client: CCBot) {
+        const opt = {
+            name: '-util rm',
+            description: 'Removes a guild-wide (where applicable) or bot-wide (if from a DM) setting.',
+            group: 'util',
+            memberName: 'rm',
+            args: [
+                {
+                    key: 'target',
+                    prompt: 'What should be configured?',
+                    type: 'string'
+                }
+            ]
+        };
+        super(client, opt);
+    }
+
+    public async run(message: commando.CommandMessage, args: {target: string}): Promise<discord.Message|discord.Message[]> {
+        let effectiveGuild: 'global' | discord.Guild = message.guild;
+        if (!effectiveGuild) {
+            effectiveGuild = 'global';
+            if (!this.client.owners.includes(message.author))
+                return message.say('You do not have global settings authorization.');
+        } else if (!localAdminCheck(message)) {
+            return message.say('You do not have local settings authorization.\nContact someone with global settings authorization if you believe this is a mistake.');
+        }
+        await this.client.provider.remove(effectiveGuild, args.target);
+        return message.say('Done!');
+    }
+}
+
+/**
+ * A command for the local administrator group to configure bot systems.
+ */
 export class SettingsGetCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

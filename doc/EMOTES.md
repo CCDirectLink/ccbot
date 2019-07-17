@@ -25,3 +25,5 @@ The Global Emote Registry may need to be manually refreshed,
 The other two levels can only add or override emotes, not remove them, right now.
 
 They use the settings `emotes` (string array, emote references) and `emote-<name>` (string, emote)
+
+The NSFW control setting causes all emotes from that guild to be hidden outside of NSFW contexts.
