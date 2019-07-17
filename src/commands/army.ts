@@ -55,9 +55,7 @@ export default class ArmyCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage, args: {width: number, height: number}): Promise<discord.Message|discord.Message[]> {
         const emoteUse = this.client.getEmote(message.guild || null, this.emote);
         // Initial safety checks
-        if (args.width < 1)
-            return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');
-        if (args.height < 1)
+        if ((args.width < 1) || (args.height < 1))
             return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');
         if (args.width > 20)
             return message.say('the ' + emoteUse + randomArrayElement(tooWideFailReasons) + '.');
