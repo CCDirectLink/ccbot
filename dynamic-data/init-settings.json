@@ -18,5 +18,16 @@
         "roles-inclusive": [
             "fruit"
         ]
+    },
+    "global": {
+        "emotes": ["leaHAPPY", "leaTHINK", "leaBAT", "leaCheese", "ohno", "emilieWhy", "apolloPoint", "apolloShout"],
+        "emote-leaHAPPY": "337987483788902410",
+        "emote-leaTHINK": "397961863805140992",
+        "emote-leaBAT": "453150959875522560",
+        "emote-leaCheese": "257888171772215296",
+        "emote-ohno": "454382402920251415",
+        "emote-emilieWhy": "337989242674479105",
+        "emote-apolloPoint": "337987749011259392",
+        "emote-apolloShout": "337987748675715076"
     }
 }

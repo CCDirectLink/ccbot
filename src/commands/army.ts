@@ -53,22 +53,23 @@ export default class ArmyCommand extends CCBotCommand {
     }
     
     public async run(message: commando.CommandMessage, args: {width: number, height: number}): Promise<discord.Message|discord.Message[]> {
+        const emoteUse = this.client.getEmote(message.guild || null, this.emote);
         // Initial safety checks
         if (args.width < 1)
-            return message.say('the ' + this.emote + randomArrayElement(tooTinyFailReasons) + '.');
+            return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');
         if (args.height < 1)
-            return message.say('the ' + this.emote + randomArrayElement(tooTinyFailReasons) + '.');
+            return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');
         if (args.width > 20)
-            return message.say('the ' + this.emote + randomArrayElement(tooWideFailReasons) + '.');
+            return message.say('the ' + emoteUse + randomArrayElement(tooWideFailReasons) + '.');
         if (args.height > 10)
-            return message.say('the ' + this.emote + randomArrayElement(tooHighFailReasons) + '.');
+            return message.say('the ' + emoteUse + randomArrayElement(tooHighFailReasons) + '.');
 
         // Build the army
         const lines = [
             '**You are being raided!**'
         ];
 
-        const line = this.emote.repeat(args.width);
+        const line = emoteUse.toString().repeat(args.width);
         for (let i = 0; i < args.height; i++)
             lines.push(line);
 

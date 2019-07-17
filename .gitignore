@@ -8,3 +8,4 @@ secrets.json
 dynamic-data/entities.json
 dynamic-data/settings.json
 
+init.sh

@@ -19,7 +19,7 @@ class CCBotMain {
         const client = new CCBotImpl({
             owner: secrets.owner,
             commandPrefix: secrets.commandPrefix
-        });
+        }, secrets.safety);
         client.login(secrets.token);
     }
 }

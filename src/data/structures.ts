@@ -29,6 +29,10 @@ export interface Secrets {
     commandPrefix: string;
     // Bot owners.
     owner: string | string[];
+    // Ensures the old-behaviors entity isn't registered, as this has authority
+    //  to do all sorts of 'odd' things that could interfere with a side-by-side
+    //  run with the old software.
+    safety: boolean;
 }
 
 // entities.json - array of newEntity data objects

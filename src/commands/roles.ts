@@ -4,48 +4,6 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {convertRoles, convertRoleGroup, getInvolvement, localAdminCheck} from '../utils';
 
 /**
- * A command for the local administrator group to configure the role control system.
- */
-export class RolesConfigureCommand extends CCBotCommand {
-    public constructor(client: CCBot) {
-        const opt = {
-            name: '-roles configure',
-            description: 'Configures a part of the roles system (a roles group such as `group-admin`, or the `exclusive` meta-group)',
-            group: 'roles',
-            memberName: 'configure',
-            args: [
-                {
-                    key: 'target',
-                    prompt: 'What part should be configured?',
-                    type: 'string'
-                },
-                {
-                    key: 'roles',
-                    prompt: 'Content of the array?',
-                    type: 'string',
-                    infinite: true
-                }
-            ]
-        };
-        super(client, opt);
-    }
-
-    public async run(message: commando.CommandMessage, args: {target: string; roles: string[]}): Promise<discord.Message|discord.Message[]> {
-        if (!message.guild)
-            return message.say('There aren\'t roles in a DM channel.');
-        if (!localAdminCheck(message))
-            return message.say('You do not have local administrative authorization.');
-        const content: string[] = args.roles;
-        if (content.length == 0) {
-            await this.client.provider.remove(message.guild, 'roles-' + args.target);
-        } else {
-            await this.client.provider.set(message.guild, 'roles-' + args.target, content);
-        }
-        return message.say('Done!');
-    }
-}
-
-/**
  * There's a lot of common stuff this combines into one function.
  */
 async function genericARRunner(message: commando.CommandMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {

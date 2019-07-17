@@ -11,11 +11,11 @@
         },
         "hi": {
             "description": "Lea greets you",
-            "format": "hi!!! <:leaCheese:257888171772215296>"
+            "format": "hi!!! %(emote leaCheese)"
         },
         "bye": {
             "description": "Lea says goodbye to you",
-            "format": "bye!!! <:leaCheese:257888171772215296>"
+            "format": "bye!!! %(emote leaCheese)"
         },
         "bugs": {
             "description": "HAVE YOU TRIED TURNING IT OFF AND ON AGAIN?",
@@ -26,7 +26,7 @@
             }
         },
         "BUG": {
-            "description": ":emilieWhy: alias",
+            "description": "%(emote emilieWhy) alias",
             "embed": {
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/286824914604916747/446126154303406080/emilieWhyyyyyyyy.gif"
@@ -55,7 +55,7 @@
             }
         },
         "lewd": {
-            "commandReactions": ["454382402920251415"]
+            "commandReactions": ["ohno"]
         },
         "popsicle": {
             "description": "displays Lea eating a popsicle",
@@ -67,7 +67,7 @@
         },
         "thinking": {
             "description": "reacts with the standard thonk",
-            "commandReactions": ["397961863805140992"]
+            "commandReactions": ["leaTHINK"]
         },
         "triggered": {
             "description": "mildly angery Lea",
@@ -97,7 +97,7 @@
         },
         "vote": {
             "description": "reacts with the proper vote emotes for ease of vote",
-            "commandReactions": ["337987483788902410", "397961863805140992", "453150959875522560"]
+            "commandReactions": ["leaHAPPY", "leaTHINK", "leaBAT"]
         },
         "ohno": {
             "format": ":(",

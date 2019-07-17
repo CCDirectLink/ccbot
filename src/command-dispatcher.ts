@@ -79,6 +79,11 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         // console.log([group, command, text]);
         
         // Stage 4: Actually Figure Out What Command It Is
+        
+        
+        group = group.toLowerCase();
+        command = command.toLowerCase();
+
         const groupInst: commando.CommandGroup | undefined = this.registry.groups.get(group);
         if (!groupInst)
             return new commando.CommandMessage(message, this.registry.unknownCommand, text);

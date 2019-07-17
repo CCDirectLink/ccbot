@@ -87,7 +87,7 @@ class PageSwitcherEntity extends CCBotEntity {
         // Update display...
         this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page]));
         // Try to remove reaction (Nnubes256's suggestion)
-        const reaction = this.message.reactions.get(target.name);
+        const reaction = this.message.reactions.get(target.id || target.name);
         if (this.ignoreRemovals && reaction) {
             reaction.remove(user).catch((): void => {
                 this.ignoreRemovals = false;
@@ -101,6 +101,10 @@ class PageSwitcherEntity extends CCBotEntity {
  * Creates a page switcher.
  */
 export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
+    // This makes a possible DM channel with the user 'important enough' to start existing
+    // Blame discord.js
+    const yesCacheMe = await c.fetchUser(data.user, true);
+    await yesCacheMe.createDM();
     const channel = channelAsTBF(c.channels.get(data.channel));
     if (!channel)
         throw Error('involved channel no longer exists');

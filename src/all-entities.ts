@@ -7,9 +7,10 @@ import {CCBot} from './ccbot';
 /**
  * Registers all the entities. (More or less.)
  */
-export default function registerAllEntities(cr: CCBot) {
+export default function registerAllEntities(cr: CCBot, safety: boolean) {
     cr.entities.entityTypes['date-activity'] = loadDateActivity;
     cr.entities.entityTypes['page-switcher'] = loadPageSwitcher;
-    cr.entities.entityTypes['old-behaviors'] = loadOldBehaviors;
+    if (!safety)
+        cr.entities.entityTypes['old-behaviors'] = loadOldBehaviors;
     cr.entities.entityTypes['random-activity'] = loadRandomActivity;
 }
