@@ -16,12 +16,12 @@ import {CCBot, CCBotCommand} from '../ccbot';
  *  Within this, a separate set of syntax rules are defined.
  *  All that really matters here is that %(emote leaCheese) gives you <:leaCheese:257888171772215296>.
  */
-function runFormat(client: CCBot, text: string, runner: (args: any[]) => string): string {
+function runFormat(client: CCBot, text: string, runner: (args: (string | object)[]) => string): string {
     let workspace = '';
     let escapeMode = false;
     // Note: Index 0 here is the innermost (currently-appending-to) list.
-    let listStack: any[][] = [];
-    let listCurrentToken: string = '';
+    const listStack: (string | object)[][] = [];
+    let listCurrentToken = '';
     for (let i = 0; i < text.length; i++) {
         const ch = text[i];
         if (escapeMode) {
@@ -104,9 +104,9 @@ export default class JSONCommand extends CCBotCommand {
         // Actually send resulting message if necessary
         // Note that the syntax handling here may have to be moved out to a separate module at some point.
         if (this.command.format || hasMeta)
-            return await message.say(runFormat(this.client, this.command.format || '', (args: any[]): string => {
+            return await message.say(runFormat(this.client, this.command.format || '', (args: (string | object)[]): string => {
                 if ((args.length == 2) && (args[0] == 'emote'))
-                    return this.client.getEmote(message.guild || null, args[0]).toString();
+                    return this.client.getEmote(message.guild || null, args[1].toString()).toString();
                 throw new Error('Unknown format routine.');
             }), opts);
         return [];

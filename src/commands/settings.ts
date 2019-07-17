@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {convertRoles, convertRoleGroup, getInvolvement, localAdminCheck} from '../utils';
+import {localAdminCheck} from '../utils';
 
 /**
  * A command for the local administrator group to configure bot systems.
@@ -25,7 +25,7 @@ export class SettingsSetCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {target: string; value: any}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage, args: {target: string; value: object}): Promise<discord.Message|discord.Message[]> {
         let effectiveGuild: 'global' | discord.Guild = message.guild;
         if (!effectiveGuild) {
             effectiveGuild = 'global';
@@ -95,7 +95,7 @@ export class SettingsGetCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {target: string;}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage, args: {target: string}): Promise<discord.Message|discord.Message[]> {
         let effectiveGuild: 'global' | discord.Guild = message.guild;
         if (!effectiveGuild) {
             effectiveGuild = 'global';
@@ -107,6 +107,6 @@ export class SettingsGetCommand extends CCBotCommand {
         const val = await this.client.provider.get(effectiveGuild, args.target);
         if (val == undefined)
             return message.say('That setting is not defined.');
-        return message.say('Done: `' + JSON.stringify(val) + "`");
+        return message.say('Done: `' + JSON.stringify(val) + '`');
     }
 }

@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {convertRoles, convertRoleGroup, getInvolvement, localAdminCheck} from '../utils';
+import {convertRoles, convertRoleGroup, getInvolvement} from '../utils';
 
 /**
  * There's a lot of common stuff this combines into one function.
