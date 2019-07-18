@@ -43,15 +43,20 @@ export default class HugCommand extends CCBotCommand {
         }
         if (tryTimes < 1)
             return await message.say('The space-hugs continuum would be warped!');
-        const lines = [
-        ];
+        if (effectiveLength > 10)
+            return await message.say('The physics of that are questionable, sadly...');
+        const lines = [];
         const hugEmote = this.client.getEmote(message.guild || null, 'O2Hug').toString().repeat(tryTimes);
+        const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
             const user = findCheaterByRef(message, args.people[i]);
             if (user == message.author) {
                 lines.push('You shouldn\'t have to hug yourself, but ' + this.client.user + ' will hug you! ' + hugEmote);
             } else if (user) {
+                if (alreadyHugged.has(user))
+                    continue;
                 lines.push(hugEmote + ' ' + user.toString());
+                alreadyHugged.add(user);
             } else {
                 lines.push('Couldn\'t find ' + args.people[i] + '!');
             }
