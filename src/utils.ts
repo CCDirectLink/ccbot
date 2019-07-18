@@ -96,13 +96,12 @@ export function localAdminCheck(t: commando.CommandMessage): boolean {
     if (t.client.owners.includes(t.author))
         return true;
     if (t.member)
-        for (const roleID of convertRoleGroup(t.client, t.guild, 'admin'))
-            if (t.member.roles.has(roleID))
-                return true;
+        if (t.member.hasPermission('ADMINISTRATOR'))
+            return true;
     return false;
 }
 
-export const mentionRegex = /^\<\@!?([0-9]*)\>$/g;
+export const mentionRegex = /\<\@\!?([0-9]*)\>/g;
 
 export function findCheaterByRef(t: commando.CommandMessage, ref: string): discord.User | null {
     const mention = mentionRegex.exec(ref);

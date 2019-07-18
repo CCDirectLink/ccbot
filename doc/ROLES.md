@@ -8,15 +8,10 @@ The system has two primary concepts: Role groups and role group groups.
 
 Both are arrays of strings, those strings being the names of the relevant objects.
 
-There are 2 hard-coded role groups, and 2 hard-coded role group groups.
+There is 1 hard-coded role group, and 2 hard-coded role group groups.
 
 
-The hard-coded role groups are `roles-group-admin` and `roles-group-self-serve`.
-
-`group-admin` roles provide access to local bot administrative capabilities.
-
-By default, bot owners are the only people capable of administrative control,
- and remain the only people capable of more global administrative capabilities in all cases.
+The hard-coded role group is `roles-group-self-serve`.
 
 `roles-group-self-serve` roles can be added and removed by anyone to themselves.
 

@@ -36,6 +36,11 @@ class SaneSettingProvider extends commando.SettingProvider {
      * Pokes the awful internals because setEnabledIn fails for reasons
      */
     private reloadSettings(): void {
+        // -- Prefixes
+        this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
+        for (const vb of this.client.guilds.values())
+            (vb as any).commandPrefix = this.get(vb, 'prefix', null);
+        // -- Groups
         for (const v of this.client.registry.groups.values()) {
             const settingName = 'grp-' + v.id;
             const vd: any = v;
@@ -49,6 +54,7 @@ class SaneSettingProvider extends commando.SettingProvider {
                     vc._groupsEnabled[v.name] = Boolean(int);
             }
         }
+        // -- Commands
         for (const v of this.client.registry.commands.values()) {
             const settingName = 'cmd-' + v.groupID + '-' + v.memberName;
             const vd: any = v;

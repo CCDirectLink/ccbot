@@ -2,6 +2,10 @@
 
 All of these are described individually too.
 
+They can be controlled per-guild by the local ADMINISTRATOR or bot owners.
+
+They can be controlled globally only by bot owners.
+
 ## Global
 
 `nsfw-<GUILD ID>`: Boolean, effectively forcefully enables the per-guild `nsfw` setting.

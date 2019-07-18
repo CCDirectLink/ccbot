@@ -17,7 +17,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         super(c, r);
     }
 
-    parseMessage(message: any): any {
+    parseMessage(message: any): commando.CommandMessage | null {
         // Stage 1: Prefix removal, cleanup
         let text: string = message.content;
         
@@ -86,13 +86,19 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
 
         const groupInst: commando.CommandGroup | undefined = this.registry.groups.get(group);
         if (!groupInst)
-            return new commando.CommandMessage(message, this.registry.unknownCommand, text);
+            return this.parseUnknownCommand(message, text);
         
         const commandInst: commando.Command | undefined = groupInst.commands.find('memberName', command);
         if (!commandInst)
             return new commando.CommandMessage(message, this.registry.unknownCommand, text);
 
         return new commando.CommandMessage(message, commandInst, text);
+    }
+    
+    parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
+        if ((this.client as CCBot).sideBySideProductionSafety)
+            return null;
+        return new commando.CommandMessage(message, this.registry.unknownCommand, text)
     }
 }
 
