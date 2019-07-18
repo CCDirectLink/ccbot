@@ -3,6 +3,7 @@ import CounterCommand from './commands/counter';
 import ThanksCommand from './commands/thanks';
 import PingCommand from './commands/ping';
 import HelpCommand from './commands/help';
+import HugCommand from './commands/hug';
 import ArmyCommand from './commands/army';
 import CheaterCommand from './commands/cheater';
 import {RolesAddCommand, RolesRmCommand} from './commands/roles';
@@ -54,6 +55,7 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new ListEmotesCommand(cr));
     cr.registry.registerCommand(new EmoteCommand(cr));
     cr.registry.registerCommand(new ReactCommand(cr));
+    cr.registry.registerCommand(new HugCommand(cr));
     cr.registry.registerGroup("roles");
     cr.registry.registerCommand(new RolesAddCommand(cr));
     cr.registry.registerCommand(new RolesRmCommand(cr));

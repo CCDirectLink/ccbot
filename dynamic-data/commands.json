@@ -41,11 +41,6 @@
                 }
             }
         },
-        "hug": {
-            "nsfw": true,
-            "20kdc is a troll": true,
-            "description": "TODO"
-        },
         "language": {
             "description": "displays that gif of Lea and the JS sign",
             "embed": {

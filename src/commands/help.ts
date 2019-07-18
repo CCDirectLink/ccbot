@@ -42,10 +42,10 @@ export default class HelpCommand extends CCBotCommand {
         // The text is set in stone from here on in.
         const text = lines.join('\n');
         if (message.channel.type == 'dm') {
-            return await message.say(text);
+            return await message.say('', {embed: {description: text}});
         } else {
             try {
-                await message.author.sendMessage(text);
+                await message.author.sendEmbed({description: text});
                 return await message.say('The help page has been sent to your DMs.');
             } catch (e) {
                 return await message.say('Tried to send help information to DMs, but... are your DMs blocked?');
