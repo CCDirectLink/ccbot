@@ -19,6 +19,20 @@ describe('DynamicDataManager', (): void => {
             }
         }
     });
+    it('should work around the Discord broken image embeds bug', (): void => {
+        for (const group in ddm.commands.data) {
+            for (const name in ddm.commands.data[group]) {
+                const cmd = ddm.commands.data[group][name];
+                if (cmd.embed) {
+                    if (cmd.embed.image) {
+                        // It doesn't necessarily have to match (width/height override removal)
+                        expect(cmd.embed).to.haveOwnProperty('title');
+                        expect(cmd.embed).to.haveOwnProperty('url');
+                    }
+                }
+            }
+        }
+    });
 });
 
 describe('Hello function', (): void => {

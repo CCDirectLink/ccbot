@@ -8,8 +8,7 @@
     "mods": {
         "get": {
             "embed": {
-                "description": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information.",
-                "url": "https://c2dl.info/cc/mods"
+                "description": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information: https://c2dl.info/cc/mods"
             }
         },
         "installation": {
@@ -34,6 +33,8 @@
         "bugs": {
             "description": "HAVE YOU TRIED TURNING IT OFF AND ON AGAIN?",
             "embed": {
+                "title": ".cc bugs",
+                "url": "https://cdn.discordapp.com/attachments/380588134712475665/383705658731659266/tumblr_mtud5kX2T71r7fahjo1_250.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/380588134712475665/383705658731659266/tumblr_mtud5kX2T71r7fahjo1_250.gif"
                 }
@@ -42,6 +43,8 @@
         "BUG": {
             "description": "%(emote emilieWhy) alias",
             "embed": {
+                "title": ".cc BUG",
+                "url": "https://cdn.discordapp.com/attachments/286824914604916747/446126154303406080/emilieWhyyyyyyyy.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/286824914604916747/446126154303406080/emilieWhyyyyyyyy.gif"
                 }
@@ -50,6 +53,8 @@
         "cloudlea": {
             "description": "displays an image of Lea on a cloud",
             "embed": {
+                "title": ".cc cloudlea",
+                "url": "https://cdn.discordapp.com/attachments/373163281755537420/380813466354843649/steam-cloud-600x368.png",
                 "image": {
                     "url": "https://images-ext-1.discordapp.net/external/C8ZfRnUDaIaHkZNgR6TP81kCEbc1YJrtsnG5J-TTSzM/https/cdn.discordapp.com/attachments/373163281755537420/380813466354843649/steam-cloud-600x368.png?width=500&height=307"
                 }
@@ -58,6 +63,8 @@
         "language": {
             "description": "displays that gif of Lea and the JS sign",
             "embed": {
+                "title": ".cc language",
+                "url": "https://cdn.discordapp.com/attachments/376138665954377728/381560390384877578/Javascript_DeathStareLea.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/376138665954377728/381560390384877578/Javascript_DeathStareLea.gif"
                 }
@@ -69,6 +76,8 @@
         "popsicle": {
             "description": "displays Lea eating a popsicle",
             "embed": {
+                "title": ".cc popsicle",
+                "url": "https://media.discordapp.net/attachments/397800800736378880/400833387725586434/unknown.png",
                 "image": {
                     "url": "https://media.discordapp.net/attachments/397800800736378880/400833387725586434/unknown.png"
                 }
@@ -81,8 +90,9 @@
         "triggered": {
             "description": "mildly angery Lea",
             "embed": {
+                "title": "...WHY?!?!",
+                "url": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif",
                 "image": {
-                    "title": "...WHY?!?!",
                     "url": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif"
                 }
             }
@@ -90,6 +100,8 @@
         "verytriggered": {
             "description": "*severely* angery Lea",
             "embed": {
+                "title": ".cc verytriggered",
+                "url": "https://cdn.discordapp.com/attachments/381866628108910593/382331699213893632/triggeredlea.gif",
                 "image": {
                     "title": "何？",
                     "url": "https://cdn.discordapp.com/attachments/381866628108910593/382331699213893632/triggeredlea.gif"
@@ -99,6 +111,8 @@
         "HI!": {
             "description": "Deal With It Lea™.",
             "embed": {
+                "title": ".cc HI!",
+                "url": "https://cdn.discordapp.com/attachments/373163281755537420/381790329550143488/Deal_with_it_Lea.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/373163281755537420/381790329550143488/Deal_with_it_Lea.gif"
                 }
@@ -111,6 +125,8 @@
         "ohno": {
             "format": ":(",
             "embed": {
+                "title": ".cc ohno",
+                "url": "https://cdn.discordapp.com/emojis/400836365295812619.png",
                 "image": {
                     "url": "https://cdn.discordapp.com/emojis/400836365295812619.png"
                 }
@@ -119,6 +135,8 @@
         "work": {
             "description": "Why?",
             "embed": {
+                "title": ".cc work",
+                "url": "https://cdn.discordapp.com/emojis/337987528625881090.png",
                 "image": {
                     "url": "https://cdn.discordapp.com/emojis/337987528625881090.png"
                 }
@@ -127,6 +145,8 @@
         "balls": {
             "description": "displays that one image that Lachsen is oh-so \"proud\" of",
             "embed": {
+                "title": ".cc balls",
+                "url": "https://cdn.discordapp.com/attachments/143364538958348288/368033879162093581/balls.png",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/143364538958348288/368033879162093581/balls.png"
                 }
@@ -135,6 +155,8 @@
         "vrps": {
             "description": "TheRusty22's oh-so-strange and beautiful mashup of Sergey, `balls`, and `language`",
             "embed": {
+                "title": ".cc vrps",
+                "url": "https://cdn.discordapp.com/attachments/143364538958348288/409861255046889472/CC_SergayVRPs_062.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/143364538958348288/409861255046889472/CC_SergayVRPs_062.gif"
                 }
@@ -150,8 +172,9 @@
             "description": "The LeaDaki™. 'Nuff said.",
             "nsfw": true,
             "embed": {
+                "title": "( ͡° ͜ʖ ͡°)",
+                "url": "https://images-ext-1.discordapp.net/external/RNdA2IorjgoHeslQ9Rh8oos1nkK56Y6_w4sjUaFVBC4/https/image.ibb.co/jJLNiG/leadaki.png",
                 "image": {
-                    "title": "( ͡° ͜ʖ ͡°)",
                     "url": "https://images-ext-1.discordapp.net/external/RNdA2IorjgoHeslQ9Rh8oos1nkK56Y6_w4sjUaFVBC4/https/image.ibb.co/jJLNiG/leadaki.png?width=185&height=250"
                 }
             }
@@ -166,6 +189,8 @@
             "description": "the megumin meme",
             "format": "💥",
             "embed": {
+                "title": ".cc -anime EXPLOSION!",
+                "url": "https://cdn.discordapp.com/attachments/380588134712475665/383777401529696256/tenor.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/380588134712475665/383777401529696256/tenor.gif"
                 }
