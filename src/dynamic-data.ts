@@ -10,6 +10,10 @@ export class DynamicData<T> {
 
     // Immediate access (prevents change-buffering behavior)
     public immediate: boolean;
+
+    // RAM access (changes are always lost)
+    // It does not make sense to have a non-immediate RAM
+    public ram: boolean;
     
     // Resolves after the initial load.
     public initialLoad: Promise<void>;
@@ -22,9 +26,10 @@ export class DynamicData<T> {
     
     private modifyActions: (() => void)[] = [];
     
-    constructor(name: string, immediate: boolean, defaultContent: T) {
+    constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
         this.path = 'dynamic-data/' + name + '.json';
         this.immediate = immediate;
+        this.ram = ram;
         this.data = defaultContent;
         this.initialLoad = this.reload();
     }
@@ -41,6 +46,8 @@ export class DynamicData<T> {
     }
     
     private saveImmediate(): Promise<void> {
+        if (this.ram)
+            return Promise.resolve();
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
             console.log('saving ' + this.path);
             fs.writeFile(this.path, JSON.stringify(this.data, null, "    "), (err) => {
@@ -131,7 +138,7 @@ export class DynamicData<T> {
  * There should only be one of these at a time right now, since it's always based on the same folder.
  */
 export default class DynamicDataManager {
-    commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, {});
-    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, []);
-    settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, {});
+    commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
+    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, false, []);
+    settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});
 }

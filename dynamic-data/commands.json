@@ -5,6 +5,20 @@
     },
     "roles": {
     },
+    "mods": {
+        "get": {
+            "embed": {
+                "description": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information.",
+                "url": "https://c2dl.info/cc/mods"
+            }
+        },
+        "installation": {
+            "embed": {
+                "title": "Installation Guide",
+                "description": "CCLoader's guide to modloader installation: https://github.com/CCDirectLink/CCLoader/wiki/Installing-CCLoader\nCCLoader's guide to mod installation: https://github.com/CCDirectLink/CCLoader/wiki/Install-mods\n20kdc's guide to modloader installation: https://20kdc.duckdns.org/ccmodloader/"
+            }
+        }
+    },
     "general": {
         "satoshi": {
             "format": "is karoshi"
