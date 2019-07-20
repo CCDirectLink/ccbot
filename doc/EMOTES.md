@@ -9,13 +9,14 @@ Different places want their own emote namespaces,
 In this bot, emote names are referred to as 'emote references'.
 An emote reference need not be directly related to any aspect of the actual emote.
 
-The system in this bot has 3 tiers.
+The system in this bot has 4 tiers.
 
 Later tiers override previous tiers.
 
-1. Scanned Emotes.
-2. Owner-configured emotes.
-3. Guild-configured emotes.
+1. Emote IDs (if the emote name given is a valid, known emote ID, that emote gets used)
+2. Scanned Emotes.
+3. Owner-configured emotes.
+4. Guild-configured emotes.
 
 The scanned emotes are stored in the Global Emote Registry.
 

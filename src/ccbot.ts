@@ -101,17 +101,24 @@ export abstract class CCBot extends commando.CommandoClient {
      * It both does and does not support it.
      */
     getEmote(guild: discord.Guild | null, name: string): discord.Emoji {
+        // Local emote overrides
         if (guild) {
             const value = this.provider.get(guild, 'emote-' + name);
             if (value)
                 return this.emojiResolverNina(value.toString());
         }
+        // Global emote overrides
         const value = this.provider.get('global', 'emote-' + name);
         if (value)
             return this.emojiResolverNina(value.toString());
+        // Emote registry
         const gResult = this.globalEmoteRegistry.get(name);
         if (gResult)
             return gResult;
+        // Emote IDs
+        const le = this.emojis.get(name);
+        if (le)
+            return le;
         return this.emojiResolverNina('⁉');
     }
     
