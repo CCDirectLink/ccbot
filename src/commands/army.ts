@@ -43,8 +43,9 @@ export default class ArmyCommand extends CCBotCommand {
                 },
                 {
                     key: 'height',
-                    prompt: 'The height of the army? (A number.)',
-                    type: 'integer'
+                    prompt: 'The height of the army? (A number; or not present, in which case width is put here to create a square)',
+                    type: 'integer',
+                    default: 0
                 }
             ]
         };
@@ -53,6 +54,9 @@ export default class ArmyCommand extends CCBotCommand {
     }
     
     public async run(message: commando.CommandMessage, args: {width: number; height: number}): Promise<discord.Message|discord.Message[]> {
+        // Awkward, but solves the issue.
+        if (args.height == 0)
+            args.height = args.width;
         const emoteUse = this.client.getEmote(message.guild || null, this.emote);
         // Initial safety checks
         if ((args.width < 1) || (args.height < 1))
