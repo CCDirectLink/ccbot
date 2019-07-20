@@ -9,10 +9,10 @@ import {findCheaterByRef} from '../utils';
 export default class CheaterCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general cheater',
+            name: '-general cheater' + client.originalBotCommandPostfix,
             description: 'accuses someone of being a C H E A T E R',
             group: 'general',
-            memberName: 'cheater',
+            memberName: 'cheater' + client.originalBotCommandPostfix,
             args: [
                 {
                     key: 'cheater',

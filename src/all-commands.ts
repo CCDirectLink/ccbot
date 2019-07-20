@@ -9,6 +9,7 @@ import CheaterCommand from './commands/cheater';
 import {RolesAddCommand, RolesRmCommand} from './commands/roles';
 import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
+import SayCommand from './commands/say';
 import {CCBot} from './ccbot';
 
 /**
@@ -48,18 +49,18 @@ export default function registerAllCommands(cr: CCBot, safety: boolean) {
     cr.registry.registerCommand(new CounterCommand(cr));
     
     cr.registry.registerGroup("general");
-    if (!safety) {
-        cr.registry.registerCommand(new ThanksCommand(cr));
-        cr.registry.registerCommand(new PingCommand(cr));
-        cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
-        cr.registry.registerCommand(new CheaterCommand(cr));
-        cr.registry.registerCommand(new ListEmotesCommand(cr));
-        cr.registry.registerCommand(new EmoteCommand(cr));
-        cr.registry.registerCommand(new ReactCommand(cr));
-    }
+    cr.registry.registerCommand(new ThanksCommand(cr));
+    cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy' + cr.originalBotCommandPostfix, 'leaCheeseAngry'));
+    cr.registry.registerCommand(new CheaterCommand(cr));
+    cr.registry.registerCommand(new PingCommand(cr));
+    cr.registry.registerCommand(new ListEmotesCommand(cr));
+    cr.registry.registerCommand(new EmoteCommand(cr));
+    cr.registry.registerCommand(new ReactCommand(cr));
+    cr.registry.registerCommand(new SayCommand(cr));
     cr.registry.registerCommand(new HugCommand(cr));
     
     cr.registry.registerGroup("roles");
+    // Could cause trouble, DON'T allow access!
     if (!safety) {
         cr.registry.registerCommand(new RolesAddCommand(cr));
         cr.registry.registerCommand(new RolesRmCommand(cr));

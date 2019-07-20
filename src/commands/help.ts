@@ -37,7 +37,7 @@ export default class HelpCommand extends CCBotCommand {
         // Append some details on other groups
         const allGroups = this.client.registry.groups.keyArray();
         lines.push('');
-        lines.push('Also see: `-' + allGroups.join(' help`, `-') + ' help`');
+        lines.push('Also see: `-' + allGroups.join(' help' + this.client.originalBotCommandPostfix + '`, `-') + ' help' + this.client.originalBotCommandPostfix + '`');
         
         // The text is set in stone from here on in.
         const text = lines.join('\n');

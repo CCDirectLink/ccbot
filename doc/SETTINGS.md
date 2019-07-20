@@ -23,4 +23,7 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 `emotes`: See EMOTES.md
 `emote-<EMOTE REF>`: See EMOTES.md
 
+`headerless-say`: Removes the "who did it" header from the `say` command.
+ Does *not* do "if not per-guild, fallover to global setting", but instead is useful to make DMs nicer.
+
 (document Commando's enable/disable system at some point)

@@ -10,10 +10,10 @@ import {PageSwitcherData} from '../entities/page-switcher';
 export class ListEmotesCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general lsemotes',
+            name: '-general lsemotes' + client.originalBotCommandPostfix,
             description: 'Displays all emotes.',
             group: 'general',
-            memberName: 'lsemotes'
+            memberName: 'lsemotes' + client.originalBotCommandPostfix
         };
         super(client, opt);
     }
@@ -56,10 +56,10 @@ export class ListEmotesCommand extends CCBotCommand {
 export class EmoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general emote',
+            name: '-general emote' + client.originalBotCommandPostfix,
             description: 'Writes out a series of emotes.',
             group: 'general',
-            memberName: 'emote',
+            memberName: 'emote' + client.originalBotCommandPostfix,
             args: [
                 {
                     key: 'emotes',
@@ -98,10 +98,10 @@ export class EmoteCommand extends CCBotCommand {
 export class ReactCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general react',
+            name: '-general react' + client.originalBotCommandPostfix,
             description: 'Provides the specified reactions.',
             group: 'general',
-            memberName: 'react',
+            memberName: 'react' + client.originalBotCommandPostfix,
             args: [
                 {
                     key: 'emotes',

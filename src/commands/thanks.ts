@@ -8,10 +8,10 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export default class ThanksCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general thanks',
+            name: '-general thanks' + client.originalBotCommandPostfix,
             description: 'Writes a template thank-you message to the devs :)',
             group: 'general',
-            memberName: 'thanks'
+            memberName: 'thanks' + client.originalBotCommandPostfix
         };
         super(client, opt);
     }
