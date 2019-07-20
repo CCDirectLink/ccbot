@@ -100,7 +100,7 @@ export default class JSONCommand extends CCBotCommand {
         // Side-effects (reacts)
         if (this.command.commandReactions)
             for (const react of this.command.commandReactions)
-                await message.react(react);
+                await message.react(this.client.getEmote(message.guild || null, react));
         // Actually send resulting message if necessary
         // Note that the syntax handling here may have to be moved out to a separate module at some point.
         if (this.command.format || hasMeta)
