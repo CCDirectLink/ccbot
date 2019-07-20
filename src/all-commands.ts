@@ -14,7 +14,7 @@ import {CCBot} from './ccbot';
 /**
  * Registers all the commands. (More or less.)
  */
-export default function registerAllCommands(cr: CCBot) {
+export default function registerAllCommands(cr: CCBot, safety: boolean) {
     cr.registry.registerDefaultTypes();
     cr.registry.registerDefaultGroups();
     cr.registry.registerDefaultCommands({
@@ -48,15 +48,20 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new CounterCommand(cr));
     
     cr.registry.registerGroup("general");
-    cr.registry.registerCommand(new ThanksCommand(cr));
-    cr.registry.registerCommand(new PingCommand(cr));
-    cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
-    cr.registry.registerCommand(new CheaterCommand(cr));
-    cr.registry.registerCommand(new ListEmotesCommand(cr));
-    cr.registry.registerCommand(new EmoteCommand(cr));
-    cr.registry.registerCommand(new ReactCommand(cr));
+    if (!safety) {
+        cr.registry.registerCommand(new ThanksCommand(cr));
+        cr.registry.registerCommand(new PingCommand(cr));
+        cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
+        cr.registry.registerCommand(new CheaterCommand(cr));
+        cr.registry.registerCommand(new ListEmotesCommand(cr));
+        cr.registry.registerCommand(new EmoteCommand(cr));
+        cr.registry.registerCommand(new ReactCommand(cr));
+    }
     cr.registry.registerCommand(new HugCommand(cr));
+    
     cr.registry.registerGroup("roles");
-    cr.registry.registerCommand(new RolesAddCommand(cr));
-    cr.registry.registerCommand(new RolesRmCommand(cr));
+    if (!safety) {
+        cr.registry.registerCommand(new RolesAddCommand(cr));
+        cr.registry.registerCommand(new RolesRmCommand(cr));
+    }
 }

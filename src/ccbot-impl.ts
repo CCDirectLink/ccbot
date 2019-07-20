@@ -17,7 +17,7 @@ export default class CCBotImpl extends CCBot {
         super(co, safety);
         this.registry = new CCBotCommandRegistry(this);
         this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
-        registerAllCommands(this);
+        registerAllCommands(this, safety);
         registerAllEntities(this, safety);
         this.setProvider(new CCBotSettingProvider(this.dynamicData.settings));
     }

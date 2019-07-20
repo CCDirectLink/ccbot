@@ -32,6 +32,12 @@ export default class CCBotCommandRegistry extends commando.CommandRegistry {
         return this;
     }
     loadJSONCommands(): void {
+        // If running side-by-side, do NOT install JSON commands!
+        // These will tend to overlap with the original bot.
+        if (this.client.sideBySideProductionSafety)
+            return;
+        
+        // Register JSON commands & groups
         const commands = this.client.dynamicData.commands.data;
         for (const g in commands) {
             if (!this.groups.has(g))

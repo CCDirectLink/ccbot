@@ -90,7 +90,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         
         const commandInst: commando.Command | undefined = groupInst.commands.find('memberName', command);
         if (!commandInst)
-            return new commando.CommandMessage(message, this.registry.unknownCommand, text);
+            return this.parseUnknownCommand(message, text);
 
         return new commando.CommandMessage(message, commandInst, text);
     }
