@@ -35,8 +35,11 @@ export default class SayCommand extends CCBotCommand {
         // It's important that this *does not* use global in place of the setting in the guild if none exists.
         // By per-guild default say should always have a header.
         const headerless = this.client.provider.get(message.guild || 'global', 'headerless-say', false);
-        if (message.deletable && !headerless)
-            silence(message.delete());
+        if (!headerless) {
+            if (message.deletable)
+                silence(message.delete());
+            return await message.say('*' + message.author.toString() + ' says:*\n' + text);
+        }
         return await message.say(text);
     }
 }
