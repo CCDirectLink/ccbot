@@ -14,7 +14,7 @@ async function genericARRunner(message: commando.CommandMessage, args: {roles: s
     const request = convertRoles(message.client, message.guild, args.roles, false);
     if (!request)
         return message.say('The request contained invalid roles.');
-    const whitelist = convertRoleGroup(message.client, message.guild, 'self-serve');
+    const whitelist = convertRoleGroup(message.client, message.guild, 'whitelist');
     for (const v of request)
         if (!whitelist.includes(v))
             return message.say('You don\'t have permission for some of these roles.');
