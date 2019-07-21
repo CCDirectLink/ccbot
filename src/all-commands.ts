@@ -1,6 +1,5 @@
 import ReloadCommand from './commands/reload';
 import CounterCommand from './commands/counter';
-import ThanksCommand from './commands/thanks';
 import PingCommand from './commands/ping';
 import HelpCommand from './commands/help';
 import HugCommand from './commands/hug';
@@ -49,7 +48,6 @@ export default function registerAllCommands(cr: CCBot, safety: boolean) {
     cr.registry.registerCommand(new CounterCommand(cr));
     
     cr.registry.registerGroup("general");
-    cr.registry.registerCommand(new ThanksCommand(cr));
     cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy' + cr.originalBotCommandPostfix, 'leaCheeseAngry'));
     cr.registry.registerCommand(new CheaterCommand(cr));
     cr.registry.registerCommand(new PingCommand(cr));

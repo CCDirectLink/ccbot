@@ -9,11 +9,10 @@ export interface Command {
     // Commando command info override.
     options?: object;
 
-    // The text. At some point, may be expanded to contain formatting directives (hence the name).
-    // The character '%' is reserved for said formatting directives.
-    // As such, '%%' will be replaced with '%' as a form of escaping.
+    // The text. May contain traces of format directives, prefixed with %.
+    // See formatter.ts for more details.
     format?: string;
-    // Embed
+    // Embed (Note, however, that all strings here are valid targets for format directives!)
     embed?: RichEmbedOptions;
     // Reactions to the command.
     commandReactions?: string[];

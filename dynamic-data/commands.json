@@ -165,6 +165,12 @@
         "get": {
             "description": "Gives you links to various places where you can get CrossCode.",
             "format": "Steam: https://store.steampowered.com/app/368340/\nGOG: https://www.gog.com/game/crosscode"
+        },
+        "thanks": {
+            "description": "Writes a template thank-you message to the devs :)",
+            "embed": {
+                "description": "From %(name (cause)),\n\t%(random-element (quote (Keep% up% the% good% work! You% guys% are% awesome.)))\nTo,\n\t\tRadical Fish Games"
+            }
         }
     },
     "nsfw": {

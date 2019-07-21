@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
-import {nsfw} from './utils';
+import {randomArrayElement} from './utils';
 import {CCBot, CCBotCommand} from './ccbot';
 
 export type Value = string | ValueX;
@@ -37,9 +37,31 @@ export function newVM(context: VMContext): VM {
                 return ((context.channel as any).guild && (context.channel as any).guild.commandPrefix) || context.client.commandPrefix || context.client.user.toString();
             if ((args.length == 1) && (args[0] == 'cause'))
                 return context.cause.id;
+            if ((args.length == 2) && (args[0] == 'random-element')) {
+                // Gets a random element from an array.
+                const res = vm(args[1]);
+                if (res.constructor === Array)
+                    return randomArrayElement(res as Value[]);
+                return res;
+            }
+            if ((args.length == 2) && (args[0] == 'name')) {
+                // Determines the local name of someone, if possible.
+                const res = vm(args[1]).toString();
+                const user = context.client.users.get(res);
+                if (!user)
+                    return res;
+                let nickname = null;
+                const guild: discord.Guild | undefined = (context.channel as any).guild;
+                if (guild) {
+                    const member: discord.GuildMember | undefined = guild.members.get(user.id);
+                    if (member)
+                        nickname = member.nickname;
+                }
+                return nickname || user.username || res;
+            }
             if ((args.length == 2) && (args[0] == 'emote'))
-                return context.client.getEmote((context.channel as any).guild || null, args[1].toString()).toString();
-            throw new Error('Unknown format routine / bad parameters.');
+                return context.client.getEmote((context.channel as any).guild || null, vm(args[1]).toString()).toString();
+            throw new Error('Unknown format routine / bad parameters. Dump: ' + args.toString());
         }
         // The idea behind this is... to use more LISP ideas, basically.
         // Strings get passed as-is, lists are executed,
@@ -90,7 +112,8 @@ export function runFormat(text: string, runner: VM): string {
         } else if (listStack.length > 0) {
             if ((ch == ' ') || (ch == '(') || (ch == ')')) {
                 // 'Breaking' characters
-                listStack[0].push(listCurrentToken);
+                if (listCurrentToken.length > 0)
+                    listStack[0].push(listCurrentToken);
                 listCurrentToken = '';
             }
             if ((ch == '(') || (ch == ')')) {
@@ -102,7 +125,7 @@ export function runFormat(text: string, runner: VM): string {
                         workspace += runner(listStack[0]);
                         listStack.shift();
                     } else {
-                        listStack[1].push(listStack[0].toString());
+                        listStack[1].push(listStack[0]);
                         listStack.shift();
                     }
                 }
