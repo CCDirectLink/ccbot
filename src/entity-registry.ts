@@ -215,10 +215,12 @@ export class EntityRegistry<C, T extends Entity<C>> {
     
     /**
      * Creates a new entity from the JSON data for that entity.
+     * Must report errors to console.
      */
     public newEntity(data: any): Promise<T> {
         return new Promise((resolve: (a: T) => void, reject: () => void) => {
             if (!this.started) {
+                console.log('entity was being created before entities existed');
                 reject();
                 return;
             }
@@ -278,7 +280,9 @@ export class EntityRegistry<C, T extends Entity<C>> {
             return;
         this.killAllEntities();
         for (const entity of this.entityData.data)
-            this.newEntity(entity);
+            this.newEntity(entity).catch((e) => {
+                // These will have already been reported.
+            });
         this.pendingEntityFlush = false;
     }
     
