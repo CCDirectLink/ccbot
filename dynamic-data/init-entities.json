@@ -3,6 +3,9 @@
         "type": "old-behaviors"
     },
     {
+        "type": "greeter"
+    },
+    {
         "type": "random-activity",
         "intervalMs": 30000,
         "activities": [

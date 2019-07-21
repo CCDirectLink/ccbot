@@ -32,6 +32,10 @@ export function channelAsTBF(channel: discord.Channel | undefined): (discord.Cha
     return undefined;
 }
 
+export function getGuildTextChannel(client: commando.CommandoClient, guild: discord.Guild, id: string): discord.TextChannel {
+    return channelAsTBF(guild.channels.get(client.provider.get(guild, 'channel-' + id, ''))) as discord.TextChannel;
+}
+
 /**
  * Use if you think a failed promise really doesn't matter.
  */

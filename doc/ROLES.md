@@ -8,23 +8,25 @@ The system has two primary concepts: Role groups and role group groups.
 
 Both are arrays of strings, those strings being the names of the relevant objects.
 
-There is 1 hard-coded role group, and 2 hard-coded role group groups.
+There are 2 hard-coded role groups, and 2 hard-coded role group groups.
 
 
-The hard-coded role group is `roles-group-self-serve`.
+The first hard-coded role group is `roles-group-whitelist`.
 
-`roles-group-self-serve` roles can be added and removed by anyone to themselves.
+`roles-group-whitelist` roles can be added and removed by anyone to themselves.
 
+The other hard-coded role group is `roles-group-auto-role`.
+This isn't currently implemented because the logic behind it isn't understood enough yet for a better implementation.
 
-The hard-coded role group groups add additional rules to `self-serve`.
+The hard-coded role group groups add additional rules to `roles-group-whitelist`.
 
-`exclusive` only allows up to one role in each group to be active at any given time.
+`roles-exclusive` only allows up to one role in each group to be active at any given time.
 
 Attempting to add another role will cancel out.
 
-`inclusive` forces at least one role in each group to be active at any given time.
+`roles-inclusive` forces at least one role in each group to be active at any given time.
 
-Note that `-roles add` only considers `exclusive` rules, and `-roles rm` only considers `inclusive` rules.
+Note that `-roles add` only considers `roles-exclusive` rules, and `-roles rm` only considers `roles-inclusive` rules.
 
 The rules are not considered outside of these interactions.
 

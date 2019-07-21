@@ -127,3 +127,5 @@ This ensures that message-related events are sent to the entity, but it also
  implies that killing the manager may delete the message in some cases.
 
 `old-behaviors-manager`: Meant to be an instance of the `old-behaviors` entity.
+
+`greeter-manager`: Implements 'greeting'.

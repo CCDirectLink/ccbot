@@ -1,10 +1,59 @@
 {
-    "562379828330889236": {
-        "comment": "20kdc Bot Dev",
-        "roles-group-bot-admin": [
-            "test-role/bot-admin"
+    "507116232638595083": {
+        "comment": "Shizuka Cult",
+        "greeting": "<@%(cause)>, Welcome, enjoy your stay~",
+        "channel-greet": "cult-enterance",
+        "channel-info": "info",
+        "channel-syslog": "syslog",
+        "channel-editlog": "editlog"
+    },
+    "143364538958348288": {
+        "comment": "CrossCode (official, verified, etc.)",
+        "greeting": "<@%(cause)>, Welcome!",
+        "roles-group-whitelist": [
+            "spheromancer",
+            "triblader",
+            "quadroguard",
+            "pentafist",
+            "hexacast"
         ],
-        "roles-group-self-serve": [
+        "roles-exclusive": [
+            "class"
+        ],
+        "roles-group-class": [
+            "spheromancer",
+            "triblader",
+            "quadroguard",
+            "pentafist",
+            "hexacast"
+        ]
+    },
+    "382339402338402315": {
+        "comment": "CrossCode Modding (NOTE! 'admin' isn't implemented & the role whitelist is TOO EMPTY right now!!!)",
+        "greeting": "<@%(cause)>, Welcome! Use `%(prefix) -roles add <role>` to add a role!\nTo see a list of available roles, please visit #role-list",
+        "channel-syslog": "admin-watchtower",
+        "roles-group-auto-role": [
+            "member"
+        ],
+        "roles-group-whitelist": [
+        ],
+        "prefix": ".cc"
+    },
+    "210920824503402496": {
+        "comment": "Lovely Emote Additions",
+        "greeting": "<@%(cause)>, Welcome!",
+        "channel-editlog": "edit-log"
+    },
+    "558469426765103135": {
+        "comment": "CrossCode PP Up",
+        "prefix": ".cc",
+        "emote-shizuHUG": "599432186692632628",
+        "nsfw": true
+    },
+    "562379828330889236": {
+        "comment": "20kdc's Scratchpad",
+        "greeting": "Hiya, <@%(cause)>!",
+        "roles-group-whitelist": [
             "test-role/apple",
             "test-role/banana",
             "shutdown now"
@@ -21,6 +70,7 @@
         ]
     },
     "global": {
+        "comment": "Regarding those places not shown here, they all had effectively default settings.",
         "emotes": ["leaHAPPY", "leaTHINK", "leaBAT", "leaCheese", "ohno", "emilieWhy", "apolloPoint", "apolloShout", "shizuHUG"],
         "emote-leaHAPPY": "337987483788902410",
         "emote-leaTHINK": "397961863805140992",

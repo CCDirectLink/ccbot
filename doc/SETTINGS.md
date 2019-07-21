@@ -17,6 +17,10 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 
 `roles-*`: Please see `ROLES.md`
 
+`channel-*`: Specifies utility channels by name. Their names are taken from the old system.
+
+`greeting`: Specifies the bot's greeting, if usable.
+
 ## Both
 
 `prefix`: Part of Commando

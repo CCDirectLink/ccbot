@@ -34,7 +34,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
             commandPrefix = this.client.commandPrefix;
         }
 
-        const universalPrefix: string = '<@' + this.client.user.id + '>';
+        const universalPrefix: string = this.client.user.toString();
         commandPrefix = commandPrefix || universalPrefix;
         
         if (text.startsWith(commandPrefix)) {
