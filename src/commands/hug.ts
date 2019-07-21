@@ -61,6 +61,10 @@ export default class HugCommand extends CCBotCommand {
                 lines.push('Couldn\'t find ' + args.people[i] + '!');
             }
         }
-        return await message.say(lines.join('\n'));
+        
+        const text = lines.join('\n');
+        if (text.length > 2000)
+            return await message.say('Hug overload!');
+        return await message.say(text);
     }
 }
