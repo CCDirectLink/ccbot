@@ -8,10 +8,10 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export default class HelpCommand extends CCBotCommand {
     public constructor(client: CCBot, group: string) {
         const opt = {
-            name: '-' + group + ' help' + client.originalBotCommandPostfix,
+            name: '-' + group + ' help',
             description: 'provides the text you\'re reading!',
             group: group,
-            memberName: 'help' + client.originalBotCommandPostfix
+            memberName: 'help'
         };
         super(client, opt);
     }
@@ -37,7 +37,7 @@ export default class HelpCommand extends CCBotCommand {
         // Append some details on other groups
         const allGroups = this.client.registry.groups.keyArray();
         lines.push('');
-        lines.push('Also see: `-' + allGroups.join(' help' + this.client.originalBotCommandPostfix + '`, `-') + ' help' + this.client.originalBotCommandPostfix + '`');
+        lines.push('Also see: `-' + allGroups.join(' help`, `-') + ' help`');
         
         // The text is set in stone from here on in.
         const text = [lines.join('\n')];

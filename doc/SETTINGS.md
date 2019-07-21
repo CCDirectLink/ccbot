@@ -17,6 +17,9 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 
 `roles-*`: Please see `ROLES.md`
 
+`optin-roles`: roles module access state for side-by-side:
+ 'no' (not valid), 'both' (has '-' prefix), 'yes' (overlaps original bot)
+
 `channel-*`: Specifies utility channels by name. Their names are taken from the old system.
 
 `greeting`: Specifies the bot's greeting, if usable.

@@ -43,7 +43,7 @@ export default class CCBotCommandRegistry extends commando.CommandRegistry {
             this.registerCommand(gcmd);
             
             for (const k in commands[g]) {
-                const cmd: commando.Command = new JSONCommand(this.client, g, k + this.client.originalBotCommandPostfix, commands[g][k]);
+                const cmd: commando.Command = new JSONCommand(this.client, g, k, commands[g][k]);
                 this.allJSONCommands.push(cmd);
                 this.registerCommand(cmd);
             }

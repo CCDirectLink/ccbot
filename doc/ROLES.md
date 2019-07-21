@@ -8,17 +8,17 @@ The system has two primary concepts: Role groups and role group groups.
 
 Both are arrays of strings, those strings being the names of the relevant objects.
 
-There are 2 hard-coded role groups, and 2 hard-coded role group groups.
+Note that a role can be in several groups, and thus in several role group groups.
 
+There is 1 hard-coded role group, and 3 hard-coded role group groups.
 
-The first hard-coded role group is `roles-group-whitelist`.
+The hard-coded role group is `roles-group-auto-role`.
 
-`roles-group-whitelist` roles can be added and removed by anyone to themselves.
+This is a set of roles added to members entering the guild.
 
-The other hard-coded role group is `roles-group-auto-role`.
-This isn't currently implemented because the logic behind it isn't understood enough yet for a better implementation.
+The hard-coded role group groups control how users control roles.
 
-The hard-coded role group groups add additional rules to `roles-group-whitelist`.
+All roles in groups in `roles-whitelist` can be added and removed by anyone to themselves.
 
 `roles-exclusive` only allows up to one role in each group to be active at any given time.
 

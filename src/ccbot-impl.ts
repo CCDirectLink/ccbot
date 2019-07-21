@@ -14,10 +14,10 @@ import registerAllEntities from './all-entities';
  */
 export default class CCBotImpl extends CCBot {
     constructor(co: commando.CommandoClientOptions, safety: boolean) {
-        super(co, safety);
+        super(co);
         this.registry = new CCBotCommandRegistry(this);
-        this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
-        registerAllCommands(this, safety);
+        this.dispatcher = new CCBotCommandDispatcher(this, this.registry, safety);
+        registerAllCommands(this);
         registerAllEntities(this, safety);
         this.setProvider(new CCBotSettingProvider(this.dynamicData.settings));
     }

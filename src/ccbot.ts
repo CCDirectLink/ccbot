@@ -11,18 +11,13 @@ import {Entity, EntityRegistry} from './entity-registry';
  * See ccbot-impl.ts for why this is.
  */
 export abstract class CCBot extends commando.CommandoClient {
-    sideBySideProductionSafety: boolean;
-    // A postfix on all commands that may exist in the original bot, used to prevent conflicts.
-    originalBotCommandPostfix: string;
     dynamicData: DynamicDataManager;
     entities: EntityRegistry<CCBot, CCBotEntity>;
     // NOTE: This does *not* include per-guild settings or global settings.
     globalEmoteRegistry: Map<string, discord.Emoji> = new Map();
     
-    constructor(co: commando.CommandoClientOptions, safety: boolean) {
+    constructor(co: commando.CommandoClientOptions) {
         super(co);
-        this.sideBySideProductionSafety = safety;
-        this.originalBotCommandPostfix = safety ? '-' : '';
         this.dynamicData = new DynamicDataManager();
         this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, this.dynamicData.entities);
         // This implicitly occurs after entity registration in ccbot-impl.

@@ -9,10 +9,10 @@ import {nsfwGuild, nsfw, silence} from '../utils';
 export default class SayCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general say' + client.originalBotCommandPostfix,
+            name: '-general say',
             description: 'Has the bot say something. Emotes are delimited with "/", such as /shizuHUG/.',
             group: 'general',
-            memberName: 'say' + client.originalBotCommandPostfix,
+            memberName: 'say',
             args: [
                 {
                     key: 'text',

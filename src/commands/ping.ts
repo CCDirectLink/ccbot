@@ -8,10 +8,10 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export default class PingCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general ping' + client.originalBotCommandPostfix,
+            name: '-general ping',
             description: 'tests bot response time',
             group: 'general',
-            memberName: 'ping' + client.originalBotCommandPostfix
+            memberName: 'ping'
         };
         super(client, opt);
     }

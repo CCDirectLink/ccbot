@@ -8,13 +8,16 @@ import {mentionRegex} from './utils';
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
 
 /**
- * 
  * A modified version of the CommandDispatcher.
  */
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
+    // The full effects of this are documented in [SAFETY] blocks.
+    sideBySideSafety: boolean;
+    client!: CCBot;
     
-    constructor(c: CCBot, r: commando.CommandRegistry) {
+    constructor(c: CCBot, r: commando.CommandRegistry, safety: boolean) {
         super(c, r);
+        this.sideBySideSafety = safety;
     }
 
     parseMessage(message: any): commando.CommandMessage | null {
@@ -80,14 +83,27 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         
         // Stage 4: Actually Figure Out What Command It Is
         
-        
         group = group.toLowerCase();
         command = command.toLowerCase();
 
         const groupInst: commando.CommandGroup | undefined = this.registry.groups.get(group);
         if (!groupInst)
             return this.parseUnknownCommand(message, text);
-        
+
+        // [SAFETY] Determine the local state of the roles module.
+        let rolesState: string = this.sideBySideSafety ? 'no' : 'yes';
+        if (this.sideBySideSafety && message.guild)
+            rolesState = (this.client.provider.get(message.guild, 'optin-roles') || rolesState).toString();
+        // [SAFETY] All commands that are potentially conflicting get a '-' postfix.
+        if ((group != 'util') && (group != 'commands') && (command != 'hug') && ((rolesState != 'yes') || (group != 'roles')) && this.sideBySideSafety) {
+            if (!command.endsWith('-'))
+                return null;
+            command = command.substring(0, command.length - 1);
+        }
+        // [SAFETY] Disable access to roles module if we don't trust it yet
+        if ((rolesState == 'no') && (group == 'roles'))
+            return null;
+
         const commandInst: commando.Command | undefined = groupInst.commands.find('memberName', command);
         if (!commandInst)
             return this.parseUnknownCommand(message, text);
@@ -96,7 +112,8 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     }
     
     parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
-        if ((this.client as CCBot).sideBySideProductionSafety)
+        // [SAFETY]
+        if (this.sideBySideSafety)
             return null;
         return new commando.CommandMessage(message, this.registry.unknownCommand, text)
     }

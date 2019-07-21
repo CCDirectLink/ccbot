@@ -10,12 +10,8 @@
     "143364538958348288": {
         "comment": "CrossCode (official, verified, etc.)",
         "greeting": "<@%(cause)>, Welcome!",
-        "roles-group-whitelist": [
-            "spheromancer",
-            "triblader",
-            "quadroguard",
-            "pentafist",
-            "hexacast"
+        "roles-whitelist": [
+            "class"
         ],
         "roles-exclusive": [
             "class"
@@ -35,7 +31,10 @@
         "roles-group-auto-role": [
             "member"
         ],
-        "roles-group-whitelist": [
+        "roles-whitelist": [
+            "assignable"
+        ],
+        "roles-group-assignable": [
         ],
         "prefix": ".cc"
     },
@@ -53,21 +52,30 @@
     "562379828330889236": {
         "comment": "20kdc's Scratchpad",
         "greeting": "Hiya, <@%(cause)>!",
-        "roles-group-whitelist": [
-            "test-role/apple",
-            "test-role/banana",
-            "shutdown now"
+        "roles-whitelist": [
+            "fruit",
+            "shutdown"
         ],
         "roles-group-fruit": [
             "test-role/apple",
-            "test-role/banana"
+            "test-role/banana",
+            "test-role/pear"
+        ],
+        "roles-group-shutdown": [
+            "shutdown now"
+        ],
+        "roles-group-auto-role": [
+            "test-role/pear"
         ],
         "roles-exclusive": [
             "fruit"
         ],
         "roles-inclusive": [
-            "fruit"
-        ]
+            "fruit",
+            "shutdown"
+        ],
+        "prefix": ".cc",
+        "optin-roles": "both"
     },
     "global": {
         "comment": "Regarding those places not shown here, they all had effectively default settings.",

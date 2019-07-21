@@ -1,11 +1,11 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getGuildTextChannel} from '../utils';
+import {getGuildTextChannel, convertRoleGroup} from '../utils';
 import {newVM, runFormat} from '../formatter';
 
 /**
- * Implements old behaviors into the bot.
+ * Implements greetings and role assignment.
  */
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;
@@ -24,6 +24,7 @@ class GreeterEntity extends CCBotEntity {
                     cause: m.user
                 })));
             }
+            m.addRoles(convertRoleGroup(c, m.guild, 'auto-role'));
         };
         this.client.on('guildMemberAdd', this.memberListener);
     }
