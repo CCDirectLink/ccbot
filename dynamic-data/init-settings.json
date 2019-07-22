@@ -36,7 +36,8 @@
         ],
         "roles-group-assignable": [
         ],
-        "prefix": ".cc"
+        "prefix": ".cc",
+        "optin-roles": "yes"
     },
     "210920824503402496": {
         "comment": "Lovely Emote Additions",
