@@ -122,28 +122,22 @@ export function localAdminCheck(t: commando.CommandMessage): boolean {
 
 export const mentionRegex = /\<\@\!?([0-9]*)\>/g;
 
-export function findCheaterByRef(t: commando.CommandMessage, ref: string): discord.User | null {
+export function findMemberByRef(t: commando.CommandMessage, ref: string): discord.GuildMember | null {
+    if (!t.guild)
+        return null;
+
     const mention = mentionRegex.exec(ref);
     if (mention)
-        return t.client.users.get(mention[1]) || null;
+        return t.guild.members.get(mention[1]) || null;
 
-    const byId = t.client.users.get(ref);
+    const byId = t.guild.members.get(ref);
     if (byId)
         return byId;
 
-    if (t.guild) {
-        const candidates: discord.GuildMember[] = t.guild.members.filterArray((v: discord.GuildMember): boolean => {
-            return (v.user.username.includes(ref)) || (ref == (v.user.username + '#' + v.user.discriminator)) || (ref == v.user.id) || (ref == v.nickname);
-        });
-        if (candidates.length == 1)
-            return candidates[0].user;
-    } else {
-        const candidates: discord.User[] = t.client.users.filterArray((v: discord.User): boolean => {
-            return (ref == (v.username + '#' + v.discriminator)) || (ref == v.id);
-        });
-        if (candidates.length == 1)
-            return candidates[0];
-    }
-
+    const candidates: discord.GuildMember[] = t.guild.members.filterArray((v: discord.GuildMember): boolean => {
+        return (v.user.username.includes(ref)) || (ref == (v.user.username + '#' + v.user.discriminator)) || (ref == v.user.id) || (ref == v.nickname);
+    });
+    if (candidates.length == 1)
+        return candidates[0];
     return null;
 }

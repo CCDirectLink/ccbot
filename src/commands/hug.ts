@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {findCheaterByRef} from '../utils';
+import {findMemberByRef} from '../utils';
 
 /**
  * For hugging.
@@ -49,14 +49,16 @@ export default class HugCommand extends CCBotCommand {
         const hugEmote = this.client.getEmote(message.guild || null, 'shizuHUG').toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
-            const user = findCheaterByRef(message, args.people[i]);
-            if (user == message.author) {
-                lines.push('You shouldn\'t have to hug yourself, but ' + this.client.user + ' will hug you! ' + hugEmote);
-            } else if (user) {
-                if (alreadyHugged.has(user))
+            const member = findMemberByRef(message, args.people[i]);
+            if (member) {
+                if (alreadyHugged.has(member.user))
                     continue;
-                lines.push(hugEmote + ' ' + user.toString());
-                alreadyHugged.add(user);
+                if (member.user == message.author) {
+                    lines.push('You shouldn\'t have to hug yourself, but ' + this.client.user + ' will hug you! ' + hugEmote);
+                } else {
+                    lines.push(hugEmote + ' ' + member.user.toString());
+                }
+                alreadyHugged.add(member.user);
             } else {
                 lines.push('Couldn\'t find ' + args.people[i] + '!');
             }
