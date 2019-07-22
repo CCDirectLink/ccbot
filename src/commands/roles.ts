@@ -9,22 +9,25 @@ import {convertRoles, convertRoleGroup, getInvolvement} from '../utils';
 async function genericARRunner(message: commando.CommandMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {
     if (!message.member)
         return message.say('There aren\'t roles in a DM channel.');
+    return message.say(await runRoleCommand(message.client as CCBot, message.member, args.roles, add));
+}
+export async function runRoleCommand(client: CCBot, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
-    const userRoles = message.member.roles.keyArray();
-    const request = convertRoles(message.client, message.guild, args.roles, false);
+    const userRoles = member.roles.keyArray();
+    const request = convertRoles(client, member.guild, roles, false);
     if (!request)
-        return message.say('The request contained invalid roles.');
+        return 'The request contained invalid roles.';
 
     // -- Check that all roles are allowed --
 
-    const whitelistGroups: string[] = message.client.provider.get(message.guild, 'roles-whitelist', []);
+    const whitelistGroups: string[] = client.provider.get(member.guild, 'roles-whitelist', []);
     const whitelist: string[] = [];
     for (const v of whitelistGroups)
-        for (const v2 of convertRoleGroup(message.client, message.guild, v))
+        for (const v2 of convertRoleGroup(client, member.guild, v))
             whitelist.push(v2);
     for (const v of request)
         if (!whitelist.includes(v))
-            return message.say('You don\'t have permission for some of these roles.');
+            return 'You don\'t have permission for some of these roles.';
     
     // -- Command action filtration --
     
@@ -45,9 +48,9 @@ async function genericARRunner(message: commando.CommandMessage, args: {roles: s
     
     // -- Involvement processing --
 
-    const involvedGroups = getInvolvement(message.client, message.guild, add ? 'exclusive' : 'inclusive', primaryRoles);
+    const involvedGroups = getInvolvement(client, member.guild, add ? 'exclusive' : 'inclusive', primaryRoles);
     for (const groupName of involvedGroups) {
-        const groupContent: string[] = convertRoleGroup(message.client, message.guild, groupName);
+        const groupContent: string[] = convertRoleGroup(client, member.guild, groupName);
         if (add) {
             // If any roles are already active in the group, remove them.
             // This leaves only one role (the one that caused the involvement)
@@ -66,18 +69,18 @@ async function genericARRunner(message: commando.CommandMessage, args: {roles: s
                 }
             }
             if (!ok)
-                return message.say('You need at least one ' + groupName + ' role.');
+                return 'You need at least one ' + groupName + ' role.';
         }
     }
     
     // -- Action performance & description --
     
     if (removeRoles.length > 0)
-        await message.member.removeRoles(removeRoles);
+        await member.removeRoles(removeRoles);
     if (addRoles.length > 0)
-        await message.member.addRoles(addRoles);
+        await member.addRoles(addRoles);
     
-    return message.say('Done!');
+    return 'Done!';
 }
 
 /**

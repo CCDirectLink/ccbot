@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getGuildTextChannel, convertRoleGroup} from '../utils';
+import {getRolesState, getGuildTextChannel, convertRoleGroup} from '../utils';
 import {newVM, runFormat} from '../formatter';
 
 /**
@@ -14,6 +14,9 @@ class GreeterEntity extends CCBotEntity {
         super(c, 'greeter-manager', data);
         this.memberListener = (m: discord.GuildMember): void => {
             if (this.killed)
+                return;
+            let rolesState: string = getRolesState(this.client, m.guild);
+            if (rolesState == 'no')
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             const greeting = c.provider.get(m.guild, 'greeting');

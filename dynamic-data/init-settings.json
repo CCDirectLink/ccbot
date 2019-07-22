@@ -52,6 +52,7 @@
     "562379828330889236": {
         "comment": "20kdc's Scratchpad",
         "greeting": "Hiya, <@%(cause)>!",
+        "channel-greet": "knights-of-the-round",
         "roles-whitelist": [
             "fruit",
             "shutdown"
