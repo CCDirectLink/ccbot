@@ -29,7 +29,7 @@ export class ListEmotesCommand extends CCBotCommand {
             const emote = this.client.getEmote(message.guild || null, eref);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;
-            if (pageContent == 50) {
+            if (pageContent == 20) {
                 pages.push({description: ''});
                 pageContent = 0;
             }
