@@ -15,7 +15,7 @@ class GreeterEntity extends CCBotEntity {
         this.memberListener = (m: discord.GuildMember): void => {
             if (this.killed)
                 return;
-            let rolesState: string = getRolesState(this.client, m.guild);
+            const rolesState: string = getRolesState(this.client, m.guild);
             if (rolesState == 'no')
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');

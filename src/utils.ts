@@ -32,12 +32,12 @@ export function channelAsTBF(channel: discord.Channel | undefined): (discord.Cha
     return undefined;
 }
 
-export function getGuildTextChannel(client: commando.CommandoClient, guild: discord.Guild, id: string): discord.TextChannel {
+export function getGuildTextChannel(client: commando.CommandoClient, guild: discord.Guild, id: string): discord.TextChannel | undefined {
     const guildChannel = client.provider.get(guild, 'channel-' + id, '');
     const result = guild.channels.find((c: discord.GuildChannel): boolean => {
         return (c.id == guildChannel) || (c.name == guildChannel);
     });
-    return channelAsTBF(result) as discord.TextChannel;
+    return channelAsTBF(result) as (discord.TextChannel | undefined);
 }
 
 /**

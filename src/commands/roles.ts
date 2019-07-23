@@ -5,12 +5,9 @@ import {convertRoles, convertRoleGroup, getInvolvement} from '../utils';
 
 /**
  * There's a lot of common stuff this combines into one function.
+ * Notably, this assumes that whoever causes this to be run, they are authorized to do so.
+ * If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
  */
-async function genericARRunner(message: commando.CommandMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {
-    if (!message.member)
-        return message.say('There aren\'t roles in a DM channel.');
-    return message.say(await runRoleCommand(message.client as CCBot, message.member, args.roles, add));
-}
 export async function runRoleCommand(client: CCBot, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
     const userRoles = member.roles.keyArray();
@@ -81,6 +78,12 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
         await member.addRoles(addRoles);
     
     return 'Done!';
+}
+
+async function genericARRunner(message: commando.CommandMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {
+    if (!message.member)
+        return message.say('There aren\'t roles in a DM channel.');
+    return message.say(await runRoleCommand(message.client as CCBot, message.member, args.roles, add));
 }
 
 /**
