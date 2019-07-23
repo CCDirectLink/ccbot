@@ -40,6 +40,14 @@ export abstract class CCBot extends commando.CommandoClient {
     }
     
     /**
+     * Overrides destroy to ensure all data is saved.
+     */
+    async destroy(): Promise<void> {
+        await super.destroy();
+        await this.dynamicData.destroy();
+    }
+    
+    /**
      * You really, really shouldn't have to add something here.
      * As far as I know the only kinds of events that need this kind of thing are reaction events,
      *  and I have already solved those... well enough.

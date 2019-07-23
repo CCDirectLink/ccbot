@@ -102,13 +102,15 @@ export class DynamicData<T> {
         }
     }
     
-    // Reloads the object. Note that the promise won't be rejected on reload failure.
+    /**
+     * Reloads the object. Note that the promise won't be rejected on reload failure.
+     */
     reload(): Promise<void> {
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
             fs.readFile(this.path, 'utf8', (err: any, data: string) => {
                 if (!err) {
                     try {
-                        this.data = this.migrate(JSON.parse(data));
+                        this.data = JSON.parse(data);
                     } catch (e) {
                         console.log('in ' + this.path);
                         console.error(e);
@@ -123,12 +125,13 @@ export class DynamicData<T> {
     }
     
     /**
-     * Given a loaded JSON object,
-     *  migrates the JSON value 'x' to the current version.
-     * Can also act as a verifier.
+     * Destroys the DynamicData, severing the link to the filesystem (if there is one).
+     * Before doing so, saves any modified data, leaving things in a consistent state.
      */
-    migrate(x: any): T {
-        return x as T;
+    async destroy(): Promise<void> {
+        if (this.modifyTimeoutActive != null)
+            await this.saveImmediate();
+        this.ram = true;
     }
 };
 
@@ -141,4 +144,12 @@ export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
     entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, false, []);
     settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});
+    
+    async destroy(): Promise<void> {
+        await Promise.all([
+            this.commands.destroy(),
+            this.entities.destroy(),
+            this.settings.destroy()
+        ]);
+    }
 }
