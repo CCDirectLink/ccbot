@@ -46,7 +46,7 @@ export default class HugCommand extends CCBotCommand {
         if (effectiveLength > 10)
             return await message.say('The physics of that are questionable, sadly...');
         const lines = [];
-        const hugEmote = this.client.getEmote(message.guild || null, 'shizuHUG').toString().repeat(tryTimes);
+        const hugEmote = this.client.emoteRegistry.getEmote(message.guild || null, 'shizuHUG').toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
             const member = findMemberByRef(message, args.people[i]);

@@ -27,7 +27,7 @@ export default class SayCommand extends CCBotCommand {
     
     public async run(message: commando.CommandMessage, args: {text: string[]}): Promise<discord.Message|discord.Message[]> {
         const text = args.text.join(' ').replace(/\/(.*?)\//g, (text: string, p1: string): string => {
-            const emote = this.client.getEmote(message.guild || null, p1);
+            const emote = this.client.emoteRegistry.getEmote(message.guild || null, p1);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 return '';
             return emote.toString();

@@ -57,7 +57,7 @@ export default class ArmyCommand extends CCBotCommand {
         // Awkward, but solves the issue.
         if (args.height == 0)
             args.height = args.width;
-        const emoteUse = this.client.getEmote(message.guild || null, this.emote);
+        const emoteUse = this.client.emoteRegistry.getEmote(message.guild || null, this.emote);
         // Initial safety checks
         if ((args.width < 1) || (args.height < 1))
             return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');

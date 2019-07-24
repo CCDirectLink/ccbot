@@ -28,6 +28,6 @@ export default class CheaterCommand extends CCBotCommand {
         const cheater: discord.GuildMember | null = findMemberByRef(message, args.cheater);
         if (!cheater)
             return message.say('could not find the cheater.');
-        return message.say(cheater.user.toString() + ' ' + this.client.getEmote(message.guild || null, 'apolloPoint').toString() + this.client.getEmote(message.guild || null, 'apolloShout').toString() + ' I GOT YOU NOW!');
+        return message.say(cheater.user.toString() + ' ' + this.client.emoteRegistry.getEmote(message.guild || null, 'apolloPoint').toString() + this.client.emoteRegistry.getEmote(message.guild || null, 'apolloShout').toString() + ' I GOT YOU NOW!');
     }
 }

@@ -60,7 +60,7 @@ export function newVM(context: VMContext): VM {
                 return nickname || user.username || res;
             }
             if ((args.length == 2) && (args[0] == 'emote'))
-                return context.client.getEmote((context.channel as any).guild || null, vm(args[1]).toString()).toString();
+                return context.client.emoteRegistry.getEmote((context.channel as any).guild || null, vm(args[1]).toString()).toString();
             throw new Error('Unknown format routine / bad parameters. Dump: ' + args.toString());
         }
         // The idea behind this is... to use more LISP ideas, basically.

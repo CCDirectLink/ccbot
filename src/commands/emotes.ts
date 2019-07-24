@@ -20,13 +20,13 @@ export class ListEmotesCommand extends CCBotCommand {
     
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         
-        const refs: string[] = this.client.getEmoteRefs(message.guild || null);
+        const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort();
         const pages: discord.RichEmbedOptions[] = [{description: ''}];
         let pageContent = 0;
         
         for (const eref of refs) {
-            const emote = this.client.getEmote(message.guild || null, eref);
+            const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;
             if (pageContent == 20) {
@@ -75,7 +75,7 @@ export class EmoteCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if ((args.emotes.length > 0) && (args.emotes[0] == 'emote_reset')) {
             if (localAdminCheck(message)) {
-                this.client.updateGlobalEmoteRegistry();
+                this.client.emoteRegistry.updateGlobalEmoteRegistry();
                 return message.say('It is done.');
             } else {
                 return message.say('Not allowed...');
@@ -83,7 +83,7 @@ export class EmoteCommand extends CCBotCommand {
         }
         const texts = [];
         for (let i = 0; i < args.emotes.length; i++) {
-            const emote = this.client.getEmote(message.guild || null, args.emotes[i]);
+            const emote = this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;
             texts.push(emote.toString());
@@ -143,10 +143,10 @@ export class ReactCommand extends CCBotCommand {
         if (targetMessage.channel !== targetChannel)
             return await message.say('Lea bye.');
         for (let i = start; i < args.emotes.length; i++) {
-            const emote = this.client.getEmote(message.guild || null, args.emotes[i]);
+            const emote = this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(targetChannel))
                 continue;
-            await targetMessage.react(this.client.getEmote(message.guild || null, args.emotes[i]));
+            await targetMessage.react(this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]));
         }
         return [];
     }
