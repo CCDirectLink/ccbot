@@ -1,7 +1,34 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {convertRoles, convertRoleGroup, getInvolvement} from '../utils';
+import {convertRoles, convertRoleGroup} from '../role-utils';
+
+/**
+ * Gets inclusivity/exclusivity group involvement given a target and a role ID list.
+ */
+function getInvolvement(client: commando.CommandoClient, guild: discord.Guild, groupType: string, involvedIDs: string[]): string[] {
+    const involvement: string[] = [];
+    const groups: string[] = client.provider.get(guild, 'roles-' + groupType, []);
+    for (const v of groups) {
+        const roles: string[] = convertRoleGroup(client, guild, v);
+        for (const r of involvedIDs) {
+            if (roles.includes(r)) {
+                involvement.push(v);
+                break;
+            }
+        }
+    }
+    return involvement;
+}
+
+function getWhitelist(client: CCBot, guild: discord.Guild): string[] {
+    const whitelistGroups: string[] = client.provider.get(guild, 'roles-whitelist', []);
+    const whitelist: string[] = [];
+    for (const v of whitelistGroups)
+        for (const v2 of convertRoleGroup(client, guild, v))
+            whitelist.push(v2);
+    return whitelist;
+}
 
 /**
  * There's a lot of common stuff this combines into one function.
@@ -17,11 +44,7 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
 
     // -- Check that all roles are allowed --
 
-    const whitelistGroups: string[] = client.provider.get(member.guild, 'roles-whitelist', []);
-    const whitelist: string[] = [];
-    for (const v of whitelistGroups)
-        for (const v2 of convertRoleGroup(client, member.guild, v))
-            whitelist.push(v2);
+    const whitelist: string[] = getWhitelist(client, member.guild);
     for (const v of request)
         if (!whitelist.includes(v))
             return 'You don\'t have permission for some of these roles.';
@@ -137,5 +160,44 @@ export class RolesRmCommand extends CCBotCommand {
     
     public async run(message: commando.CommandMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
         return genericARRunner(message, args, false);
+    }
+}
+
+
+/**
+ * A command for someone to remove roles from themselves using the bot.
+ */
+export class RolesListCommand extends CCBotCommand {
+    public constructor(client: CCBot) {
+        const opt = {
+            name: '-roles get',
+            description: 'Lists all roles.',
+            group: 'roles',
+            memberName: 'get'
+        };
+        super(client, opt);
+    }
+    
+    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+        if (!message.guild)
+            return await message.say('You are floating in a void, free, unburdened by any force, not even gravity.\nThus, your roles are what you will them to be.');
+        const whitelist = getWhitelist(this.client, message.guild);
+        const autorole = convertRoleGroup(this.client, message.guild, 'auto-role');
+        const lines: string[] = [];
+        for (const role of message.guild.roles.values()) {
+            const caps: string[] = [];
+            if (autorole.includes(role.id))
+                caps.push('automatic');
+            if (whitelist.includes(role.id))
+                caps.push('grantable');
+            const inccaps: string[] = getInvolvement(this.client, message.guild, 'inclusive', [role.id]);
+            if (inccaps.length != 0)
+                caps.push('inclusive (' + inccaps.join() + ')');
+            const exccaps: string[] = getInvolvement(this.client, message.guild, 'exclusive', [role.id]);
+            if (exccaps.length != 0)
+                caps.push('exclusive (' + exccaps.join() + ')');
+            lines.push('`' + role.name + '` ' + caps.join())
+        }
+        return await message.say(lines.join('\n'));
     }
 }

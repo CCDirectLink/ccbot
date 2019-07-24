@@ -5,7 +5,7 @@ import HelpCommand from './commands/help';
 import HugCommand from './commands/hug';
 import ArmyCommand from './commands/army';
 import CheaterCommand from './commands/cheater';
-import {RolesAddCommand, RolesRmCommand} from './commands/roles';
+import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
 import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
 import SayCommand from './commands/say';
@@ -60,4 +60,5 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerGroup("roles");
     cr.registry.registerCommand(new RolesAddCommand(cr));
     cr.registry.registerCommand(new RolesRmCommand(cr));
+    cr.registry.registerCommand(new RolesListCommand(cr));
 }

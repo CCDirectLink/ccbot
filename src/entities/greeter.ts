@@ -1,7 +1,8 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getRolesState, getGuildTextChannel, convertRoleGroup} from '../utils';
+import {getRolesState, getGuildTextChannel} from '../utils';
+import {convertRoleGroup} from '../role-utils';
 import {newVM, runFormat} from '../formatter';
 
 /**
