@@ -60,11 +60,8 @@ export default class CCBotEmoteRegistry {
         const gResult = this.globalEmoteRegistry.get(name);
         if (gResult)
             return gResult;
-        // Emote IDs
-        const le = this.client.emojis.get(name);
-        if (le)
-            return le;
-        return this.emojiResolverNina('⁉');
+        // Emote IDs / Written custom emotes / Unicode emotes
+        return this.emojiResolverNina(name);
     }
     
     /**
