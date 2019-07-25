@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import DynamicDataManager from '../src/dynamic-data';
+import {runFormat} from '../src/formatter';
 
 describe('DynamicDataManager', (): void => {
     const ddm: DynamicDataManager = new DynamicDataManager();
@@ -16,6 +17,24 @@ describe('DynamicDataManager', (): void => {
                 expect(name.constructor).to.equal(String);
                 const cmd = ddm.commands.data[group][name];
                 expect(cmd.constructor).to.equal(Object);
+            }
+        }
+    });
+    it('should have format strings that parse correctly', async (): Promise<void> => {
+        for (const group in ddm.commands.data) {
+            for (const name in ddm.commands.data[group]) {
+                const cmd = ddm.commands.data[group][name];
+                if (cmd.format) {
+                    // Ignore the actual details, this is just a parsing run
+                    try {
+                        await runFormat(cmd.format, async (): Promise<string> => {
+                            return '';
+                        });
+                    } catch (e) {
+                        console.log(group + ' ' + name);
+                        throw e;
+                    }
+                }
             }
         }
     });

@@ -8,7 +8,7 @@
     "mods": {
         "get": {
             "embed": {
-                "description": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information: https://c2dl.info/cc/mods"
+                "content": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information: https://c2dl.info/cc/mods"
             }
         },
         "installation": {
@@ -169,7 +169,7 @@
         "thanks": {
             "description": "Writes a template thank-you message to the devs :)",
             "embed": {
-                "description": "From %(name (cause)),\n\t%(random-element (quote (Keep% up% the% good% work! You% guys% are% awesome.)))\nTo,\n\t\tRadical Fish Games"
+                "description": "From %(name (cause)),\n\t%(random-element (' (Keep% up% the% good% work! You% guys% are% awesome.)))\nTo,\n\t\tRadical Fish Games"
             }
         }
     },
@@ -200,6 +200,71 @@
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/380588134712475665/383777401529696256/tenor.gif"
                 }
+            }
+        }
+    },
+    "formatter": {
+        "help-syntax": {
+            "description": "Information about the formatter system",
+            "embed": {
+                "title": "Format Syntax",
+                "description": "Format Syntax has 5 rules.\n`//` outside of a list are repeated verbatim and will ignore `%` and `/` until the next space. This is for URL compatibility.\n`%%` will cause the next character to ignore these rules, except `(` outside of an invocation. This rule overrides any later rule, and can override the previous rule if the start gets escaped.\n`%%(` will begin an invocation, space separates arguments within an invocation, `)` ends it, and invocations can nest with further `()` - without the `%%`.\n`/ABC/` is equivalent to `%%(emote ABC)` outside of lists and anything between `%/%/` and a space, for the sake of URLs.\n\nFor further details, please see the other commands in the -formatter group."
+            }
+        },
+        "help-execution": {
+            "description": "About invocation execution and recursion",
+            "embed": {
+                "title": "Invocation execution and recursion",
+                "description": "Invocations evaluate their parameters as invocations.\nAn invocation that is a string is returned as-is, but lists are evaluated.\nInvocations may thus be nested, such as `%%(name (cause))`.\nIn the case of random-element, for example, you may not want this; see the ' invocation for a way around this."
+            }
+        },
+        "help-'": {
+            "description": "The ' invocation",
+            "embed": {
+                "title": "The ' invocation",
+                "description": "The ' invocation has a single parameter.\nThe parameter is returned as-is - *without evaluation*.\nIt can also be useful to escape URLs, as invocations are not subject to the %/ rule.\nExample: `%%(random-element (' (1 2 3)))` -> `1` or `2` or `3`"
+            }
+        },
+        "help-emote": {
+            "description": "The 'emote' invocation",
+            "embed": {
+                "title": "The 'emote' invocation",
+                "description": "The 'emote' invocation has a single parameter: The reference used to get the emote.\nThis can be at least an emote ID, emote name, or the actual emote in written form.\nIt is subject to per-guild overrides.\nExample: `%%(emote leaCheese)` -> `%(emote leaCheese)`"
+            }
+        },
+        "help-quote": {
+            "description": "The 'quote' invocation",
+            "embed": {
+                "title": "The 'quote' invocation",
+                "description": "The 'quote' invocation receives a Discord message URL (or simply a channel ID followed by a message ID, separated by %/), and regurgitates it as a quotation.\n(For the security-conscious: It is assumed that knowledge of all three IDs implies enough knowledge to repost manually. This is how attachment security works, after all.)\nExample: `%%(quote https://discordapp.com/channels/143364538958348288/367424200991965184/604035298686402770)`"
+            }
+        },
+        "help-prefix": {
+            "description": "The 'prefix' invocation",
+            "embed": {
+                "title": "The 'prefix' invocation",
+                "description": "The 'prefix' invocation shows the relevant bot prefix."
+            }
+        },
+        "help-cause": {
+            "description": "The 'cause' invocation",
+            "embed": {
+                "title": "The 'cause' invocation",
+                "description": "The 'cause' invocation returns the user ID of the user who 'caused' the execution to take place."
+            }
+        },
+        "help-random-element": {
+            "description": "The 'random-element' invocation",
+            "embed": {
+                "title": "The 'random-element' invocation",
+                "description": "The 'random-element' invocation takes a single parameter, which is a list of possible outputs.\nIt returns one, unless there are none, in which case prepare for trouble.\nExample: See the ' invocation."
+            }
+        },
+        "help-name": {
+            "description": "The 'name' invocation",
+            "embed": {
+                "title": "The 'name' invocation",
+                "description": "The 'name' invocation takes a single parameter, the user ID to name.\nIt returns the local name of that user.\nFor safety reasons, the user must be a member of the relevant guild, or this will simply return their ID as-is."
             }
         }
     }

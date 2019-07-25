@@ -40,14 +40,10 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
             pages.push({description: ''});
             elementsOnPage = 0;
             // Attempt 2: Split element across pages
-            while (true) {
-                if (element.length >= pageLength) {
-                    pages[pages.length - 1].description = element.substring(0, pageLength);
-                    pages.push({description: ''});
-                    element = element.substring(pageLength);
-                } else {
-                    break;
-                }
+            while (element.length >= pageLength) {
+                pages[pages.length - 1].description = element.substring(0, pageLength);
+                pages.push({description: ''});
+                element = element.substring(pageLength);
             }
         }
         if (elementsOnPage != 0)

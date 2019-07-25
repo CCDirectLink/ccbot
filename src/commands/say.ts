@@ -1,7 +1,8 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {nsfwGuild, nsfw, silence} from '../utils';
+import {silence} from '../utils';
+import {newVM, runFormat} from '../formatter';
 
 /**
  * For ventriloquism.
@@ -10,28 +11,26 @@ export default class SayCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
             name: '-general say',
-            description: 'Has the bot say something. Emotes are delimited with "/", such as /shizuHUG/.',
+            description: 'Has the bot say something. Please see the Format Syntax Guide (.cc -formatter help)',
             group: 'general',
             memberName: 'say',
             args: [
                 {
                     key: 'text',
                     prompt: 'The text to say.',
-                    type: 'string',
-                    infinite: true
+                    type: 'string'
                 }
             ]
         };
         super(client, opt);
     }
     
-    public async run(message: commando.CommandMessage, args: {text: string[]}): Promise<discord.Message|discord.Message[]> {
-        const text = args.text.join(' ').replace(/\/(.*?)\//g, (text: string, p1: string): string => {
-            const emote = this.client.emoteRegistry.getEmote(message.guild || null, p1);
-            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
-                return '';
-            return emote.toString();
-        });
+    public async run(message: commando.CommandMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
+        const text = await runFormat(args.text, newVM({
+            client: this.client,
+            channel: message.channel,
+            cause: message.author
+        }));
         // It's important that this *does not* use global in place of the setting in the guild if none exists.
         // By per-guild default say should always have a header.
         const headerless = this.client.provider.get(message.guild || 'global', 'headerless-say', false);

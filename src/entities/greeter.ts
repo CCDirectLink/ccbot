@@ -23,11 +23,13 @@ class GreeterEntity extends CCBotEntity {
             if (channel) {
                 const greeting = c.provider.get(m.guild, 'greeting');
                 if (greeting) {
-                    channel.send(runFormat(greeting.toString(), newVM({
-                        client: c,
-                        channel: channel,
-                        cause: m.user
-                    })));
+                    (async (): Promise<void> => {
+                        channel.send(await runFormat(greeting.toString(), newVM({
+                            client: c,
+                            channel: channel,
+                            cause: m.user
+                        })));
+                    })();
                 }
             }
             m.addRoles(convertRoleGroup(c, m.guild, 'auto-role'));

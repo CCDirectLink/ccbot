@@ -10,14 +10,14 @@ import {VM, newVM, runFormat} from '../formatter';
  * Don't ask me how the type conversions are supposed to make sense.
  * They don't.
  */
-function copyAndFormat(vm: VM, embed: string | {[k: string]: string | object | number | undefined}): string | object {
+async function copyAndFormat(vm: VM, embed: string | {[k: string]: string | object | number | undefined}): Promise<string | object> {
     if (embed.constructor == String)
-        return runFormat(embed as string, vm);
+        return await runFormat(embed as string, vm);
     if (embed.constructor == Object) {
         const embobj = embed as {[k: string]: string | {[k: string]: string | object}};
         const o: {[k: string]: string | object} = {};
         for (const k in embobj)
-            o[k] = copyAndFormat(vm, embobj[k]);
+            o[k] = await copyAndFormat(vm, embobj[k]);
         return o;
     }
     return embed;
@@ -53,13 +53,13 @@ export default class JSONCommand extends CCBotCommand {
             channel: message.channel,
             cause: message.author
         });
-        const formatText = runFormat(this.command.format || '', vm);
+        const formatText = await runFormat(this.command.format || '', vm);
 
         // Message Options
         const opts: discord.MessageOptions = {};
         let hasMeta = false;
         if (this.command.embed) {
-            opts.embed = copyAndFormat(vm, this.command.embed) as object;
+            opts.embed = await copyAndFormat(vm, this.command.embed) as object;
             hasMeta = true;
         }
 
