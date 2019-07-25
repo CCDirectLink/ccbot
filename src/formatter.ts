@@ -43,9 +43,12 @@ export function newVM(context: VMContext): VM {
                 const channel = channelAsTBF(context.client.channels.get(details[1]));
                 if (!channel)
                     return 'Quotation failure. Channel ' + details[1] + ' does not exist or is not a text channel.\n';
+                if (channel != context.channel)
+                    return 'Quotation failure. Quotes are only allowed from the current channel until the security implications are cleared up.\n';
                 try {
-                    // Frankly, *expect* the 'security' here to fail.
                     const message = await channel.fetchMessage(details[2]);
+                    
+                    // Frankly, expect the escaping here to fail...
                     const escapedContent = '> ' + (message.cleanContent.replace('\n', '\n> ').replace('<@', '\\<@'));
                     let text = message.author.toString() + ' wrote at ' + message.createdAt.toUTCString() + ': \n' + escapedContent + '\n';
                     const additionals: string[] = [];
