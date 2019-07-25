@@ -1,7 +1,8 @@
 import * as discord from 'discord.js';
+import * as commando from 'discord.js-commando';
 import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
-import {channelAsTBF} from '../utils';
+import {silence, channelAsTBF} from '../utils';
 
 export interface PageSwitcherData extends EntityData {
     // Channel ID.
@@ -20,6 +21,56 @@ export interface PageSwitcherData extends EntityData {
 
 function formatHeader(a: number, b: number): string {
     return 'Page ' + (a + 1) + ' of ' + b;
+}
+
+/**
+ * Outputs *either* a page switcher or a single post depending on what's appropriate.
+ */
+export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: string[], elementsPerPage: number, pageLength: number): Promise<discord.Message | discord.Message[]> {
+    const pages: {description: string}[] = [{description: ''}];
+    let elementsOnPage = 0;
+    for (let element of elements) {
+        if (elementsOnPage == elementsPerPage) {
+            pages.push({description: ''});
+            elementsOnPage = 0;
+        }
+        // Attempt 1: Move elements to new page    
+        const nsl = pages[pages.length - 1].description.length + element.length;
+        if (nsl >= pageLength) {
+            pages.push({description: ''});
+            elementsOnPage = 0;
+            // Attempt 2: Split element across pages
+            while (true) {
+                if (element.length >= pageLength) {
+                    pages[pages.length - 1].description = element.substring(0, pageLength);
+                    pages.push({description: ''});
+                    element = element.substring(pageLength);
+                } else {
+                    break;
+                }
+            }
+        }
+        if (elementsOnPage != 0)
+            element = '\n' + element;
+        pages[pages.length - 1].description += element;
+        elementsOnPage++;
+    }
+    // Actual output
+    if (pages.length == 1)
+        return msg.embed(new discord.RichEmbed(pages[0]));
+    const output = await msg.say(formatHeader(0, pages.length), {embed: new discord.RichEmbed(pages[0])}) as discord.Message;
+    await output.react('⬅');
+    await output.react('➡');
+    await client.entities.newEntity({
+        type: 'page-switcher',
+        channel: msg.channel.id,
+        message: output.id,
+        user: msg.author.id,
+        page: 0,
+        pages: pages,
+        killTimeout: 60000
+    });
+    return output;
 }
 
 /**
@@ -60,9 +111,10 @@ class PageSwitcherEntity extends CCBotEntity {
         });
     }
     
-    public onKill(): void {
-        super.onKill();
-        this.message.delete();
+    public onKill(replaced: boolean): void {
+        super.onKill(replaced);
+        if (!replaced)
+            silence(this.message.delete());
     }
     
     public emoteReactionTouched(target: discord.Emoji, user: discord.User, add: boolean): void {

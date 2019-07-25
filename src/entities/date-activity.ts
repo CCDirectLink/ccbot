@@ -1,5 +1,6 @@
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
+import {silence} from '../utils';
 
 /**
  * Updates a visible date every 10 seconds.
@@ -11,10 +12,15 @@ class DateActivityEntity extends CCBotEntity {
         this.updateDate();
     }
     
-    public updateDate(): void {
+    public onKill(replaced: boolean): void {
+        if (!replaced)
+            silence(this.client.user.setActivity(null));
+    }
+    
+    private updateDate(): void {
         if (this.killed)
             return;
-        this.client.user.setActivity(new Date().toString());
+        silence(this.client.user.setActivity(new Date().toString()));
         setTimeout((): void => {
             this.updateDate();
         }, 10000);

@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {PageSwitcherData} from '../entities/page-switcher';
+import {outputElements} from '../entities/page-switcher';
 
 /**
  * A counter.
@@ -12,27 +12,25 @@ export default class CounterCommand extends CCBotCommand {
             name: '-util counter',
             description: 'Creates a 50-page bunch of nonsense to read through for bot testing.',
             group: 'util',
-            memberName: 'counter'
+            memberName: 'counter',
+            args: [
+                {
+                    key: 'error',
+                    prompt: 'Triggers an error (useful for testing handling)',
+                    type: 'boolean',
+                    default: false
+                }
+            ]
         };
         super(client, opt);
     }
     
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
-        const ent: PageSwitcherData = {
-            type: 'page-switcher',
-            channel: message.channel.id,
-            user: message.author.id,
-            page: 0,
-            pages: [],
-            killTimeout: 60000
-        };
+    public async run(message: commando.CommandMessage, args: {error: boolean}): Promise<discord.Message|discord.Message[]> {
+        if (args.error)
+            throw new Error('The user wanted an error.');
+        const pages: string[] = [];
         for (let i = 0; i < 50; i++)
-            ent.pages.push({
-                title: 'Page ' + (i + 1),
-            });
-        await this.client.entities.newEntity(ent);
-        // We actually don't want to let Commando have control of the message here,
-        //  because it's being passed to the Entity framework.
-        return [];
+            pages.push('Page ' + (i + 1));
+        return await outputElements(this.client, message, pages, 1, 2000);
     }
 }

@@ -1,6 +1,6 @@
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {randomArrayElement} from '../utils';
+import {silence, randomArrayElement} from '../utils';
 
 type ActivityType = ('PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING');
 
@@ -25,6 +25,11 @@ class RandomActivityEntity extends CCBotEntity {
         this.activities = data.activities;
         this.interMessageTime = data.intervalMs;
         this.updateText();
+    }
+    
+    public onKill(replaced: boolean): void {
+        if (!replaced)
+            silence(this.client.user.setActivity(null));
     }
     
     public updateText(): void {

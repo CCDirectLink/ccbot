@@ -2,7 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {localAdminCheck, nsfw, nsfwGuild} from '../utils';
-import {PageSwitcherData} from '../entities/page-switcher';
+import {outputElements} from '../entities/page-switcher';
 
 /**
  * A command to list the accessible emotes.
@@ -22,31 +22,16 @@ export class ListEmotesCommand extends CCBotCommand {
         
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort();
-        const pages: discord.RichEmbedOptions[] = [{description: ''}];
-        let pageContent = 0;
+        const elements: string[] = [];
         
         for (const eref of refs) {
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;
-            if (pageContent == 20) {
-                pages.push({description: ''});
-                pageContent = 0;
-            }
-            pages[pages.length - 1].description += eref + ' ' + emote.toString() + '\n';
-            pageContent++;
+            elements.push(eref + ' ' + emote.toString());
         }
         
-        const psd: PageSwitcherData = {
-            type: 'page-switcher',
-            channel: message.channel.id,
-            user: message.author.id,
-            page: 0,
-            pages: pages,
-            killTimeout: 60000
-        };
-        this.client.entities.newEntity(psd);
-        return [];
+        return outputElements(this.client, message, elements, 20, 2000);
     }
 }
 

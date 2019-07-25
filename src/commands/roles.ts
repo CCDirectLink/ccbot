@@ -2,6 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {convertRoles, convertRoleGroup} from '../role-utils';
+import {outputElements} from '../entities/page-switcher';
 
 /**
  * Gets inclusivity/exclusivity group involvement given a target and a role ID list.
@@ -198,6 +199,6 @@ export class RolesListCommand extends CCBotCommand {
                 caps.push('exclusive (' + exccaps.join() + ')');
             lines.push('`' + role.name + '` ' + caps.join())
         }
-        return await message.say(lines.join('\n'));
+        return await outputElements(this.client, message, lines, 10, 2000);
     }
 }
