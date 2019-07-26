@@ -4,6 +4,14 @@ import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {silence, channelAsTBF} from '../utils';
 
+const uiEmotes: string[] = ["⏮", "◀", "▶", "⏭"];
+const uiOffsets: {[a: string]: number | undefined} = {
+    "⏮": -10,
+    "◀": -1,
+    "▶": 1,
+    "⏭": 10
+};
+
 export interface PageSwitcherData extends EntityData {
     // Channel ID.
     channel: string;
@@ -55,8 +63,8 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     if (pages.length == 1)
         return msg.embed(new discord.RichEmbed(pages[0]));
     const output = await msg.say(formatHeader(0, pages.length), {embed: new discord.RichEmbed(pages[0])}) as discord.Message;
-    await output.react('⬅');
-    await output.react('➡');
+    for (const reaction of uiEmotes)
+        await output.react(reaction);
     await client.entities.newEntity({
         type: 'page-switcher',
         channel: msg.channel.id,
@@ -122,13 +130,17 @@ class PageSwitcherEntity extends CCBotEntity {
         if (this.ignoreRemovals && !add)
             return;
 
-        if (target.name == '⬅') {
-            this.page--;
-            if (this.page < 0)
-                this.page = this.pages.length - 1;
-        } else if (target.name == '➡') {
-            this.page++;
-            this.page %= this.pages.length;
+        const offset = uiOffsets[target.name];
+        if (offset !== undefined) {
+            this.page += offset;
+            if (this.pages.length != 0) {
+                if (offset < 0) {
+                    while (this.page < 0)
+                        this.page = this.pages.length - 1;
+                } else {
+                    this.page %= this.pages.length;
+                }
+            }
         }
         this.postponeDeathAndUpdate();
 
@@ -160,8 +172,8 @@ export default async function load(c: CCBot, data: PageSwitcherData): Promise<CC
     if (!data.message) {
         // New
         message = await channel.send(formatHeader(0, data.pages.length), new discord.RichEmbed(data.pages[0])) as discord.Message;
-        await message.react('⬅');
-        await message.react('➡');
+        for (const reaction of uiEmotes)
+            await message.react(reaction);
     } else {
         // Reused
         message = await channel.fetchMessage(data.message);
