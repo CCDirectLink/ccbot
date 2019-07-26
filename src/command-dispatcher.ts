@@ -8,8 +8,45 @@ import {mentionRegex, getRolesState} from './utils';
 // Not nice.
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
 
+async function cleanupMessage(client: CCBot, message: discord.Message) {
+    client.entities.killEntity('message-' + message.id, true);
+    for (const r of message.reactions.values())
+        if (r.me)
+            await r.remove();
+}
+
 /**
- * A modified version of the CommandDispatcher.
+ * A modified version of CommandMessage that performs better cleanup.
+ */
+class CCBotCommandMessage extends (commando.CommandMessage as any) {
+    constructor(message: discord.Message, command: commando.Command, text: string) {
+        super(message, command, text);
+    }
+    
+    /**
+     * Prepares to edit a response.
+     * This modified version cleans up after whatever was happening before.
+     */
+    async editResponse(a: (discord.Message | discord.Message[]), b: any): Promise<discord.Message | discord.Message[]> {
+        // Kill involved entities
+        if (a.constructor === Array) {
+            for (const msg of a as discord.Message[])
+                await cleanupMessage(this.client, msg);
+        } else {
+            await cleanupMessage(this.client, a as discord.Message);
+        }
+        // Get rid of embed
+        if (b.options) {
+            b.options.embed = null;
+        } else {
+            b.options = {embed: null};
+        }
+        return super.editResponse(a, b);
+    }
+}
+
+/**
+ * A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandMessage.
  */
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
@@ -18,7 +55,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         super(c, r);
     }
 
-    parseMessage(message: any): commando.CommandMessage | null {
+    parseMessage(message: discord.Message): commando.CommandMessage | null {
         // Stage 1: Prefix removal, cleanup
         let text: string = message.content;
         
@@ -30,7 +67,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         //  Get & remove the prefix
         let commandPrefix: string;
         if (message.guild) {
-            commandPrefix = message.guild.commandPrefix;
+            commandPrefix = (message.guild as any).commandPrefix;
         } else {
             commandPrefix = this.client.commandPrefix;
         }
@@ -107,24 +144,14 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         if (!commandInst)
             return this.parseUnknownCommand(message, text);
 
-        return new commando.CommandMessage(message, commandInst, text);
+        return new CCBotCommandMessage(message, commandInst, text) as unknown as commando.CommandMessage;
     }
     
     parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
         // [SAFETY]
         if (this.client.sideBySideSafety)
             return null;
-        return new commando.CommandMessage(message, this.registry.unknownCommand, text)
-    }
-    
-    inhibit(message: commando.CommandMessage): any {
-        const value = super.inhibit(message);
-        if (value === null)
-            if (message.responses !== null)
-                for (const cid in message.responses as any)
-                    for (const msg of (message.responses as any)[cid])
-                        this.client.entities.killEntity('message-' + msg.id, true);
-        return value;
+        return new CCBotCommandMessage(message, this.registry.unknownCommand, text) as unknown as commando.CommandMessage;
     }
 }
 

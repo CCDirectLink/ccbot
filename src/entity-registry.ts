@@ -256,8 +256,7 @@ export class EntityRegistry<C, T extends Entity<C>> {
             v.killed = true;
             delete this.entities[id];
             v.onKill(transferOwnership);
-            if (!transferOwnership)
-                this.markPendingFlush();
+            this.markPendingFlush();
         }
     }
     
