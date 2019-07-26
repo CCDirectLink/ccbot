@@ -31,8 +31,8 @@ class OldBehaviorsEntity extends CCBotEntity {
         this.client.on('message', this.messageListener);
     }
     
-    public onKill(replaced: boolean): void {
-        super.onKill(replaced);
+    public onKill(transferOwnership: boolean): void {
+        super.onKill(transferOwnership);
         this.client.removeListener('message', this.messageListener);
     }
 }

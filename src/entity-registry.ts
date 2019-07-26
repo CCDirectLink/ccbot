@@ -130,9 +130,9 @@ export abstract class Entity<C> {
     /**
      * Called just after the entity was killed.
      * If the entity is maintaining a state, like an activity, this is where it would be reset.
-     * If 'replaced' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
+     * If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
      */
-    public onKill(replaced: boolean): void {
+    public onKill(transferOwnership: boolean): void {
         
     }
     
@@ -232,7 +232,7 @@ export class EntityRegistry<C, T extends Entity<C>> {
                 const newEntP = this.entityTypes[data.type](this.client, data);
                 newEntP.then((newEnt: T) => {
                     // Entity finished, let's go
-                    this.killEntityInternal(newEnt.id, true);
+                    this.killEntity(newEnt.id, true);
                     this.entities[newEnt.id] = newEnt;
                     this.markPendingFlush();
                     resolve(newEnt);
@@ -250,20 +250,13 @@ export class EntityRegistry<C, T extends Entity<C>> {
     /**
      * Kills the entity with the given ID.
      */    
-    public killEntity(id: string): void {
-        this.killEntityInternal(id, false);
-    }
-
-    /**
-     * Kills the entity with the given ID.
-     */    
-    private killEntityInternal(id: string, replaced: boolean): void {
+    public killEntity(id: string, transferOwnership: boolean): void {
         if (id in this.entities) {
             const v = this.entities[id];
             v.killed = true;
             delete this.entities[id];
-            v.onKill(replaced);
-            if (!replaced)
+            v.onKill(transferOwnership);
+            if (!transferOwnership)
                 this.markPendingFlush();
         }
     }

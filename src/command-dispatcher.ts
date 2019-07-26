@@ -1,3 +1,4 @@
+import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import JSONCommand from './commands/json';
@@ -114,6 +115,16 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         if (this.client.sideBySideSafety)
             return null;
         return new commando.CommandMessage(message, this.registry.unknownCommand, text)
+    }
+    
+    inhibit(message: commando.CommandMessage): any {
+        const value = super.inhibit(message);
+        if (value === null)
+            if (message.responses !== null)
+                for (const cid in message.responses as any)
+                    for (const msg of (message.responses as any)[cid])
+                        this.client.entities.killEntity('message-' + msg.id, true);
+        return value;
     }
 }
 

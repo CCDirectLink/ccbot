@@ -101,7 +101,7 @@ export class CCBotEntity extends Entity<CCBot> {
 
     public kill(): void {
         if (!this.killed)
-            this.client.entities.killEntity(this.id);
+            this.client.entities.killEntity(this.id, false);
     }
     
     public updated(): void {

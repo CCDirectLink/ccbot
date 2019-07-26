@@ -4,12 +4,12 @@ import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {silence, channelAsTBF} from '../utils';
 
-const uiEmotes: string[] = ["⏮", "◀", "▶", "⏭"];
+const uiEmotes: string[] = ['⏮', '◀', '▶', '⏭'];
 const uiOffsets: {[a: string]: number | undefined} = {
-    "⏮": -10,
-    "◀": -1,
-    "▶": 1,
-    "⏭": 10
+    '⏮': -10,
+    '◀': -1,
+    '▶': 1,
+    '⏭': 10
 };
 
 export interface PageSwitcherData extends EntityData {
@@ -115,9 +115,9 @@ class PageSwitcherEntity extends CCBotEntity {
         });
     }
     
-    public onKill(replaced: boolean): void {
-        super.onKill(replaced);
-        if (!replaced)
+    public onKill(transferOwnership: boolean): void {
+        super.onKill(transferOwnership);
+        if (!transferOwnership)
             silence(this.message.delete());
     }
     

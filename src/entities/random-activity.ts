@@ -27,8 +27,8 @@ class RandomActivityEntity extends CCBotEntity {
         this.updateText();
     }
     
-    public onKill(replaced: boolean): void {
-        if (!replaced)
+    public onKill(transferOwnership: boolean): void {
+        if (!transferOwnership)
             silence(this.client.user.setActivity(null));
     }
     
