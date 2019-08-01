@@ -18,9 +18,14 @@ export abstract class CCBot extends commando.CommandoClient {
     entities: EntityRegistry<CCBot, CCBotEntity>;
     emoteRegistry: CCBotEmoteRegistry;
     
-    constructor(co: commando.CommandoClientOptions, safety: boolean) {
+    // Cache of recent output messages.
+    recentOutputCache: Set<discord.Message> = new Set();
+    recentOutputCacheTimeout: number;
+    
+    constructor(co: commando.CommandoClientOptions, safety: boolean, outputCacheTimeout: number) {
         super(co);
         this.sideBySideSafety = safety;
+        this.recentOutputCacheTimeout = outputCacheTimeout;
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
         this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, this.dynamicData.entities);
@@ -31,6 +36,15 @@ export abstract class CCBot extends commando.CommandoClient {
         });
         this.on('raw', (event: any): void => {
             this.handleRawEvent(event);
+        });
+        this.on('message', (message: discord.Message) => {
+            if (message.author == this.user) {
+                // Adds & removes messages from the recent output cache.
+                this.recentOutputCache.add(message);
+                setTimeout((): void => {
+                    this.recentOutputCache.delete(message);
+                }, this.recentOutputCacheTimeout);
+            }
         });
         const callbackUpdateGER = () => {
             this.emoteRegistry.updateGlobalEmoteRegistry();

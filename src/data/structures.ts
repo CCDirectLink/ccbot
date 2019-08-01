@@ -32,6 +32,9 @@ export interface Secrets {
     //  to do all sorts of 'odd' things that could interfere with a side-by-side
     //  run with the old software.
     safety: boolean;
+    // The amount of time before deleting messages in the output cache, in milliseconds.
+    // For default, see main.ts
+    outputCacheTimeout?: number;
 }
 
 // entities.json - array of newEntity data objects

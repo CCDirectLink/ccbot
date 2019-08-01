@@ -21,7 +21,7 @@ class CCBotMain {
         this.client = new CCBotImpl({
             owner: secrets.owner,
             commandPrefix: secrets.commandPrefix
-        }, secrets.safety);
+        }, secrets.safety, secrets.outputCacheTimeout || 1800000);
         this.client.login(secrets.token);
     }
     destroy(): Promise<void> {

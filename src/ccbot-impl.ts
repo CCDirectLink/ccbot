@@ -13,8 +13,8 @@ import registerAllEntities from './all-entities';
  * Only the constructor should be here - the rest is API for the commands and so should be in CCBot.
  */
 export default class CCBotImpl extends CCBot {
-    constructor(co: commando.CommandoClientOptions, safety: boolean) {
-        super(co, safety);
+    constructor(co: commando.CommandoClientOptions, safety: boolean, outputCacheTimeout: number) {
+        super(co, safety, outputCacheTimeout);
         this.registry = new CCBotCommandRegistry(this);
         this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
         registerAllCommands(this);
