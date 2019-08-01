@@ -1,6 +1,6 @@
 # The Grand TODO List
 
-missing commands from general: say
+general and mods modules complete (?)
 
 commands that won't be added in my PR (#9),
  since issue #10 is unsure, doesn't specify, or I'm sleepy: poll, box, rbox, cube, sleep, purge, setname
