@@ -4,12 +4,17 @@ import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {silence, channelAsTBF} from '../utils';
 
-const uiEmotes: string[] = ['⏮', '◀', '▶', '⏭'];
+const ui1 = '⏮';
+const ui2 = '◀';
+const ui3 = '▶';
+const ui4 = '⏭';
+const uiDelete = '🚫';
+const uiEmotes: string[] = [ui1, ui2, ui3, ui4, uiDelete];
 const uiOffsets: {[a: string]: number | undefined} = {
-    '⏮': -10,
-    '◀': -1,
-    '▶': 1,
-    '⏭': 10
+    ui1: -10,
+    ui2: -1,
+    ui3: 1,
+    ui4: 10
 };
 
 export interface PageSwitcherData extends EntityData {
@@ -172,11 +177,19 @@ class PageSwitcherEntity extends CCBotEntity {
                     this.page %= this.pages.length;
                 }
             }
+            // Update display...
+            this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page])).catch(() => {
+                silence(this.message.react('⚠'));
+            });
+            this.postponeDeathAndUpdate();
+        } else if (target.name == uiDelete) {
+            // Alwinfy's Plan: Shut down...
+            for (const r of this.message.reactions.values())
+                if (r.me)
+                    silence(r.remove());
+            this.kill(true);
         }
-        this.postponeDeathAndUpdate();
 
-        // Update display...
-        this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page]));
         // Try to remove reaction (Nnubes256's suggestion)
         const reaction = this.message.reactions.get(target.id || target.name);
         if (this.ignoreRemovals && reaction) {

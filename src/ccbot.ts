@@ -108,9 +108,9 @@ export class CCBotEntity extends Entity<CCBot> {
         super(c, id, data);
     }
 
-    public kill(): void {
+    public kill(transferOwnership: boolean): void {
         if (!this.killed)
-            this.client.entities.killEntity(this.id, false);
+            this.client.entities.killEntity(this.id, transferOwnership);
     }
     
     public updated(): void {

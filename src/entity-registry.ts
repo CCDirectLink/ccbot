@@ -105,7 +105,7 @@ export abstract class Entity<C> {
             return;
         const time = Date.now();
         if (time >= this.killTime) {
-            this.kill();
+            this.kill(false);
         } else {
             setTimeout((): void => this.entityCheckIfShouldKill(), this.killTime - time);
         }
@@ -115,7 +115,7 @@ export abstract class Entity<C> {
      * Used in the subclass to connect to killEntity.
      * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
      */
-    public kill(): void {
+    public kill(transferOwnership: boolean): void {
         throw new Error('Subclass did not implement kill()');
     }
     
