@@ -11,10 +11,10 @@ const ui4 = '⏭';
 const uiDelete = '🚫';
 const uiEmotes: string[] = [ui1, ui2, ui3, ui4, uiDelete];
 const uiOffsets: {[a: string]: number | undefined} = {
-    ui1: -10,
-    ui2: -1,
-    ui3: 1,
-    ui4: 10
+    [ui1]: -10,
+    [ui2]: -1,
+    [ui3]: 1,
+    [ui4]: 10
 };
 
 export interface PageSwitcherData extends EntityData {
