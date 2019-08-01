@@ -34,7 +34,7 @@ export class ModsGetCommand extends CCBotCommand {
                 const modIndex: ModsIndex = modDB.database;
                 for (const id in modIndex.mods) {
                     const mod: Mod = modIndex.mods[id];
-                    const components: string[] = [`${mod.name} ${mod.version}`];
+                    const components: string[] = [`**${mod.name} (${mod.version})**`];
                     if (mod.license)
                         components.push('License: ' + mod.license);
                     for (const page of mod.page)
