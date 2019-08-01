@@ -1,5 +1,6 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
+import {naturalComparison, nsfwGuild} from './utils';
 
 /**
  * A registry of emotes.
@@ -19,23 +20,60 @@ export default class CCBotEmoteRegistry {
     /**
      * Updates the global emote registry.
      * This is where all the emotes go.
-     * In case of conflict... er, don't get into conflict.
+     * In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
      */
     updateGlobalEmoteRegistry(): void {
-        const localRegistry: Map<string, discord.Emoji> = new Map();
-        const refsThatExist: Set<string> = new Set();
+        const localRegistryCollation: Map<string, discord.Emoji[]> = new Map();
         for (const emote of this.client.emojis.values()) {
-            if (!refsThatExist.has(emote.name)) {
-                localRegistry.set(emote.name, emote);
-                refsThatExist.add(emote.name);
-            } else {
-                const conflict = localRegistry.get(emote.name);
-                if (conflict) {
-                    localRegistry.set(conflict.name + '#' + (conflict.guild || {id: 'discord'}).id, conflict);
-                    localRegistry.delete(emote.name);
-                }
-                localRegistry.set(emote.name + '#' + (emote.guild || {id: 'discord'}).id, emote);
+            let emotes: discord.Emoji[] | undefined = localRegistryCollation.get(emote.name);
+            if (!emotes) {
+                emotes = [];
+                localRegistryCollation.set(emote.name, emotes);
             }
+            emotes.push(emote);
+        }
+        const localRegistry: Map<string, discord.Emoji> = new Map();
+        // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
+        // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
+        const safetyList: Array<any> | undefined = this.client.provider.get('global', 'emotePath', []);
+        for (const pair of localRegistryCollation) {
+            // Conflict resolution
+            pair[1].sort((a: discord.Emoji, b: discord.Emoji): number => {
+                // Firstly, check position in safety list (if available)
+                // This code is written with safety margins to prevent crashing in case of user error.
+                if (safetyList && (safetyList.constructor === Array)) {
+                    let ag = safetyList.indexOf(a.guild.id);
+                    if (ag < 0)
+                        ag = safetyList.length;
+                    let bg = safetyList.indexOf(b.guild.id);
+                    if (bg < 0)
+                        bg = safetyList.length;
+                    
+                    if (ag < bg) {
+                        return -1;
+                    } else if (ag > bg) {
+                        return 1;
+                    }
+                }
+                // Secondly, SFW emotes are prioritized over NSFW ones,
+                //  so an NSFW emote can't be used to shadow a SFW emote even when both emotes are untrusted,
+                //  which should prevent anything mysterious happening (NSFW emotes being hidden)
+                const nsfwA = nsfwGuild(this.client, a.guild);
+                const nsfwB = nsfwGuild(this.client, b.guild);
+                if (nsfwA != nsfwB) {
+                    if (nsfwA) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+                // Thirdly, natural comparison of emote snowflakes.
+                return naturalComparison(a.id, b.id);
+            });
+            // Assign IDs: Winner gets the real name, losers get the #-postfixed names
+            localRegistry.set(pair[0], pair[1][0]);
+            for (let i = 1; i < pair[1].length; i++)
+                localRegistry.set(pair[0] + '#' + pair[1][i].guild.id, pair[1][i]);
         }
         this.globalEmoteRegistry = localRegistry;
     }
