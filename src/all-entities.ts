@@ -4,6 +4,7 @@ import loadOldBehaviors from './entities/old-behaviors';
 import loadGreeter from './entities/greeter';
 import loadReactRoles from './entities/react-roles';
 import loadRandomActivity from './entities/random-activity';
+import loadModDatabase from './entities/mod-database';
 import {CCBot} from './ccbot';
 
 /**
@@ -17,4 +18,5 @@ export default function registerAllEntities(cr: CCBot) {
     cr.entities.entityTypes['greeter'] = loadGreeter;
     cr.entities.entityTypes['react-roles'] = loadReactRoles;
     cr.entities.entityTypes['random-activity'] = loadRandomActivity;
+    cr.entities.entityTypes['mod-database'] = loadModDatabase;
 }

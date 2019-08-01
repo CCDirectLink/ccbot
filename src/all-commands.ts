@@ -8,6 +8,7 @@ import CheaterCommand from './commands/cheater';
 import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
 import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
+import {ModsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import {CCBot} from './ccbot';
 
@@ -61,4 +62,7 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new RolesAddCommand(cr));
     cr.registry.registerCommand(new RolesRmCommand(cr));
     cr.registry.registerCommand(new RolesListCommand(cr));
+
+    cr.registry.registerGroup("mods");
+    cr.registry.registerCommand(new ModsGetCommand(cr));
 }

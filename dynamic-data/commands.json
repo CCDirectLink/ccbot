@@ -6,11 +6,6 @@
     "roles": {
     },
     "mods": {
-        "get": {
-            "embed": {
-                "content": "Mod information isn't available (has the bot just started up? is the modlist updater dead?). Please see the CCDirectLink website for more information: https://c2dl.info/cc/mods"
-            }
-        },
         "installation": {
             "embed": {
                 "title": "Installation Guide",

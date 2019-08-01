@@ -6,6 +6,11 @@
         "type": "greeter"
     },
     {
+        "type": "mod-database",
+        "refreshMs": 3600000,
+        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/mods.json"
+    },
+    {
         "type": "random-activity",
         "intervalMs": 30000,
         "activities": [

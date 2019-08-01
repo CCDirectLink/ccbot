@@ -31,26 +31,55 @@ function formatHeader(a: number, b: number): string {
     return 'Page ' + (a + 1) + ' of ' + b;
 }
 
+export interface PageSwitcherOutputElementsAdditionalOptions {
+    // Additional text on every page.
+    // NOTE: This doesn't count as part of elements per page.
+    // It does count as part of page length.
+    textFooter?: string;
+    footer?: {text?: string, icon_url?: string};
+}
+
 /**
  * Outputs *either* a page switcher or a single post depending on what's appropriate.
  */
-export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: string[], elementsPerPage: number, pageLength: number): Promise<discord.Message | discord.Message[]> {
-    const pages: {description: string}[] = [{description: ''}];
+export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: string[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
+    options = options || {};
+
+    const footer = options.footer;
+        
+    // The text-footer is subtracted from page length, so it's always safe to append.
+    const textFooter = options.textFooter || '';
+    pageLength -= textFooter.length;
+    
+    // The algorithm begins...
+    const pages: (discord.RichEmbedOptions & {description: string})[] = [];
     let elementsOnPage = 0;
+    const finishPage = (): void => {
+        pages[pages.length - 1].description += textFooter;
+    };
+    const newPage = (): void => {
+        // Finish last page, if any
+        if (pages.length > 0)
+            finishPage();
+        // Create the new page & set elements to zero
+        pages.push({description: ''});
+        if (footer)
+            pages[pages.length - 1].footer = footer;
+        elementsOnPage = 0;
+    };
+    // Create first page.
+    newPage();
     for (let element of elements) {
-        if (elementsOnPage == elementsPerPage) {
-            pages.push({description: ''});
-            elementsOnPage = 0;
-        }
+        if (elementsOnPage == elementsPerPage)
+            newPage();
         // Attempt 1: Move elements to new page    
         const nsl = pages[pages.length - 1].description.length + element.length;
         if (nsl >= pageLength) {
-            pages.push({description: ''});
-            elementsOnPage = 0;
+            newPage();
             // Attempt 2: Split element across pages
             while (element.length >= pageLength) {
-                pages[pages.length - 1].description = element.substring(0, pageLength);
-                pages.push({description: ''});
+                pages[pages.length - 1].description += element.substring(0, pageLength);
+                newPage();
                 element = element.substring(pageLength);
             }
         }
@@ -59,6 +88,8 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
         pages[pages.length - 1].description += element;
         elementsOnPage++;
     }
+    // Finish last page
+    finishPage();
     // Actual output
     if (pages.length == 1)
         return msg.embed(new discord.RichEmbed(pages[0]));

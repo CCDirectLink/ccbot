@@ -41,3 +41,21 @@ export type EntitySet = object[];
 export interface GuildData {[setting: string]: object}
 
 export interface GuildIndex {[guildID: string]: GuildData}
+
+// CCModsDB ( https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/mods.json )
+export interface ModPage {
+    name: string;
+    url: string;
+}
+export interface Mod {
+    name: string;
+    version: string;
+    description?: string | null;
+    license?: string | null;
+    page: ModPage[];
+    archive_link: string;
+    hash: { sha256?: string };
+}
+export interface ModsIndex {
+    mods: {[name: string]: Mod};
+}
