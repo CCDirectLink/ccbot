@@ -87,6 +87,15 @@ export class CCBotCommand extends commando.Command {
     client!: CCBot;
     constructor(client: CCBot, options: commando.CommandInfo) {
         super(client, options);
+        // Add default throttling options. The source of these might need to be put elsewhere.
+        // Note though that a live-updatable mechanism would need to rely on a by-reference scheme,
+        //  to avoid having to keep track of which commands have explicit throttles.
+        if (!this.throttling) {
+            this.throttling = {
+                usages: 8,
+                duration: 45
+            };
+        }
     }
 }
 
