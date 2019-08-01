@@ -66,6 +66,27 @@ export function randomArrayElement<T>(array: T[]): T {
 }
 
 /**
+ * Sorts in a natural (?) manner.
+ */
+export function naturalComparison(a: string, b: string): number {
+    a = a.toLowerCase();
+    b = b.toLowerCase();
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        let cha = a.charCodeAt(i);
+        let chb = b.charCodeAt(i);
+        if (cha < chb)
+            return -1;
+        if (cha > chb)
+            return 1;
+    }
+    if (a.length < b.length)
+        return -1;
+    if (a.length > b.length)
+        return 1;
+    return 0;
+}
+
+/**
  * Checks if a user is at the local guild's bot-administrative level.
  */
 export function localAdminCheck(t: commando.CommandMessage): boolean {

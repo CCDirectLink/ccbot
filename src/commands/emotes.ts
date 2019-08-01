@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {localAdminCheck, nsfw, nsfwGuild} from '../utils';
+import {naturalComparison, localAdminCheck, nsfw, nsfwGuild} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 
 /**
@@ -21,7 +21,7 @@ export class ListEmotesCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
-        refs.sort();
+        refs.sort(naturalComparison);
         const elements: string[] = [];
         
         for (const eref of refs) {
