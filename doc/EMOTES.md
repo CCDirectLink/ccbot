@@ -14,7 +14,7 @@ The system in this bot has 4 tiers.
 Later tiers override previous tiers.
 
 1. Emote IDs (if the emote name given is a valid, known emote ID, that emote gets used)
-2. Scanned Emotes.
+2. Scanned Emotes. (Conflicts here result in one getting the name and the rest getting a '#<number>' postfix. Which emote is chosen is based on emotePath; see settings; and NSFW-ness.)
 3. Owner-configured emotes.
 4. Guild-configured emotes.
 

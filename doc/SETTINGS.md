@@ -11,6 +11,8 @@ They can be controlled globally only by bot owners.
 `nsfw-<GUILD ID>`: Boolean, effectively forcefully enables the per-guild `nsfw` setting.
 Example: `-util set-boolean nsfw-558469426765103135 true`
 
+'emotePath': Array of strings; guild IDs, from most important to least, from which to prioritize emotes.
+
 ## Per-Guild
 
 `nsfw`: All emotes that come from this guild are marked NSFW
