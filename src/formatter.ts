@@ -121,6 +121,7 @@ export function newVM(context: VMContext): VM {
  *  Execute custom format insertion. The contents of this are a recursive list.
  *  Within this, a separate set of syntax rules are defined.
  *  All that really matters here is that %(emote leaCheese) gives you <:leaCheese:257888171772215296>.
+ *  Any value can be prefixed with ' to wrap it as so: (%' list)
  * /leaCheese/: Shows the leaCheese emote. For compatibility with old .cc say
  * //: Repeated verbatim, escapes text until next space. Used to keep URLs happy
  */
@@ -131,6 +132,8 @@ export async function runFormat(text: string, runner: VM): Promise<string> {
     let urlMode = false;
     // Note: Index 0 here is the innermost (currently-appending-to) list.
     const listStack: Value[][] = [];
+    // Unique reference for unescaped '
+    const mySecretQuoteObject: Value[] = [];
     let listCurrentToken = '';
     for (let i = 0; i < text.length; i++) {
         const ch = text[i];
@@ -161,24 +164,33 @@ export async function runFormat(text: string, runner: VM): Promise<string> {
                 emoteMode += ch;
             }
         } else if (listStack.length > 0) {
-            if ((ch == ' ') || (ch == '(') || (ch == ')')) {
+            if ((ch == '\'') || (ch == ' ') || (ch == '(') || (ch == ')')) {
                 // 'Breaking' characters
                 if (listCurrentToken.length > 0)
                     listStack[0].push(listCurrentToken);
                 listCurrentToken = '';
             }
-            if ((ch == '(') || (ch == ')')) {
+            if ((ch == '\'') || (ch == '(') || (ch == ')')) {
                 // 'Break/Place/Break' characters
                 if (ch == '(') {
                     listStack.unshift([]);
-                } else {
-                    if (listStack.length == 1) {
-                        workspace += await runner(listStack[0]);
-                        listStack.shift();
-                    } else {
-                        listStack[1].push(listStack[0]);
-                        listStack.shift();
+                } else if (ch == ')') {
+                    // Post-process the list that's being worked on to apply quotes.
+                    const list = listStack.shift() as Value[];
+                    for (let i = 0; i < list.length; i++) {
+                        if (list[i] === mySecretQuoteObject) {
+                            list.splice(i, 1);
+                            list[i] = ['\'', list[i]];
+                            i--;
+                        }
                     }
+                    if (listStack.length == 0) {
+                        workspace += await runner(list);
+                    } else {
+                        listStack[0].push(list);
+                    }
+                } else if (ch == '\'') {
+                    listStack[0].push(mySecretQuoteObject);
                 }
             } else if (ch != ' ') {
                 // Normal characters
