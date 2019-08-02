@@ -12,6 +12,7 @@ export default class CCBotEmoteRegistry {
     
     // NOTE: This does *not* include per-guild settings or global settings.
     globalEmoteRegistry: Map<string, discord.Emoji> = new Map();
+    globalConflicts: number = 0;
     
     constructor(c: commando.CommandoClient) {
         this.client = c;
@@ -36,6 +37,8 @@ export default class CCBotEmoteRegistry {
         // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
         // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
         const safetyList: Array<any> | undefined = this.client.provider.get('global', 'emotePath', []);
+        // Start tallying conflicts
+        this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {
             // Conflict resolution
             pair[1].sort((a: discord.Emoji, b: discord.Emoji): number => {
@@ -72,6 +75,8 @@ export default class CCBotEmoteRegistry {
             });
             // Assign IDs: Winner gets the real name, losers get the #-postfixed names
             localRegistry.set(pair[0], pair[1][0]);
+            if (pair[1].length != 1)
+                this.globalConflicts++;
             for (let i = 1; i < pair[1].length; i++)
                 localRegistry.set(pair[0] + '#' + pair[1][i].guild.id, pair[1][i]);
         }
