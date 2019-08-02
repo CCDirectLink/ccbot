@@ -13,18 +13,28 @@ export class ListEmotesCommand extends CCBotCommand {
             name: '-general lsemotes',
             description: 'Displays all emotes.',
             group: 'general',
-            memberName: 'lsemotes'
+            memberName: 'lsemotes',
+            args: [
+                {
+                    key: 'search',
+                    prompt: 'Search terms?',
+                    type: 'string',
+                    default: ''
+                }
+            ]
         };
         super(client, opt);
     }
     
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
         
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort(naturalComparison);
         const elements: string[] = [];
         
         for (const eref of refs) {
+            if (eref.indexOf(args.search) == -1)
+                continue;
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;

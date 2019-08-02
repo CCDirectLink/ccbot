@@ -37,7 +37,8 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
         }
         // Get rid of embed
         if (b.options) {
-            b.options.embed = null;
+            if (!b.options.embed)
+                b.options.embed = null;
         } else {
             b.options = {embed: null};
         }
