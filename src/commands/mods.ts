@@ -2,7 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {ModDatabaseEntity} from '../entities/mod-database';
-import {ModPage, Mod, ModsIndex} from '../data/structures';
+import {Mod, ModsIndex} from '../data/structures';
 import {outputElements} from '../entities/page-switcher';
 
 /**

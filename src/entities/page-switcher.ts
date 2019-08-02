@@ -41,7 +41,10 @@ export interface PageSwitcherOutputElementsAdditionalOptions {
     // NOTE: This doesn't count as part of elements per page.
     // It does count as part of page length.
     textFooter?: string;
-    footer?: {text?: string, icon_url?: string};
+    footer?: {
+        text?: string;
+        icon_url?: string;
+    };
 }
 
 /**
@@ -178,7 +181,7 @@ class PageSwitcherEntity extends CCBotEntity {
                 }
             }
             // Update display...
-            this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page])).catch(() => {
+            this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page])).catch((): void => {
                 silence(this.message.react('⚠'));
             });
             this.postponeDeathAndUpdate();

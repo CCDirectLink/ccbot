@@ -1,13 +1,7 @@
 import * as fs from 'fs';
 import * as structures from './data/structures';
 
-/**
- * The sub-manager for a given object of 'dynamic data', i.e. that stuff we ideally would want to save/load.
- */
-export class DynamicData<T> {
-    // The data. Please treat as read-only - use modify to modify it.
-    public data: T;
-
+export abstract class DynamicTextFile {
     // Immediate access (prevents change-buffering behavior)
     public immediate: boolean;
 
@@ -24,33 +18,32 @@ export class DynamicData<T> {
     private modifyTimeoutActive: (() => void)[] | null = null;
     private modifyTimeoutReject: ((err: any) => void)[] | null = null;
     
-    private modifyActions: (() => void)[] = [];
-    
-    constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
-        this.path = 'dynamic-data/' + name + '.json';
+    constructor(name: string, immediate: boolean, ram: boolean) {
+        this.path = 'dynamic-data/' + name;
         this.immediate = immediate;
         this.ram = ram;
-        this.data = defaultContent;
         this.initialLoad = this.reload();
     }
-
-    // Adds a modification callback.
-    onModify(action: () => void) {
-        this.modifyActions.push(action);
-    }
-
-    // Calls the various modifyActions.
-    private callOnModify() {
-        for (const v of this.modifyActions)
-            v();
-    }
     
-    private saveImmediate(): Promise<void> {
+    /**
+     * Used on save.
+     */
+    protected abstract serialize(): string;
+
+    /**
+     * Used on load. Can throw errors.
+     */
+    protected abstract deserialize(text: string): void;
+    
+    /**
+     * Performs an immediate save.
+     */
+    public saveImmediate(): Promise<void> {
         if (this.ram)
             return Promise.resolve();
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
             console.log('saving ' + this.path);
-            fs.writeFile(this.path, JSON.stringify(this.data, null, "    "), (err) => {
+            fs.writeFile(this.path, this.serialize(), (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -60,14 +53,10 @@ export class DynamicData<T> {
         });
     }
     
-    /*
-     * Used to neatly wrap modifying accesses.
-     * The promise is resolved when the data is written. It may be rejected if saving fails.
-     * Note: saveSync should only be used if you really absolutely want to be sure it's saved now.
+    /**
+     * Indicates that the data should be saved eventually (unless this is an immediate object)
      */
-    modify(modifier: (value: T) => void): Promise<void> {
-        modifier(this.data);
-        this.callOnModify();
+    public updated(): Promise<void> {
         if (this.immediate) {
             return this.saveImmediate();
         } else {
@@ -105,17 +94,16 @@ export class DynamicData<T> {
     /**
      * Reloads the object. Note that the promise won't be rejected on reload failure.
      */
-    reload(): Promise<void> {
+    public reload(): Promise<void> {
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
             fs.readFile(this.path, 'utf8', (err: any, data: string) => {
                 if (!err) {
                     try {
-                        this.data = JSON.parse(data);
+                        this.deserialize(data);
                     } catch (e) {
                         console.log('in ' + this.path);
                         console.error(e);
                     }
-                    this.callOnModify();
                     resolve();
                 } else {
                     resolve();
@@ -125,13 +113,61 @@ export class DynamicData<T> {
     }
     
     /**
-     * Destroys the DynamicData, severing the link to the filesystem (if there is one).
+     * Destroys the DynamicTextFile, severing the link to the filesystem (if there is one).
      * Before doing so, saves any modified data, leaving things in a consistent state.
      */
-    async destroy(): Promise<void> {
+    public async destroy(): Promise<void> {
         if (this.modifyTimeoutActive != null)
             await this.saveImmediate();
         this.ram = true;
+    }
+}
+
+/**
+ * The sub-manager for a given object of 'dynamic data', i.e. that stuff we ideally would want to save/load.
+ */
+export class DynamicData<T> extends DynamicTextFile {
+    // The data. Please treat as read-only - use modify to modify it.
+    public data: T;
+
+    private modifyActions: (() => void)[] = [];
+    
+    constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
+        super(name + '.json', immediate, ram);
+        this.data = defaultContent;
+    }
+
+    // Adds a modification callback.
+    public onModify(action: () => void) {
+        this.modifyActions.push(action);
+    }
+
+    // Calls the various modifyActions.
+    private callOnModify() {
+        for (const v of this.modifyActions)
+            v();
+    }
+
+    /*
+     * Used to neatly wrap modifying accesses.
+     * The promise is resolved when the data is written. It may be rejected if saving fails.
+     */
+    public modify(modifier: (value: T) => void): Promise<void> {
+        modifier(this.data);
+        this.callOnModify();
+        return this.updated();
+    }
+    
+    protected serialize(): string {
+        return JSON.stringify(this.data);
+    }
+    
+    protected deserialize(data: string): void {
+        try {
+            this.data = JSON.parse(data);
+        } finally {
+            this.callOnModify();
+        }
     }
 };
 
@@ -142,13 +178,11 @@ export class DynamicData<T> {
  */
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
-    entities: DynamicData<structures.EntitySet> = new DynamicData('entities', false, false, []);
     settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});
     
     async destroy(): Promise<void> {
         await Promise.all([
             this.commands.destroy(),
-            this.entities.destroy(),
             this.settings.destroy()
         ]);
     }

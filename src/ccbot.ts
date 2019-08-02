@@ -18,17 +18,12 @@ export abstract class CCBot extends commando.CommandoClient {
     entities: EntityRegistry<CCBot, CCBotEntity>;
     emoteRegistry: CCBotEmoteRegistry;
     
-    // Cache of recent output messages.
-    recentOutputCache: Set<discord.Message> = new Set();
-    recentOutputCacheTimeout: number;
-    
-    constructor(co: commando.CommandoClientOptions, safety: boolean, outputCacheTimeout: number) {
+    constructor(co: commando.CommandoClientOptions, safety: boolean) {
         super(co);
         this.sideBySideSafety = safety;
-        this.recentOutputCacheTimeout = outputCacheTimeout;
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
-        this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, this.dynamicData.entities);
+        this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, 'entities.json');
         // This implicitly occurs after entity registration in ccbot-impl.
         this.once('ready', () => {
             this.entities.start();
@@ -36,15 +31,6 @@ export abstract class CCBot extends commando.CommandoClient {
         });
         this.on('raw', (event: any): void => {
             this.handleRawEvent(event);
-        });
-        this.on('message', (message: discord.Message) => {
-            if (message.author == this.user) {
-                // Adds & removes messages from the recent output cache.
-                this.recentOutputCache.add(message);
-                setTimeout((): void => {
-                    this.recentOutputCache.delete(message);
-                }, this.recentOutputCacheTimeout);
-            }
         });
         const callbackUpdateGER = () => {
             this.emoteRegistry.updateGlobalEmoteRegistry();
@@ -117,7 +103,7 @@ export class CCBotCommand extends commando.Command {
  * *All entities in the project should be based off of this class, directly or indirectly.*
  * A version of Entity with fixed generics and the relevant callbacks.
  */
-export class CCBotEntity extends Entity<CCBot> {
+export class CCBotEntity extends Entity<CCBot> {    
     public constructor(c: CCBot, id: string, data: any) {
         super(c, id, data);
     }
@@ -128,8 +114,9 @@ export class CCBotEntity extends Entity<CCBot> {
     }
     
     public updated(): void {
+        super.updated();
         if (!this.killed)
-            this.client.entities.markPendingFlush();
+            this.client.entities.updated();
     }
     
     /**

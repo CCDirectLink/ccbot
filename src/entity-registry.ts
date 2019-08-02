@@ -1,4 +1,4 @@
-import {DynamicData} from './dynamic-data';
+import {DynamicTextFile} from './dynamic-data';
 import {EntitySet} from './data/structures';
 
 /**
@@ -46,6 +46,12 @@ export abstract class Entity<C> {
     
     // This is how much from the current time postponeDeathAndUpdate postpones death for.
     private killTimeout: number;
+    
+    // This is a JSON serialized copy of the entity used for saving.
+    // This is marked private and then accessed via any,
+    //  as it's internal to the entity system and shouldn't be touched.
+    private entitySerializedShadow: string = 'XXXOUTOFDATEXXX';
+    private entitySerializedOutOfDate: boolean = true;
 
     public constructor(c: C, id: string, data: EntityData) {
         this.client = c;
@@ -120,11 +126,11 @@ export abstract class Entity<C> {
     }
     
     /**
-     * Used in the subclass to connect to markPendingFlush.
+     * Used in the subclass to connect to the registry updated().
      * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
      */
     public updated(): void {
-        throw new Error('Subclass did not implement updated()');
+        this.entitySerializedOutOfDate = true;
     }
     
     /**
@@ -163,29 +169,52 @@ let logEntryNumber = 0;
  * Entities are derived from the Entity class,
  *  and are expected to be initialized with a json object like them.
  */
-export class EntityRegistry<C, T extends Entity<C>> {
+export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public readonly client: C;
     public readonly entityTypes: {[type: string]: (c: C, data: any) => Promise<T>} = {};
     public readonly entities: {[id: string]: T} = {};
-    // A reference to the entity DynamicData.
-    private readonly entityData: DynamicData<EntitySet>;
-    // Prevents unnecessary entity resets during save-to-dynamic-data.
-    private duringOurModification: boolean = false;
-    // True if entities should be saved soon. Reset to false on save-to-dynamic-data.
-    private pendingEntityFlush: boolean = false;
+
     // Until this is true, the EntityRegistry does nothing.
     // This is important because until the bot is ready,
     //  certain things might not exist that entities might want to access.
     private started: boolean = false;
+    private cachedJSON: string = '[]';
     
-    public constructor(c: C, data: DynamicData<EntitySet>) {
+    public constructor(c: C, path: string) {
+        super(path, false, false);
         this.client = c;
-        this.entityData = data;
-        this.entityData.onModify(() => {
-            if (this.started)
-                if (!this.duringOurModification)
-                    this.resetEntities();
-        });
+    }
+    
+    protected deserialize(json: string): void {
+        if (!this.started) {
+            this.cachedJSON = json;
+            return;
+        }
+        const jsonData = JSON.parse(json);
+        this.killAllEntities();
+        for (const entity of jsonData)
+            this.newEntity(entity).catch((e) => {
+                // These will have already been reported.
+            });
+    }
+    
+    protected serialize(): string {
+        if (!this.started)
+            throw new Error('Absolutely can\'t serialize at this time, the bot hasn\'t started yet');
+        // This is an efficient, if somewhat odd, way of achieving serialization.
+        // Each entity has a serialization shadow string.
+        // Being a string, it's quite efficient to handle compared to JSON.stringify on the whole block.
+        // Entities only get *any* form of serialization if and when it is needed.
+        const entities: string[] = [];
+        for (const k in this.entities) {
+            const entity = this.entities[k];
+            if ((entity as any).entitySerializedOutOfDate) {
+                (entity as any).entitySerializedShadow = JSON.stringify(entity.toSaveData());
+                (entity as any).entitySerializedOutOfDate = false;
+            }
+            entities.push((this.entities[k] as any).entitySerializedShadow);
+        }
+        return '[\n ' + entities.join(',\n ') + '\n]';
     }
     
     /**
@@ -198,7 +227,8 @@ export class EntityRegistry<C, T extends Entity<C>> {
         if (this.started)
             return;
         this.started = true;
-        this.resetEntities();
+        this.deserialize(this.cachedJSON);
+        this.cachedJSON = 'XXXBADXXX';
     }
     
     // Generates a unique-ish entity ID with a given prefix.
@@ -234,7 +264,7 @@ export class EntityRegistry<C, T extends Entity<C>> {
                     // Entity finished, let's go
                     this.killEntity(newEnt.id, true);
                     this.entities[newEnt.id] = newEnt;
-                    this.markPendingFlush();
+                    this.updated();
                     resolve(newEnt);
                 }, (err: any) => {
                     console.log('entity failed to load', err);
@@ -256,7 +286,7 @@ export class EntityRegistry<C, T extends Entity<C>> {
             v.killed = true;
             delete this.entities[id];
             v.onKill(transferOwnership);
-            this.markPendingFlush();
+            this.updated();
         }
     }
     
@@ -270,49 +300,6 @@ export class EntityRegistry<C, T extends Entity<C>> {
             delete this.entities[k];
             v.onKill(false);
         }
-        this.markPendingFlush();
+        this.updated();
     }
-    
-    /**
-     * 
-     */
-    public resetEntities(): void {
-        if (!this.started)
-            return;
-        this.killAllEntities();
-        for (const entity of this.entityData.data)
-            this.newEntity(entity).catch((e) => {
-                // These will have already been reported.
-            });
-        this.pendingEntityFlush = false;
-    }
-    
-    /**
-     * Marks the registry as needing to be flushed.
-     * To avoid making bulk operations waste I/O, this uses a setImmediate and a flag.
-     * So multiple marks will be combined into one.
-     */
-    public markPendingFlush(): void {
-        this.pendingEntityFlush = true;
-        setImmediate(() => {
-            if (this.pendingEntityFlush)
-                this.saveToDynamicData();
-        });
-    }
-    
-    /**
-     * Writes all entities to the DynamicData.
-     */
-    public saveToDynamicData(): void {
-        if (!this.started)
-            return;
-        this.duringOurModification = true;
-        this.entityData.modify((d: EntitySet) => {
-            d.splice(0, d.length);
-            for (const k in this.entities)
-                d.push(this.entities[k].toSaveData());
-        });
-        this.duringOurModification = false;
-        this.pendingEntityFlush = false;
-     }
 }
