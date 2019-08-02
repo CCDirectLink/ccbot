@@ -33,8 +33,7 @@ class CCBotMain {
             let tallyRaw = 0;
             let tallyCreatedMessages = 0;
             let tallyCommandsExecuted = 0;
-            let tallyNewLseExecuted = 0;
-            let tallyNewSayExecuted = 0;
+            let tallyCommandsBreakdown: {[str: string]: number} = {};
             // Data incoming
             this.client.on('raw', (): void => {
                 tallyRaw++;
@@ -45,30 +44,40 @@ class CCBotMain {
             });
             this.client.on('commandRun', (command: commando.Command): void => {
                 tallyCommandsExecuted++;
-                if (command.name === 'lsemotes')
-                    tallyNewLseExecuted++;
-                if (command.name === 'say')
-                    tallyNewSayExecuted++;
+                tallyCommandsBreakdown[command.name] = (tallyCommandsBreakdown[command.name] || 0) + 1;
             });
             // commandsExecuted
             // Main collector
             this.dataCollector = new net.Server();
             this.dataCollector.on('connection', (socket: net.Socket): void => {
+                socket.on('error', (): void => {});
+                let entitiesBreakdown: {[str: string]: number} = {};
+                for (const entID in this.client.entities.entities) {
+                    const type = this.client.entities.entities[entID].type;
+                    entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;
+                }
+                const guildsBreakdownYes = this.client.guilds.filter((g: discord.Guild): boolean => {
+                    return getRolesState(this.client, g) === 'yes';
+                }).size;
+                const guildsBreakdownSBS = this.client.guilds.filter((g: discord.Guild): boolean => {
+                    const state = getRolesState(this.client, g);
+                    return (state !== 'no') && (state !== 'yes');
+                }).size;
+                const guildsBreakdownNo = this.client.guilds.size - (guildsBreakdownYes + guildsBreakdownSBS);
                 socket.end(JSON.stringify({
                     // ltp
-                    guildsRoleYes: this.client.guilds.filter((g: discord.Guild): boolean => {
-                        return getRolesState(this.client, g) === 'yes';
-                    }).size,
-                    guildsRoleSBS: this.client.guilds.filter((g: discord.Guild): boolean => {
-                        return getRolesState(this.client, g) !== 'no';
-                    }).size,
-                    newLsemotesExecuted: tallyNewLseExecuted,
-                    newSayExecuted: tallyNewSayExecuted,
+                    guildsBreakdown: {
+                        yes: guildsBreakdownYes,
+                        sbs: guildsBreakdownSBS,
+                        no: guildsBreakdownNo
+                    },
+                    commandsExecutedBreakdown: tallyCommandsBreakdown,
                     // esd
                     emotesGlobalRegistry: this.client.emoteRegistry.globalEmoteRegistry.size,
                     emoteConflicts: this.client.emoteRegistry.globalConflicts,
                     // hdd
                     entities: Object.keys(this.client.entities.entities).length,
+                    entitiesBreakdown: entitiesBreakdown,
                     settingsLenChars: Buffer.byteLength(JSON.stringify(this.client.dynamicData.settings.data)),
                     // old stuff
                     guilds: this.client.guilds.size,
@@ -83,8 +92,7 @@ class CCBotMain {
                 tallyRaw = 0;
                 tallyCreatedMessages = 0;
                 tallyCommandsExecuted = 0;
-                tallyNewLseExecuted = 0;
-                tallyNewSayExecuted = 0;
+                tallyCommandsBreakdown = {};
             });
             this.dataCollector.listen(secrets.dataCollectionPort, secrets.dataCollectionHost);
         } else {
