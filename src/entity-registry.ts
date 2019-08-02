@@ -227,7 +227,12 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         if (this.started)
             return;
         this.started = true;
-        this.deserialize(this.cachedJSON);
+        try {
+            this.deserialize(this.cachedJSON);
+        } catch (e) {
+            console.log('in entity registry startup');
+            console.log(e);
+        }
         this.cachedJSON = 'XXXBADXXX';
     }
     
@@ -242,6 +247,16 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
             nid = prefix + idn.toString();
         }
         return nid;
+    }
+    
+    /**
+     * Creates an entity synchronously.
+     * Useful when circumstances should guarantee atomicity for safety reasons between entities which know each other.
+     */
+    public newEntitySync(newEnt: T): void {
+        this.killEntity(newEnt.id, true);
+        this.entities[newEnt.id] = newEnt;
+        this.updated();
     }
     
     /**
@@ -262,9 +277,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
                 const newEntP = this.entityTypes[data.type](this.client, data);
                 newEntP.then((newEnt: T) => {
                     // Entity finished, let's go
-                    this.killEntity(newEnt.id, true);
-                    this.entities[newEnt.id] = newEnt;
-                    this.updated();
+                    this.newEntitySync(newEnt);
                     resolve(newEnt);
                 }, (err: any) => {
                     console.log('entity failed to load', err);

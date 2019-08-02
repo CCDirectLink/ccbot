@@ -4,61 +4,83 @@ import {EntityData} from '../entity-registry';
 
 export interface PurgeDatabaseEntityData extends EntityData {
     timeMs: number;
-    channels: MessageCollation;
 }
 
-export interface MessageCollation {[channel: string]: discord.Snowflake[]}
-
-function dupChannels(src: MessageCollation): MessageCollation {
-    const dst: MessageCollation = Object.assign({}, src);
-    for (const id in src) {
-        const array: string[] = [];
-        for (const value of src[id])
-            array.push(value);
-        dst[id] = array;
-    }
-    return dst;
+export interface PurgeDatabaseChannelEntityData extends EntityData {
+    channel: string;
+    messages: string[];
 }
 
 /**
  * Stores the IDs of sent messages.
+ * Dumb storage; won't be updated by itself
+ */
+export class PurgeDatabaseChannelEntity extends CCBotEntity {
+    public channelID: string;
+    public messages: string[];
+    
+    public constructor(c: CCBot, data: PurgeDatabaseChannelEntityData) {
+        super(c, 'purge-channel-' + data.channel, data);
+        this.channelID = data.channel;
+        this.messages = data.messages;
+    }
+    
+    public toSaveData(): PurgeDatabaseChannelEntityData {
+        return Object.assign(super.toSaveData(), {
+            channel: this.channelID,
+            messages: this.messages
+        });
+    }
+}
+
+/**
+ * Maintains the PurgeDatabaseChannelEntity instances.
  */
 export class PurgeDatabaseEntity extends CCBotEntity {
-    public channels: MessageCollation;
     public timeMs: number;
     private messageCallback: (msg: discord.Message) => void;
     
     public constructor(c: CCBot, data: PurgeDatabaseEntityData) {
         super(c, 'purge-database-manager', data);
-        this.channels = dupChannels(data.channels);
         this.timeMs = data.timeMs;
         // Clean out older entries every minute
         const loopCallback = (): void => {
             if (this.killed)
                 return;
             const deleteBefore = Date.now() - this.timeMs;
-            for (const cid in this.channels) {
-                const array = this.channels[cid];
-                for (let i = 0; i < array.length; i++) {
-                    // Work out if message is too old
-                    const flake = discord.SnowflakeUtil.deconstruct(array[i]);
-                    if (flake.date.getTime() < deleteBefore) {
-                        array.splice(i, 1);
-                        i--;
+            for (const entityID in this.client.entities.entities) {
+                const entity = this.client.entities.entities[entityID];
+                if (entity instanceof PurgeDatabaseChannelEntity) {
+                    const array = entity.messages;
+                    let changed = false;
+                    while ((array.length > 0) && (discord.SnowflakeUtil.deconstruct(array[0]).date.getTime() < deleteBefore)) {
+                        array.shift();
+                        changed = true;
+                    }
+                    if (array.length == 0) {
+                        entity.kill(false);
+                    } else if (changed) {
+                        entity.updated();
                     }
                 }
-                if (array.length == 0)
-                    delete this.channels[cid];
             }
             setTimeout(loopCallback, 60000);
         };
         loopCallback();
         this.messageCallback = (message: discord.Message): void => {
             if (message.author == this.client.user) {
-                const target = this.channels[message.channel.id] || [];
-                this.channels[message.channel.id] = target;
-                target.push(message.id);
-                this.updated();
+                const entity: PurgeDatabaseChannelEntity | undefined = this.client.entities.entities['purge-channel-' + message.channel.id] as (PurgeDatabaseChannelEntity | undefined);
+                if (!entity) {
+                    const data: PurgeDatabaseChannelEntityData = {
+                        type: 'purge-database-channel',
+                        channel: message.channel.id,
+                        messages: [message.id]
+                    };
+                    this.client.entities.newEntitySync(new PurgeDatabaseChannelEntity(this.client, data));
+                } else {
+                    entity.messages.push(message.id);
+                    entity.updated();
+                }
             }
         };
         this.client.on('message', this.messageCallback);
@@ -71,12 +93,15 @@ export class PurgeDatabaseEntity extends CCBotEntity {
     
     public toSaveData(): PurgeDatabaseEntityData {
         return Object.assign(super.toSaveData(), {
-            channels: dupChannels(this.channels),
             timeMs: this.timeMs
         });
     }
 }
 
-export default async function load(c: CCBot, data: PurgeDatabaseEntityData): Promise<CCBotEntity> {
+export async function loadPurgeDatabase(c: CCBot, data: PurgeDatabaseEntityData): Promise<CCBotEntity> {
     return new PurgeDatabaseEntity(c, data);
+}
+
+export async function loadPurgeDatabaseChannel(c: CCBot, data: PurgeDatabaseChannelEntityData): Promise<CCBotEntity> {
+    return new PurgeDatabaseChannelEntity(c, data);
 }

@@ -133,3 +133,5 @@ This ensures that message-related events are sent to the entity, but it also
 `mod-database-manager`: An instance of the `mod-database` entity.
 
 `purge-database-manager`: An instance of the `purge-database` entity.
+
+`purge-channel-SOMEIDHERE`: `purge-database-channel` entities for various channels.

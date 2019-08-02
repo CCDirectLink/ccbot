@@ -12,8 +12,7 @@
     },
     {
         "type": "purge-database",
-        "timeMs": 1209600000,
-        "channels": {}
+        "timeMs": 1209600000
     },
     {
         "type": "random-activity",
