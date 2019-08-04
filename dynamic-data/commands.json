@@ -228,10 +228,10 @@
             }
         },
         "help-quote": {
-            "description": "The 'quote' invocation",
+            "description": "The 'quote' and 'quote-cause' invocations",
             "embed": {
-                "title": "The 'quote' invocation",
-                "description": "The 'quote' invocation receives a Discord message URL (or simply a channel ID followed by a message ID, separated by %/), and regurgitates it as a quotation.\n(For the security-conscious: It is assumed that knowledge of all three IDs implies enough knowledge to repost manually. This is how attachment security works, after all.)\nExample: `%%(quote https://discordapp.com/channels/143364538958348288/367424200991965184/604035298686402770)`"
+                "title": "The 'quote' and 'quote-cause' invocations",
+                "description": "The 'quote' invocation receives a Discord message URL (or simply a channel ID followed by a message ID, separated by %/), and regurgitates it as a quotation.\nThis will fail if the Writer (for guild settings, this means 'the guild') doesn't have access.\nExample: `%%(quote https://discordapp.com/channels/143364538958348288/367424200991965184/604035298686402770)`\nAdditional note: 'quote-cause' is this but has stricter permissions checks, so the Cause must *also* have access."
             }
         },
         "help-prefix": {

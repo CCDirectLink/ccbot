@@ -27,7 +27,9 @@ class GreeterEntity extends CCBotEntity {
                         channel.send(await runFormat(greeting.toString(), newVM({
                             client: c,
                             channel: channel,
-                            cause: m.user
+                            cause: m.user,
+                            writer: null,
+                            protectedContent: false
                         })));
                     })();
                 }

@@ -9,13 +9,53 @@ interface ValueX extends Array<Value> {}
 
 export type VM = (arg: Value) => Promise<Value>;
 
+type ChannelTBF = discord.Channel & discord.TextBasedChannelFields;
+
 export interface VMContext {
     client: CCBot;
-    channel: discord.Channel & discord.TextBasedChannelFields;
+    channel: ChannelTBF;
+    // The person whose say- code we are running.
+    // Null means it comes from guild settings at some level,
+    //  which means it has as much permission as the bot within the guild.
+    // If the code is built into the bot, set this on a case by case basis, but "cause" is usually safe.
+    writer: discord.User | null;
     cause: discord.User;
+    // Keep false by default.
+    // Setting to true indicates that this VM has handled content the writer is not trusted with.
+    // This prevents untrusted code from causing escalation.
+    protectedContent: boolean;
 }
 
 const discordMessageLinkURL = /([0-9]+)\/([0-9]+)$/;
+
+/**
+ * @param where The channel this is being sent to.
+ * @param source The channel the message is being sourced from.
+ * @param user A security principal like writer; null is guild-level access (@'where')
+ */
+function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user: discord.User | null): boolean {
+    const quoteGuild: discord.Guild | undefined = (source as any).guild;
+    if (!user) {
+        // Guild access
+        const contextGuild: discord.Guild | undefined = (where as any).guild;
+        if (contextGuild && (contextGuild === quoteGuild))
+            return true;
+        return false;
+    } else {
+        // User access (this one gets complicated)
+        // DMs between the user & the bot are always up for grabs
+        if (user.dmChannel === source)
+            return true;
+        // Is it something the user has access to?
+        if (quoteGuild) {
+            const userAsMember = quoteGuild.members.get(user.id);
+            if (userAsMember)
+                if (userAsMember.permissionsIn(source).has('READ_MESSAGES'))
+                    return true;
+        }
+        return false;
+    }
+}
 
 /**
  * Creates the VM for the formatted parts.
@@ -35,7 +75,7 @@ export function newVM(context: VMContext): VM {
             const args: ValueX = arg as ValueX;
             if ((args.length == 2) && (args[0] == '\''))
                 return args[1];
-            if ((args.length == 2) && (args[0] == 'quote')) {
+            if ((args.length == 2) && ((args[0] == 'quote') || (args[0] == 'quote-cause'))) {
                 const url = (await vm(args[1])).toString();
                 const details = discordMessageLinkURL.exec(url);
                 if (!details)
@@ -43,8 +83,13 @@ export function newVM(context: VMContext): VM {
                 const channel = channelAsTBF(context.client.channels.get(details[1]));
                 if (!channel)
                     return 'Quotation failure. Channel ' + details[1] + ' does not exist or is not a text channel.\n';
-                if (channel != context.channel)
-                    return 'Quotation failure. Quotes are only allowed from the current channel until the security implications are cleared up.\n';
+                // Security check...
+                if (!userHasReadAccessToChannel((context.channel as any).guild, channel, context.writer)) {
+                    return 'Quotation failure. Writer doesn\'t have access to the message.';
+                } else if (args[0] == 'quote-cause') {
+                    if (!userHasReadAccessToChannel((context.channel as any).guild, channel, context.cause))
+                        return 'Quotation failure; Writer requested that Cause needs access.';
+                }
                 try {
                     const message = await channel.fetchMessage(details[2]);
                     

@@ -29,7 +29,9 @@ export default class SayCommand extends CCBotCommand {
         const text = await runFormat(args.text, newVM({
             client: this.client,
             channel: message.channel,
-            cause: message.author
+            cause: message.author,
+            writer: message.author,
+            protectedContent: false
         }));
         // It's important that this *does not* use global in place of the setting in the guild if none exists.
         // By per-guild default say should always have a header.

@@ -51,7 +51,10 @@ export default class JSONCommand extends CCBotCommand {
         const vm = newVM({
             client: this.client,
             channel: message.channel,
-            cause: message.author
+            cause: message.author,
+            // JSON commands are always part of the bot (for now)
+            writer: message.author,
+            protectedContent: false
         });
         const formatText = await runFormat(this.command.format || '', vm);
 
