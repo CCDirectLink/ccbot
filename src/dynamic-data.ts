@@ -52,7 +52,7 @@ export abstract class DynamicTextFile {
         }
         return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: any) => void) => {
             console.log('saving ' + this.path);
-            const npath = this.path + '.new.' + Date.now();
+            const npath = this.path + '.new.' + Date.now() + '.' + Math.random();
             fs.writeFile(npath, this.serialize(), (err) => {
                 if (err) {
                     this.inMiddleOfSI = null;
