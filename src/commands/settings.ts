@@ -6,6 +6,7 @@ import {localAdminCheck} from '../utils';
 // Important (i.e. non-obvious) limits
 const limitLocalCommand = 2000;
 const limitLocalEmote = 128;
+const limitLocalChannelName = 128;
 const limitLocalEmotesArray = 2000;
 const limitLocalRoleGroup = 2000;
 
@@ -61,6 +62,9 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else if ((name === 'roles-exclusive') || (name === 'roles-inclusive') || (name === 'roles-whitelist')) {
         if ((value === undefined) || (value.constructor === Array))
             maxLength = limitLocalRoleGroup;
+    } else if ((name === 'channel-greet') || (name === 'channel-info') || (name === 'channel-syslog') || (name === 'channel-editlog')) {
+        if ((value === undefined) || (value.constructor === String))
+            maxLength = limitLocalChannelName;
     }
     if (!maxLength)
         return 'The setting was not recognized. If this setting is readable, keep in mind that some documented settings are automatically maintained.';
