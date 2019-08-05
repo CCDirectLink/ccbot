@@ -228,10 +228,10 @@
             }
         },
         "help-quote": {
-            "description": "The 'quote' and 'quote-cause' invocations",
+            "description": "The 'quote', 'quote-cause', 'quote-silent', 'quote-silent-cause' invocations",
             "embed": {
-                "title": "The 'quote' and 'quote-cause' invocations",
-                "description": "The 'quote' invocation receives a Discord message URL (or simply a channel ID followed by a message ID, separated by %/), and regurgitates it as a quotation.\nThis will fail if the Writer (for guild settings, this means 'the guild') doesn't have access.\nExample: `%%(quote https://discordapp.com/channels/143364538958348288/367424200991965184/604035298686402770)`\nAdditional note: 'quote-cause' is this but has stricter permissions checks, so the Cause must *also* have access."
+                "title": "The 'quote', 'quote-cause', 'quote-silent', 'quote-silent-cause' invocations",
+                "description": "The 'quote' invocation receives a Discord message URL (or simply a channel ID followed by a message ID, separated by %/), and regurgitates it as a quotation.\nThis will fail if the Writer (for guild settings, this means 'the guild') doesn't have access.\nExample: `%%(quote https://discordapp.com/channels/143364538958348288/367424200991965184/604035298686402770)`\nAdditional note: 'quote-cause' is this but has stricter permissions checks, so the Cause must *also* have access.\nAdditional additional note: 'quote-silent' avoids pinging the original message author.\nAdditional additional additional note: 'quote-silent-cause' combines these."
             }
         },
         "help-prefix": {

@@ -75,7 +75,8 @@ export function newVM(context: VMContext): VM {
             const args: ValueX = arg as ValueX;
             if ((args.length == 2) && (args[0] == '\''))
                 return args[1];
-            if ((args.length == 2) && ((args[0] == 'quote') || (args[0] == 'quote-cause'))) {
+            if ((args.length == 2) && ((args[0] == 'quote') || (args[0] == 'quote-cause') || (args[0] == 'quote-silent') || (args[0] == 'quote-silent-cause'))) {
+                const components = (args[0] as string).split('-');
                 const url = (await vm(args[1])).toString();
                 const details = discordMessageLinkURL.exec(url);
                 if (!details)
@@ -86,7 +87,7 @@ export function newVM(context: VMContext): VM {
                 // Security check...
                 if (!userHasReadAccessToChannel((context.channel as any).guild, channel, context.writer)) {
                     return 'Quotation failure. Writer doesn\'t have access to the message.';
-                } else if (args[0] == 'quote-cause') {
+                } else if (components.indexOf('cause') != -1) {
                     if (!userHasReadAccessToChannel((context.channel as any).guild, channel, context.cause))
                         return 'Quotation failure; Writer requested that Cause needs access.';
                 }
@@ -95,7 +96,8 @@ export function newVM(context: VMContext): VM {
                     
                     // Frankly, expect the escaping here to fail...
                     const escapedContent = '> ' + (message.cleanContent.replace('\n', '\n> ').replace('<@', '\\<@'));
-                    let text = message.author.toString() + ' wrote at ' + message.createdAt.toUTCString() + ': \n' + escapedContent + '\n';
+                    const ref = (components.indexOf('silent') != -1) ? message.author.username + '#' + message.author.discriminator : message.author.toString();
+                    let text = ref + ' wrote at ' + message.createdAt.toUTCString() + ': \n' + escapedContent + '\n';
                     const additionals: string[] = [];
                     if (message.embeds.length > 0)
                         additionals.push(message.embeds.length + ' embeds');
