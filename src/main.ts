@@ -34,13 +34,11 @@ class CCBotMain {
                 await this.client.loadData();
                 // Ok, *now* login
                 await this.client.login(this.secrets.token);
+                this.startDataCollector();
             } catch (e) {
                 console.error(e);
                 process.exit(1);
             }
-            this.client.once('ready', (): void => {
-                this.startDataCollector();
-            });
         }
         kickstart();
     }
