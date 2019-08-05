@@ -13,34 +13,40 @@ import net from 'net';
 class CCBotMain {
     client: CCBot;
     dataCollector: net.Server | null;
+    secrets: Secrets;
     constructor() {
         // This file may not exist in Travis.
         // So apparently the globalThis require thing doesn't work;
         // 1. Webpack *may* be providing the JSON conversion
         // 2. globalThis is >= Node 12.*
-        const secrets: Secrets = JSON.parse(fs.readFileSync('secrets.json', 'utf8'));
+        this.secrets = JSON.parse(fs.readFileSync('secrets.json', 'utf8'));
         // See ccbot-impl.ts for more details on what's going on here.
         // Use CCBot to refer to the class.
         this.client = new CCBotImpl({
-            owner: secrets.owner,
-            commandPrefix: secrets.commandPrefix
-        }, secrets.safety);
+            owner: this.secrets.owner,
+            commandPrefix: this.secrets.commandPrefix
+        }, this.secrets.safety);
+        this.dataCollector = null;
         
         const kickstart = async (): Promise<void> => {
             try {
                 // Makes sure that data isn't corrupt, makes sure that data is available
                 await this.client.loadData();
                 // Ok, *now* login
-                await this.client.login(secrets.token);
+                await this.client.login(this.secrets.token);
             } catch (e) {
                 console.error(e);
                 process.exit(1);
             }
+            this.client.once('ready', (): void => {
+                this.startDataCollector();
+            });
         }
         kickstart();
-        
+    }
+    startDataCollector() {
         // The data collector is "outside the system".
-        if (secrets.dataCollectionPort) {
+        if (this.secrets.dataCollectionPort) {
             // Data tallys
             let tallyRaw = 0;
             let tallyCreatedMessages = 0;
@@ -106,9 +112,7 @@ class CCBotMain {
                 tallyCommandsExecuted = 0;
                 tallyCommandsBreakdown = {};
             });
-            this.dataCollector.listen(secrets.dataCollectionPort, secrets.dataCollectionHost);
-        } else {
-            this.dataCollector = null;
+            this.dataCollector.listen(this.secrets.dataCollectionPort, this.secrets.dataCollectionHost);
         }
     }
     destroy(): Promise<void> {
