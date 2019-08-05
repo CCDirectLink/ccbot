@@ -12,18 +12,18 @@ const limitLocalRoleGroup = 2000;
 // Local settings control
 
 // Returns null on success.
-async function runLocalSettingTransaction(provider: commando.SettingProvider, context: discord.Guild, name: string, value: any): Promise<string | null> {
+async function runLocalSettingTransaction(provider: commando.SettingProvider, context: discord.Guild, name: string, value: undefined | string | undefined[]): Promise<string | null> {
     let maxLength = 0;
     let doneCallback = async (): Promise<void> => {};
     const startsWithRG = name.startsWith('roles-group-');
     if (name === 'nsfw') {
-        if ((value.constructor === Boolean) || (value === undefined))
+        if ((value === undefined) || (value.constructor === Boolean))
             maxLength = 16;
     } else if (name === 'optin-roles') {
-        if ((value === 'yes') || (value === 'both') || (value === 'no') || (value === undefined))
+        if ((value === undefined) || (value === 'yes') || (value === 'both') || (value === 'no'))
             maxLength = 16;
     } else if (name === 'greeting') {
-        if ((value.constructor === String) || (value === undefined))
+        if ((value === undefined) || (value.constructor === String))
             maxLength = limitLocalCommand;
     } else if (name.startsWith('emote-') || startsWithRG) {
         // NOTE: Despite the name of variables here, this gets both emote- and roles-group- items.
@@ -102,7 +102,7 @@ export class SettingsSetCommand extends CCBotCommand {
     }
 
     public async run(message: commando.CommandMessage, args: {target: string; value: string}): Promise<discord.Message|discord.Message[]> {
-        let effectiveGuild: discord.Guild | undefined = message.guild;
+        const effectiveGuild: discord.Guild | undefined = message.guild;
         if (!effectiveGuild) {
             if (!this.client.owners.includes(message.author))
                 return message.say('You do not have global settings authorization.');
