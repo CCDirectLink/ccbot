@@ -8,6 +8,7 @@ export abstract class DynamicTextFile {
     // RAM access (changes are always lost)
     // It does not make sense to have a non-immediate RAM
     public ram: boolean;
+    private inMiddleOfSI: Promise<void> | null = null;
     
     // Resolves after the initial load.
     public initialLoad: Promise<void>;
@@ -41,13 +42,30 @@ export abstract class DynamicTextFile {
     public saveImmediate(): Promise<void> {
         if (this.ram)
             return Promise.resolve();
-        return new Promise((resolve: () => void, reject: (err: any) => void) => {
+        if (this.inMiddleOfSI) {
+            // Defer until end of this SI
+            const imos = this.inMiddleOfSI;
+            return (async (): Promise<void> => {
+                await imos;
+                await this.saveImmediate();
+            })();
+        }
+        return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: any) => void) => {
             console.log('saving ' + this.path);
-            fs.writeFile(this.path, this.serialize(), (err) => {
+            const npath = this.path + '.new.' + Date.now();
+            fs.writeFile(npath, this.serialize(), (err) => {
                 if (err) {
+                    this.inMiddleOfSI = null;
                     reject(err);
                 } else {
-                    resolve();
+                    fs.rename(npath, this.path, (err) => {
+                        this.inMiddleOfSI = null;
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
                 }
             });
         });
@@ -92,7 +110,7 @@ export abstract class DynamicTextFile {
     }
     
     /**
-     * Reloads the object. Note that the promise won't be rejected on reload failure.
+     * Reloads the object.
      */
     public reload(): Promise<void> {
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
@@ -101,8 +119,7 @@ export abstract class DynamicTextFile {
                     try {
                         this.deserialize(data);
                     } catch (e) {
-                        console.log('in ' + this.path);
-                        console.error(e);
+                        reject(e);
                     }
                     resolve();
                 } else {
@@ -163,11 +180,8 @@ export class DynamicData<T> extends DynamicTextFile {
     }
     
     protected deserialize(data: string): void {
-        try {
-            this.data = JSON.parse(data);
-        } finally {
-            this.callOnModify();
-        }
+        this.data = JSON.parse(data);
+        this.callOnModify();
     }
 };
 

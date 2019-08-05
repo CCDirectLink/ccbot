@@ -25,7 +25,19 @@ class CCBotMain {
             owner: secrets.owner,
             commandPrefix: secrets.commandPrefix
         }, secrets.safety);
-        this.client.login(secrets.token);
+        
+        const kickstart = async (): Promise<void> => {
+            try {
+                // Makes sure that data isn't corrupt, makes sure that data is available
+                await this.client.loadData();
+                // Ok, *now* login
+                await this.client.login(secrets.token);
+            } catch (e) {
+                console.error(e);
+                process.exit(1);
+            }
+        }
+        kickstart();
         
         // The data collector is "outside the system".
         if (secrets.dataCollectionPort) {

@@ -178,7 +178,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     // This is important because until the bot is ready,
     //  certain things might not exist that entities might want to access.
     private started: boolean = false;
-    private cachedJSON: string = '[]';
+    private cachedJSON: string = 'XXX_DID_NOT_LOAD_DATA_XXX';
     
     public constructor(c: C, path: string) {
         super(path, false, false);
@@ -227,13 +227,8 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         if (this.started)
             return;
         this.started = true;
-        try {
-            this.deserialize(this.cachedJSON);
-        } catch (e) {
-            console.log('in entity registry startup');
-            console.log(e);
-        }
-        this.cachedJSON = 'XXXBADXXX';
+        this.deserialize(this.cachedJSON);
+        this.cachedJSON = 'XXX_ALREADY_STARTED_XXX';
     }
     
     // Generates a unique-ish entity ID with a given prefix.
