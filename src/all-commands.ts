@@ -29,22 +29,7 @@ export default function registerAllCommands(cr: CCBot) {
 
     // util
     cr.registry.registerCommand(new ReloadCommand(cr));
-    cr.registry.registerCommand(new SettingsSetCommand(cr, 'array-string', {
-        key: 'value',
-        prompt: 'What value would you like today?',
-        type: 'string',
-        infinite: true
-    }));
-    cr.registry.registerCommand(new SettingsSetCommand(cr, 'string', {
-        key: 'value',
-        prompt: 'What value would you like today?',
-        type: 'string'
-    }));
-    cr.registry.registerCommand(new SettingsSetCommand(cr, 'boolean', {
-        key: 'value',
-        prompt: 'What value would you like today?',
-        type: 'boolean'
-    }));
+    cr.registry.registerCommand(new SettingsSetCommand(cr));
     cr.registry.registerCommand(new SettingsGetCommand(cr));
     cr.registry.registerCommand(new SettingsRmCommand(cr));
     cr.registry.registerCommand(new CounterCommand(cr));

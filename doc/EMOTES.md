@@ -27,4 +27,6 @@ The other two levels can only add or override emotes, not remove them, right now
 
 They use the settings `emotes` (string array, emote references) and `emote-<name>` (string, emote)
 
+Note: For local settings, the `emotes` array is automatically maintained.
+
 The NSFW control setting causes all emotes from that guild to be hidden outside of NSFW contexts.

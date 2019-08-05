@@ -2,6 +2,8 @@
 
 All of these are described individually too.
 
+When updating this file, please update settings.ts with setting validity logic.
+
 They can be controlled per-guild by the local ADMINISTRATOR or bot owners.
 
 They can be controlled globally only by bot owners.
@@ -11,7 +13,7 @@ They can be controlled globally only by bot owners.
 `nsfw-<GUILD ID>`: Boolean, effectively forcefully enables the per-guild `nsfw` setting.
 Example: `-util set-boolean nsfw-558469426765103135 true`
 
-'emotePath': Array of strings; guild IDs, from most important to least, from which to prioritize emotes.
+`emotePath`: Array of strings; guild IDs, from most important to least, from which to prioritize emotes.
 
 ## Per-Guild
 
@@ -29,7 +31,7 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 ## Both
 
 `prefix`: Part of Commando
-`emotes`: See EMOTES.md
+`emotes`: See EMOTES.md (Automatically maintained for per-guild settings)
 `emote-<EMOTE REF>`: See EMOTES.md
 
 `headerless-say`: Removes the "who did it" header from the `say` command.

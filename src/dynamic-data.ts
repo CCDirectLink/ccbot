@@ -134,8 +134,7 @@ export abstract class DynamicTextFile {
      * Before doing so, saves any modified data, leaving things in a consistent state.
      */
     public async destroy(): Promise<void> {
-        if (this.modifyTimeoutActive != null)
-            await this.saveImmediate();
+        await this.saveImmediate();
         this.ram = true;
     }
 }
