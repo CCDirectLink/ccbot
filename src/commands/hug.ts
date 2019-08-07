@@ -49,7 +49,7 @@ export default class HugCommand extends CCBotCommand {
         const hugEmote = this.client.emoteRegistry.getEmote(message.guild || null, 'shizuHUG').toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
-            const member = findMemberByRef(message, args.people[i]);
+            const member = findMemberByRef(message.guild || null, args.people[i]);
             if (member) {
                 if (alreadyHugged.has(member.user))
                     continue;

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import DynamicDataManager from '../src/dynamic-data';
-import {runFormat} from '../src/formatter';
+import {runFormatInternal} from '../src/formatter';
 
 describe('DynamicDataManager', (): void => {
     const ddm: DynamicDataManager = new DynamicDataManager();
@@ -27,7 +27,7 @@ describe('DynamicDataManager', (): void => {
                 if (cmd.format) {
                     // Ignore the actual details, this is just a parsing run
                     try {
-                        await runFormat(cmd.format, async (): Promise<string> => {
+                        await runFormatInternal(cmd.format, async (): Promise<string> => {
                             return '';
                         });
                     } catch (e) {

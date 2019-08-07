@@ -5,7 +5,6 @@ import HelpCommand from './commands/help';
 import HugCommand from './commands/hug';
 import PurgeCommand from './commands/purge';
 import ArmyCommand from './commands/army';
-import CheaterCommand from './commands/cheater';
 import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
 import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
@@ -36,7 +35,6 @@ export default function registerAllCommands(cr: CCBot) {
     
     cr.registry.registerGroup("general");
     cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
-    cr.registry.registerCommand(new CheaterCommand(cr));
     cr.registry.registerCommand(new PingCommand(cr));
     cr.registry.registerCommand(new ListEmotesCommand(cr));
     cr.registry.registerCommand(new EmoteCommand(cr));

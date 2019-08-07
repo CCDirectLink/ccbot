@@ -3,7 +3,7 @@ import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {getRolesState, getGuildTextChannel} from '../utils';
 import {convertRoleGroup} from '../role-utils';
-import {newVM, runFormat} from '../formatter';
+import {VM, runFormat} from '../formatter';
 
 /**
  * Implements greetings and role assignment.
@@ -24,12 +24,13 @@ class GreeterEntity extends CCBotEntity {
                 const greeting = c.provider.get(m.guild, 'greeting');
                 if (greeting) {
                     (async (): Promise<void> => {
-                        channel.send(await runFormat(greeting.toString(), newVM({
+                        channel.send(await runFormat(greeting.toString(), new VM({
                             client: c,
                             channel: channel,
                             cause: m.user,
                             writer: null,
-                            protectedContent: false
+                            protectedContent: false,
+                            args: []
                         })));
                     })();
                 }

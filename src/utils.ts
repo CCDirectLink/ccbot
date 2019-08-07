@@ -100,22 +100,30 @@ export function localAdminCheck(t: commando.CommandMessage): boolean {
 
 export const mentionRegex = /\<\@\!?([0-9]*)\>/g;
 
-export function findMemberByRef(t: commando.CommandMessage, ref: string): discord.GuildMember | null {
-    if (!t.guild)
+export function findMemberByRef(t: discord.Guild | undefined | null, ref: string): discord.GuildMember | null {
+    if (!t)
         return null;
 
     const mention = mentionRegex.exec(ref);
     if (mention)
-        return t.guild.members.get(mention[1]) || null;
+        return t.members.get(mention[1]) || null;
 
-    const byId = t.guild.members.get(ref);
+    const byId = t.members.get(ref);
     if (byId)
         return byId;
 
-    const candidates: discord.GuildMember[] = t.guild.members.filterArray((v: discord.GuildMember): boolean => {
+    const candidates: discord.GuildMember[] = t.members.filterArray((v: discord.GuildMember): boolean => {
         return (v.user.username.includes(ref)) || (ref == (v.user.username + '#' + v.user.discriminator)) || (ref == v.user.id) || (ref == v.nickname);
     });
     if (candidates.length == 1)
         return candidates[0];
     return null;
+}
+
+// An integer parser that knows when to abort
+export function safeParseInt(a: string): number {
+    const res = parseInt(a);
+    if (Number.isNaN(res))
+        throw new Error('Number ' + a + ' is not a number');
+    return res;
 }

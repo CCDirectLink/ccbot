@@ -3,7 +3,7 @@ import * as commando from 'discord.js-commando';
 import * as structures from '../data/structures';
 import {nsfw} from '../utils';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {VM, newVM, runFormat} from '../formatter';
+import {VM, VMContext, runFormat} from '../formatter';
 
 /**
  * Copies an object while also formatting it.
@@ -39,23 +39,36 @@ export default class JSONCommand extends CCBotCommand {
             memberName: name.toLowerCase()
         };
         // Allows overriding the involved Commando options.
+        // This includes adding arguments.
         if (json.options)
             Object.assign(opt, json.options);
         super(client, opt);
         this.command = json;
     }
     
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
-        const vm = newVM({
+        const vmContext: VMContext = {
             client: this.client,
             channel: message.channel,
             cause: message.author,
             // JSON commands are always part of the bot (for now)
             writer: message.author,
-            protectedContent: false
-        });
+            protectedContent: false,
+            args: []
+        };
+        if (args && args.args) {
+            if (args.args.constructor === Array) {
+                vmContext.args = args.args;
+            } else {
+                vmContext.args = [args.args.toString()];
+            }
+        }
+        for (const arg of vmContext.args)
+            if (arg.constructor !== String)
+                return await message.say('That command can only eat strings, but it was given non-strings.');
+        const vm = new VM(vmContext);
         const formatText = await runFormat(this.command.format || '', vm);
 
         // Message Options
