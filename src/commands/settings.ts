@@ -20,6 +20,9 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     if (name === 'nsfw') {
         if ((value === undefined) || (value.constructor === Boolean))
             maxLength = 16;
+    } else if (name === 'headerless-say') {
+        if ((value === undefined) || (value.constructor === Boolean))
+            maxLength = 16;
     } else if (name === 'optin-roles') {
         if ((value === undefined) || (value === 'yes') || (value === 'both') || (value === 'no'))
             maxLength = 16;
