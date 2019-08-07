@@ -66,6 +66,17 @@ function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user:
     }
 }
 
+export function wrapFunc(name: string, argCount: number, fun: (args: Value[]) => Promise<Value>): VMFunction {
+    return async (args: Value[], scope: VMScope): Promise<Value> => {
+        if ((argCount + 1) != args.length)
+            throw new Error('Incorrect form for defun\'d ' + name);
+        const resArgs: Value[] = [];
+        for (let i = 0; i < argCount; i++)
+            resArgs.push(await scope.vm.eval(args[i + 1], scope));
+        return fun(resArgs);
+    };
+}
+
 /**
  * Scoping. Not actually used but kept in for safety purposes...
  */
@@ -152,30 +163,24 @@ export class VM {
             return args[1];
         },
         // Operations
-        'random': async (args: Value[], scope: VMScope): Promise<Value> => {
-            if (args.length != 2)
-                throw new Error('Incorrect form for random');
-            const size = (await this.eval(args[1], scope)).toString();
-            return Math.floor(Math.random() * safeParseInt(size)).toString();
-        },
-        'length': async (args: Value[], scope: VMScope): Promise<Value> => {
-            if (args.length != 2)
-                throw new Error('Incorrect form for length');
-            const res = await this.eval(args[1], scope);
+        'random': wrapFunc('random', 1, async (args: Value[]): Promise<Value> => {
+            const size = safeParseInt(args[0].toString());
+            return Math.floor(Math.random() * size).toString();
+        }),
+        'length': wrapFunc('length', 1, async (args: Value[]): Promise<Value> => {
+            const res = args[0];
             if ((res.constructor === Array) || res.constructor === String)
                 return res.length.toString();
             throw new Error('Attempted to get length of non-list');
-        },
-        'nth': async (args: Value[], scope: VMScope): Promise<Value> => {
-            if (args.length != 3)
-                throw new Error('Incorrect form for nth');
-            const index = safeParseInt((await this.eval(args[1], scope)).toString());
-            const res = await this.eval(args[2], scope);
+        }),
+        'nth': wrapFunc('nth', 2, async (args: Value[]): Promise<Value> => {
+            const index = safeParseInt(args[0].toString());
+            const res = args[1];
             if ((res.constructor === Array) || (res.constructor === String))
                 if ((index >= 0) && (index < res.length))
                     return res[index];
             throw new Error('Index out of bounds for nth: ' + res.toString() + '[' + index + ']');
-        },
+        }),
         'concatenate': async (args: Value[], scope: VMScope): Promise<Value> => {
             let first = true;
             let workspace = [];
@@ -216,23 +221,15 @@ export class VM {
             return await this.eval(args[2], scope);
         },
         // Discord Queries
-        'quote': async (args: Value[], scope: VMScope): Promise<Value> => {
-            return this.quote(args, scope, false, false);
-        },
-        'quote-cause': async (args: Value[], scope: VMScope): Promise<Value> => {
-            return this.quote(args, scope, true, false);
-        },
-        'quote-silent': async (args: Value[], scope: VMScope): Promise<Value> => {
-            return this.quote(args, scope, false, true);
-        },
-        'quote-silent-cause': async (args: Value[], scope: VMScope): Promise<Value> => {
-            return this.quote(args, scope, true, true);
-        },
-        'name': async (args: Value[], scope: VMScope): Promise<Value> => {
+        'quote': wrapFunc('quote', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, false)),
+        'quote-cause': wrapFunc('quote-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, false)),
+        'quote-silent': wrapFunc('quote-silent', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, true)),
+        'quote-silent-cause': wrapFunc('quote-silent-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, true)),
+        'name': wrapFunc('name', 1, async (args: Value[]): Promise<Value> => {
             if (args.length != 2)
                 throw new Error('Incorrect form for name');
             // Determines the local name of someone, if possible.
-            const res = (await this.eval(args[1], scope)).toString();
+            const res = args[0].toString();
             const guild: discord.Guild | undefined = (this.context.channel as any).guild;
             if (guild) {
                 const member: discord.GuildMember | undefined = guild.members.get(res);
@@ -240,7 +237,7 @@ export class VM {
                     return member.nickname || member.user.username || res;
             }
             return res;
-        },
+        }),
         'find-user': async (args: Value[], scope: VMScope): Promise<Value> => {
             if (args.length != 2)
                 throw new Error('Incorrect form for find-user');
@@ -253,30 +250,18 @@ export class VM {
             return [];
         },
         // Context
-        'args': async (args: Value[]): Promise<Value> => {
-            if (args.length != 1)
-                throw new Error('Incorrect form for args');
-            return this.context.args;
-        },
-        'prefix': async (args: Value[]): Promise<Value> => {
-            if (args.length != 1)
-                throw new Error('Incorrect form for prefix');
+        'args': wrapFunc('args', 1, async (): Promise<Value> => this.context.args),
+        'prefix': wrapFunc('prefix', 1, async (): Promise<Value> => {
             return ((this.context.channel as any).guild && (this.context.channel as any).guild.commandPrefix) || this.context.client.commandPrefix || this.context.client.user.toString();
-        },
-        'cause': async (args: Value[]): Promise<Value> => {
-            if (args.length != 1)
-                throw new Error('Incorrect form for cause');
-            return this.context.cause.id;
-        },
-        'emote': async (args: Value[], scope: VMScope): Promise<Value> => {
-            if (args.length != 2)
-                throw new Error('Incorrect form for emote');
+        }),
+        'cause': wrapFunc('cause', 1, async (): Promise<Value> => this.context.cause.id),
+        'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
             const guild: discord.Guild | undefined = (this.context.channel as any).guild;
-            const emote = this.context.client.emoteRegistry.getEmote(guild || null, (await this.eval(args[1], scope)).toString());
+            const emote = this.context.client.emoteRegistry.getEmote(guild || null, args[0].toString());
             if (emote.guild && nsfwGuild(this.context.client, emote.guild) && !nsfw(this.context.channel))
                 return '';
             return emote.toString();
-        }
+        })
     };
     
     public constructor(ctx: VMContext) {
@@ -327,13 +312,10 @@ export class VM {
         return arg;
     }
     
-    private async quote(args: Value[], scope: VMScope, cause: boolean, silent: boolean): Promise<Value> {
-        if (args.length != 2)
-            throw new Error('Incorrect form for quote');
+    private async quote(urlV: Value, cause: boolean, silent: boolean): Promise<Value> {
         this.consumeTime(vmQuoteTime);
         
-        const components = (args[0] as string).split('-');
-        const url = (await this.eval(args[1], scope)).toString();
+        const url = urlV.toString();
         const details = discordMessageLinkURL.exec(url);
         if (!details)
             return 'Quotation failure. Invalid message link.\n';
@@ -343,7 +325,7 @@ export class VM {
         // Security check...
         if (!userHasReadAccessToChannel((this.context.channel as any).guild, channel, this.context.writer)) {
             return 'Quotation failure. Writer doesn\'t have access to the message.';
-        } else if (components.indexOf('cause') != -1) {
+        } else if (cause) {
             if (!userHasReadAccessToChannel((this.context.channel as any).guild, channel, this.context.cause))
                 return 'Quotation failure; Writer requested that Cause needs access.';
         }
@@ -352,7 +334,7 @@ export class VM {
 
             // Frankly, expect the escaping here to fail...
             const escapedContent = '> ' + (message.cleanContent.replace('\n', '\n> ').replace('<@', '\\<@'));
-            const ref = (components.indexOf('silent') != -1) ? message.author.username + '#' + message.author.discriminator : message.author.toString();
+            const ref = silent ? message.author.username + '#' + message.author.discriminator : message.author.toString();
             let text = ref + ' wrote at ' + message.createdAt.toUTCString() + ': \n' + escapedContent + '\n';
             const additionals: string[] = [];
             if (message.embeds.length > 0)
@@ -365,7 +347,7 @@ export class VM {
         } catch (e) {
             return 'Quotation failure. Message ' + details[2] + ' unavailable.\n';
         }
-        return args[1];
+        return url;
     }
 }
 
