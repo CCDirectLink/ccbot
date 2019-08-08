@@ -47,7 +47,7 @@
         },
         "cheater": {
             "description": "accuses someone of being a C H E A T E R",
-            "format": "%((set victim (find-user (nth 0 (args)))) (if (victim) (concatenate \"<@\" (victim) \"> \" (emote apolloPoint) (emote apolloShout) \" I GOT YOU NOW!\") \"could not find the cheater.\"))",
+            "format": "%((set victim (find-user (nth 0 (args)))) (if (victim) (strcat \"<@\" (victim) \"> \" (emote apolloPoint) (emote apolloShout) \" I GOT YOU NOW!\") \"could not find the cheater.\"))",
             "options": {
                 "args": [
                     {
@@ -216,23 +216,104 @@
             "description": "Information about the formatter system",
             "embed": {
                 "title": "Format Syntax",
-                "description": "Format Syntax has 6 rules.\n`//` outside of a list are repeated verbatim and will ignore `%` and `/` until the next space. This is for URL compatibility.\n`%%` will cause the next character to ignore these rules, except `(` outside of an invocation. This rule overrides any later rule, and can override the previous rule if the start gets escaped.\n`%%(` will begin an invocation, space separates arguments within an invocation, `)` ends it, and invocations can nest with further `()` - without the `%%`.\n`/ABC/` is equivalent to `%%(emote ABC)` outside of lists and anything between `%/%/` and a space, for the sake of URLs.\nPrefixing a value with `'` wraps it as so: `(%%' value)`\nIt is important to note that it *does* work to put invocations in a list, as so: `%%((thing1) (thing2))`; the result of the last invocation will be returned.\nThis can be used to silence invocations.\n\nFor further details, please see the other commands in the -formatter group."
+                "description": "The formatter has a few rules.\n`%/%/` outside of any invocation are repeated verbatim and will ignore `%` and `%/` until the next space. This is for URL compatibility.\n`%%` will cause the next character to ignore these rules, except `(` outside of an invocation. This rule overrides any later rule, and can override the previous rule if the start gets escaped.\n`%%(` will begin an invocation, space separates arguments within an invocation, `)` ends it, and invocations can nest with further `()` - without the `%%`.\n`/ABC/` is equivalent to `%%(emote ABC)` outside of lists and anything between `%/%/` and a space, for the sake of URLs.\nPrefixing a value with `'` wraps it as so: `(%%' value)`\nIt is important to note that it *does* work to put invocations in a list, as so: `%%((thing1) (thing2))`; the result of the last invocation will be returned.\nThis can be used to silence invocations.\nFinally, double-quotes (\") around some text escapes everything except other double-quotes.\n\nFor further details, please see the other commands in the -formatter group."
             }
         },
         "help-execution": {
             "description": "About invocation execution and recursion",
             "embed": {
                 "title": "Invocation execution and recursion",
-                "description": "Invocations evaluate their parameters as invocations.\nAn invocation that is a string is returned as-is, but lists are evaluated.\nInvocations may thus be nested, such as `%%(name (cause))`.\nIn the case of random-element, for example, you may not want this; see the ' invocation for a way around this."
+                "description": "Invocations generally evaluate their parameters as invocations. (There are some exceptions.)\nAn invocation that is a string is returned as-is, but lists are evaluated.\nInvocations may thus be nested, such as `(name (cause))`.\nIn the case of random-element, for example, you may not want this; see the ' invocation for a way around this."
             }
         },
+        "help-types": {
+            "description": "About types & the 'number?' invocation",
+            "embed": {
+                "title": "Types",
+                "description": "The formatter has two types, strings and lists.\nNumbers are strings that are then strictly checked to be safe integers with no additional padding.\nThe 'number?' invocation checks to see if a value is a valid number."
+            }
+        },
+        "help-booleans": {
+            "description": "About booleans and the not invocation",
+            "embed": {
+                "title": "Booleans",
+                "description": "False is an empty string. Anything else is true.\nHowever, if true needs to be returned by a library function, it will be returned as 'true'.\nThe not invocation is equivalent to `(if A \"\" \"true\")` where A is the parameter; that is, it returns the boolean opposite of the input."
+            }
+        },
+        
         "help-'": {
             "description": "The ' invocation",
             "embed": {
                 "title": "The ' invocation",
-                "description": "The ' invocation uses a special prefix syntax, where `'1` is equivalent to `(%%' 1)`. It has a single parameter.\nThe parameter is returned as-is - *without evaluation*.\nIt can also be useful to escape URLs, as invocations are not subject to the %/ rule.\nExample: `%%(random-element '(1 2 3))` -> `1` or `2` or `3`"
+                "description": "The ' invocation uses a special prefix syntax, where `'1` is equivalent to `(%%' 1)`. It has a single parameter.\nThe parameter is returned as-is - *without evaluation*.\nExample: `%%(random-element '(1 2 3))` -> `1` or `2` or `3`"
             }
         },
+        
+        "help-length": {
+            "description": "The 'length' invocation",
+            "embed": {
+                "title": "The 'length' invocation",
+                "description": "The 'length' invocation takes a single parameter and returns its length."
+            }
+        },
+        "help-nth": {
+            "description": "The 'nth' invocation",
+            "embed": {
+                "title": "The 'nth' invocation",
+                "description": "The 'nth' invocation takes two parameters: an index and a list.\nIt returns a value from the given index of the list; these indexes begin at 0.\nExample: `%%(nth 0 '(3 2 1))` -> `3`"
+            }
+        },
+        "help-comparison": {
+            "description": "The comparison invocations (<=, >=, <, >, ==, !=)",
+            "embed": {
+                "title": "The comparison invocations",
+                "description": "<=, >=, <, > take two parameters, which are numbers, perform a comparison, and return the result.\n== and != work on strings, too."
+            }
+        },
+        "help-maths": {
+            "description": "The maths invocations (+, -, \\*)",
+            "embed": {
+                "title": "The maths invocations",
+                "description": "+ and \\* take an arbitrary amount of numeric parameters, and add/multiply them together respectively.\nGiven no input, + will return 0 and \\* will return 1.\n- meanwhile requires 2 numeric parameters, subtracting the second from the first and returning the result."
+            }
+        },
+        "help-random-element": {
+            "description": "The 'random-element' invocation",
+            "embed": {
+                "title": "The 'random-element' invocation",
+                "description": "The 'random-element' invocation takes a single parameter, which is a list of possible outputs.\nIt returns one, unless this doesn't make sense, in which case it will return whatever it likes.\nExample: See the ' invocation."
+            }
+        },
+        "help-random": {
+            "description": "The 'random' invocation",
+            "embed": {
+                "title": "The 'random' invocation",
+                "description": "The 'random' invocation takes a single parameter, which is the number of possible results, and returns a number from 0 to that number - 1.\nIf the input is less than 0, expect shenanigans."
+            }
+        },
+        "help-strcat": {
+            "description": "The 'strcat' invocation",
+            "embed": {
+                "title": "The 'strcat' invocation",
+                "description": "The 'strcat' invocation concatenates all the parameters given, which must be strings, returning the result."
+            }
+        },
+
+        "help-if": {
+            "description": "The 'if' invocation",
+            "embed": {
+                "title": "The 'if' invocation",
+                "description": "The 'if' invocation takes two to three parameters.\nIt will only run & return the result of the second if the first is true, and will run & return the result of the third (if present) otherwise."
+            }
+        },
+        "help-set": {
+            "description": "The 'set' invocation",
+            "embed": {
+                "title": "The 'set' invocation",
+                "description": "The 'set' invocation takes two parameters: a string for an invocation name, and some arbitrary value.\nIt creates a new invocation type at the relevant scope that simply returns the given value."
+            }
+        },
+
         "help-emote": {
             "description": "The 'emote' invocation",
             "embed": {
@@ -251,7 +332,7 @@
             "description": "The 'prefix' invocation",
             "embed": {
                 "title": "The 'prefix' invocation",
-                "description": "The 'prefix' invocation shows the relevant bot prefix."
+                "description": "The 'prefix' invocation returns the relevant bot prefix."
             }
         },
         "help-cause": {
@@ -261,32 +342,18 @@
                 "description": "The 'cause' invocation returns the user ID of the user who 'caused' the execution to take place."
             }
         },
-        "help-random-element": {
-            "description": "The 'random-element' invocation",
-            "embed": {
-                "title": "The 'random-element' invocation",
-                "description": "The 'random-element' invocation takes a single parameter, which is a list of possible outputs.\nIt returns one, unless this doesn't make sense, in which case it will return whatever it likes.\nExample: See the ' invocation."
-            }
-        },
-        "help-random": {
-            "description": "The 'random' invocation",
-            "embed": {
-                "title": "The 'random' invocation",
-                "description": "The 'random' invocation takes a single parameter, which is the number of possible results, and returns a number from 0 to that number - 1.\nIf the input is less than 0, expect shenanigans."
-            }
-        },
-        "help-length": {
-            "description": "The 'length' invocation",
-            "embed": {
-                "title": "The 'length' invocation",
-                "description": "The 'length' invocation takes a single parameter and returns its length."
-            }
-        },
-       "help-name": {
+        "help-name": {
             "description": "The 'name' invocation",
             "embed": {
                 "title": "The 'name' invocation",
                 "description": "The 'name' invocation takes a single parameter, the user ID to name.\nIt returns the local name of that user.\nFor safety reasons, the user must be a member of the relevant guild, or this will simply return their ID as-is."
+            }
+        },
+        "help-find-user": {
+            "description": "The 'find-user' invocation",
+            "embed": {
+                "title": "The 'find-user' invocation",
+                "description": "The 'find-user' invocation takes a single parameter, a string representing that user.\nIt will return the user ID as a string, or false otherwise."
             }
         },
         "help-args": {
@@ -294,48 +361,6 @@
             "embed": {
                 "title": "The 'args' invocation",
                 "description": "The 'args' invocation has no parameters, and returns the list of command arguments if relevant."
-            }
-        },
-        "help-if": {
-            "description": "The 'if' invocation",
-            "embed": {
-                "title": "The 'if' invocation",
-                "description": "The 'if' invocation takes two to three parameters. It will only run & return the result of the second if the first is not an empty list (it can be a string, just not an empty list), and will run & return the result of the third otherwise."
-            }
-        },
-        "help-find-user": {
-            "description": "The 'find-user' invocation",
-            "embed": {
-                "title": "The 'find-user' invocation",
-                "description": "The 'find-user' invocation takes a single parameter, a string representing that user.\nIt will return the user ID as a string, or an empty list otherwise."
-            }
-        },
-        "help-set": {
-            "description": "The 'set' invocation",
-            "embed": {
-                "title": "The 'set' invocation",
-                "description": "The 'set' invocation takes two parameters: a string for an invocation name, and some arbitrary value.\nIt creates a new invocation at the relevant scope that simply returns the given value."
-            }
-        },
-        "help-concatenate": {
-            "description": "The 'concatenate' invocation",
-            "embed": {
-                "title": "The 'concatenate' invocation",
-                "description": "The 'concatenate' invocation concatenates all the parameters given (converted to strings)."
-            }
-        },
-        "help-nth": {
-            "description": "The 'nth' invocation",
-            "embed": {
-                "title": "The 'nth' invocation",
-                "description": "The 'nth' invocation takes two parameters: an index and a list. It returns a value from the given index of the list."
-            }
-        },
-        "help-undocumented": {
-            "description": "The undocumented invocations",
-            "embed": {
-                "title": "The undocumented invocations",
-                "description": "<=, >=, <, >, =, /=, not, +, *, numberp, type"
             }
         }
     }

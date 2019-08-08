@@ -1,21 +1,43 @@
 import * as discord from 'discord.js';
-import * as commando from 'discord.js-commando';
-import {safeParseInt, findMemberByRef, channelAsTBF, nsfw, nsfwGuild} from './utils';
+import {safeParseInt, checkIntegerResult, findMemberByRef, channelAsTBF, nsfw, nsfwGuild} from './utils';
 import {CCBot} from './ccbot';
 
 const vmMaxTime = 1024;
 const vmEvalTime = 8;
-const vmQuoteTime = 128;
-const vmFindUserTime = 128;
+const vmLetTime = 1;
 const vmConcatCharacterTime = 1;
 const vmMaxAnythingLength = 2048;
 
+const vmQuoteTime = 128;
+const vmFindUserTime = 128;
+
 export type Value = string | ValueX;
 interface ValueX extends Array<Value> {}
-// This is the value used for true.
-export const lispT: string = 't';
-// This is the value used for false and also nil.
-export const lispNil: string[] = [];
+
+const trueValue = 'true';
+const falseValue = '';
+
+export function asBoolean(v: Value): boolean {
+    // Value[] is truthy
+    // Empty string is not truthy
+    return !!v;
+}
+
+export function asString(v: Value): string {
+    if (v.constructor === String)
+        return v as string;
+    throw new Error('Value of kind ' + v.constructor + ' not convertible to string');
+}
+
+export function asInteger(v: Value): number {
+    return safeParseInt(asString(v));
+}
+
+export function asList(v: Value): Value[] {
+    if (v.constructor === Array)
+        return v as Value[];
+    throw new Error('Value of kind ' + v.constructor + ' not convertible to list');
+}
 
 export type VMFunction = (arg: Value[], scope: VMScope) => Promise<Value>;
 
@@ -68,14 +90,15 @@ function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user:
     }
 }
 
-export function wrapFunc(name: string, argCount: number, fun: (args: Value[]) => Promise<Value>): VMFunction {
+export function wrapFunc(name: string, argCount: number, fun: (args: Value[], scope: VMScope) => Promise<Value>): VMFunction {
     return async (args: Value[], scope: VMScope): Promise<Value> => {
-        if ((argCount + 1) != args.length)
-            throw new Error('Incorrect form for function ' + name);
+        if (argCount != -1)
+            if ((argCount + 1) != args.length)
+                throw new Error('Incorrect form for function ' + name);
         const resArgs: Value[] = [];
-        for (let i = 0; i < argCount; i++)
-            resArgs.push(await scope.vm.eval(args[i + 1], scope));
-        return fun(resArgs);
+        for (let i = 1; i < args.length; i++)
+            resArgs.push(await scope.vm.run(args[i], scope));
+        return fun(resArgs, scope);
     };
 }
 
@@ -124,8 +147,8 @@ export class VMScope {
                 throw new Error('Incorrect form for defun\'d ' + name);
             const runScope = this.extend();
             for (let i = 0; i < variables.length; i++)
-                runScope.set(variables[i], await this.vm.eval(args[i + 1], callerScope), true);
-            return this.vm.eval(code, runScope);
+                runScope.set(variables[i], await this.vm.run(args[i + 1], callerScope), true);
+            return this.vm.run(code, runScope);
         };
         this.addFunction(name, val, local);
     }
@@ -146,17 +169,13 @@ export class BaseVM {
     public time: number = 0;
     public globalScope: VMScope;
     /**
-     * This bit's different from LISP.
-     * Since there's no symbols,
-     *  there's no way to have it so that a *string* doesn't get looked up but *variables* do,
-     *  without requiring all strings get quoted.
-     * The good news is, LISP doesn't support ("thinghere" a b c)
-     * So we don't support variable lookup, but we *do* support adding a new function,
-     *  with a given name, that returns a given value.
-     * And we can scope that.
-     * Which brings us to this: This contains all the functions to load into the global scope.
+     * As of the latest iteration, I'm no longer trying to make it like LISP,
+     *  but more like it's own thing only roughly based on LISP ideas.
+     * I'm also trying to avoid it going too computationally far -
+     *  'if' exists as a concession to the need to display errors or special-case outputs.
+     * Those who disagree with this policy can go see the Overpowered Command Set.
      */
-    private bootstrapFunctions: Record<string, VMFunction> = {
+    private bootstrapPrimitives: Record<string, VMFunction> = {
         // Meta
         '\'': async (args: Value[]): Promise<Value> => {
             if (args.length != 2)
@@ -164,37 +183,25 @@ export class BaseVM {
             return args[1];
         },
         // Tests
-        'type': wrapFunc('type', 1, async (args: Value[]): Promise<Value> => {
-            if (args[0].constructor === String)
-                return 'string';
-            if (args[0].constructor === Array)
-                return 'list';
-            return 'unknown';
+        'number?': wrapFunc('number?', 1, async (args: Value[]): Promise<Value> => {
+            try {
+                asInteger(args[0]);
+                return trueValue;
+            } catch (e) {
+                return falseValue;
+            }
         }),
-        'numberp': wrapFunc('numberp', 1, async (args: Value[]): Promise<Value> => {
-            if (args[0].constructor !== String)
-                return lispNil;
-            return (!Number.isNaN(parseInt(args[0] as string))) ? lispT : lispNil;
-        }),
-        '=': wrapFunc('=', 2, async (args: Value[]): Promise<Value> => {
-            // In the design this is roughly based on, this is mathematical equivalence.
-            // Here, it's string equivalence.
+        '==': wrapFunc('==', 2, async (args: Value[]): Promise<Value> => {
+            // String equivalence.
             // Since numbers are strings here, things probably work out.
-            
             // This is a built-in and we don't trust built-ins to handle recursive functions if we can help it
             if ((args[0].constructor === Array) || (args[1].constructor === Array))
                 throw new Error('Not allowed to check equality of lists with \'=\'');
-            return (args[0] === args[1]) ? lispT : lispNil;
+            return (args[0] === args[1]) ? trueValue : falseValue;
         }),
         '>=': wrapFunc('>=', 2, async (args: Value[]): Promise<Value> => {
-            if (args[0].constructor !== String)
-                throw new Error('Bad LHS on >=: ' + args[0].toString());
-            if (args[1].constructor !== String)
-                throw new Error('Bad RHS on >=: ' + args[1].toString());
             // The only one of the relative comparison operators that's actually needed.
-            // In the design this is roughly based on, it actually checks that *all arguments, in order,* follow the chain.
-            // Obviously this seemed kind of awkward to write.
-            return (safeParseInt(args[0] as string) >= safeParseInt(args[1] as string)) ? lispT : lispNil;
+            return (asInteger(args[0]) >= asInteger(args[1])) ? trueValue : falseValue;
         }),
         // Maths
         'random': wrapFunc('random', 1, async (args: Value[]): Promise<Value> => {
@@ -202,14 +209,16 @@ export class BaseVM {
             return Math.floor(Math.random() * size).toString();
         }),
         '+': wrapFunc('+', 2, async (args: Value[]): Promise<Value> => {
-            const a = safeParseInt(args[0].toString());
-            const b = safeParseInt(args[1].toString());
-            return (a + b).toString();
+            let acc = 0;
+            for (const val of args)
+                acc += asInteger(val);
+            return acc.toString();
         }),
         '*': wrapFunc('*', 2, async (args: Value[]): Promise<Value> => {
-            const a = safeParseInt(args[0].toString());
-            const b = safeParseInt(args[1].toString());
-            return (a * b).toString();
+            let acc = 1;
+            for (const val of args)
+                acc *= asInteger(val);
+            return acc.toString();
         }),
         // Operations
         'length': wrapFunc('length', 1, async (args: Value[]): Promise<Value> => {
@@ -226,7 +235,7 @@ export class BaseVM {
                     return res[index];
             throw new Error('Index out of bounds for nth: ' + res.toString() + '[' + index + ']');
         }),
-        'concatenate': async (args: Value[], scope: VMScope): Promise<Value> => {
+        'strcat': async (args: Value[], scope: VMScope): Promise<Value> => {
             let first = true;
             let workspace = [];
             for (let value of args) {
@@ -234,19 +243,19 @@ export class BaseVM {
                     first = false;
                     continue;
                 }
-                let content = (await this.eval(value, scope)).toString();
+                let content = asString(await this.run(value, scope));
                 // WARNING! THIS ACTS AS A MEMORY LIMITER. DO NOT, REPEAT, DO NOT, REMOVE.
                 this.consumeTime(content.length * vmConcatCharacterTime);
                 workspace.push(content);
             }
             return workspace.join('');
         },
-        // Functions, Variables & Scopes
+        // Variables & Scopes
         'set': async (args: Value[], scope: VMScope): Promise<Value> => {
             if (args.length != 3)
                 throw new Error('Incorrect form for set');
-            const name = (await this.eval(args[1], scope)).toString();
-            const value = await this.eval(args[2], scope);
+            const name = asString(await this.run(args[1], scope));
+            const value = await this.run(args[2], scope);
             scope.set(name, value, false);
             return value;
         },
@@ -254,27 +263,94 @@ export class BaseVM {
         'if': async (args: Value[], scope: VMScope): Promise<Value> => {
             if ((args.length != 3) && (args.length != 4))
                 throw new Error('Incorrect form for if');
-            const res = await this.eval(args[1], scope);
-            if (res.constructor === Array) {
-                if (res.length === 0) {
-                    if (args.length != 4)
-                        return [];
-                    return await this.eval(args[3], scope);
-                }
+            const res = await this.run(args[1], scope);
+            if (!asBoolean(res)) {
+                if (args.length != 4)
+                    return res;
+                return await this.run(args[3], scope);
             }
-            return await this.eval(args[2], scope);
+            return await this.run(args[2], scope);
         }
     };
+    
+    // <editor-fold defaultstate="collapsed" desc="OVERPOWERED! Don't use these">
+    /**
+     * Things we don't need now that we might want later.
+     * Not fully tested.
+     */
+    private overpoweredPrimitives: Record<string, VMFunction> = {
+        'string?': wrapFunc('string?', 1, async (args: Value[]): Promise<Value> => {
+            // (string? V) -> bool
+            try {
+                asString(args[0]);
+                return trueValue;
+            } catch (e) {
+                return falseValue;
+            }
+        }),
+        'list?': wrapFunc('list?', 1, async (args: Value[]): Promise<Value> => {
+            // (list? V) -> bool
+            try {
+                asList(args[0]);
+                return trueValue;
+            } catch (e) {
+                return falseValue;
+            }
+        }),
+        'let': async (args: Value[], scope: VMScope): Promise<Value> => {
+            // (let (names...) stmt) -> return value
+            // (let (names...) values stmt) -> return value
+            // second form does run values expr; intended to be used for, say: (let (a b c) (args) (code))
+            if ((args.length != 3) && (args.length != 4))
+                throw new Error('Incorrect form for let');
+            const names = asList(args[1]);
+            const values: Value[] | null = (args.length == 4) ? asList(await this.run(args[2], scope)) : null;
+            if (values && (values.length != names.length))
+                throw new Error('Expected ' + names.length + ' values, got ' + values.length);
+            const newScope = scope.extend();
+            let index = 0;
+            for (const name of names) {
+                this.consumeTime(vmLetTime);
+                const nameStr = asString(name);
+                if (values) {
+                    newScope.set(nameStr, values[index], true);
+                } else {
+                    newScope.addFunction(nameStr, (): Promise<Value> => {throw new Error('Unassigned local variable ' + name);}, true);
+                }
+                index++;
+            }
+            return await this.run(args[args.length - 1], newScope);
+        },
+        'run': wrapFunc('run', 1, async (args: Value[], scope: VMScope): Promise<Value> => {
+            // (run X) : evaluates twice rather than just once!
+            return await this.run(args[0], scope);
+        }),
+        'macro-va': async (lva: Value[], scope: VMScope): Promise<Value> => {
+            // (macro-va name stmt) -> name
+            //  metaprogramming tool ; creates new function at the "run must be called explicitly" level
+            //  not *really* macros but how else to describe them
+            if (lva.length != 3)
+                throw new Error('Incorrect form for macro-va');
+            const name = asString(lva[1]);
+            scope.addFunction(name, async (args: Value[], scope: VMScope): Promise<Value> => {
+                const runScope = scope.extend();
+                runScope.set('...', args, true);
+                return await this.run(lva[2], runScope);
+            }, false);
+            return name;
+        }
+    };
+    // </editor-fold>
     
     public constructor() {
         this.time = 0;
         this.globalScope = new VMScope(this, null);
-        for (const k in this.bootstrapFunctions)
-            this.globalScope.addFunction(k, this.bootstrapFunctions[k], false);
+        for (const k in this.bootstrapPrimitives)
+            this.globalScope.addFunction(k, this.bootstrapPrimitives[k], false);
         // Stuff that's written in the language itself to reduce the amount of code we have to worry about.
         this.globalScope.defun('random-element', ['array'], ['nth', ['random', ['length', ['array']]], ['array']], false);
-        this.globalScope.defun('not', ['a'], ['if', ['a'], lispNil, lispT], false);
-        this.globalScope.defun('/=', ['a', 'b'], ['not', ['=', ['a'], ['b']]], false);
+        this.globalScope.defun('not', ['a'], ['if', ['a'], falseValue, trueValue], false);
+        this.globalScope.defun('!=', ['a', 'b'], ['not', ['=', ['a'], ['b']]], false);
         this.globalScope.defun('>', ['a', 'b'], ['not', [['>='], ['b'], ['a']]], false);
         this.globalScope.defun('<', ['a', 'b'], ['not', [['>='], ['a'], ['b']]], false);
         this.globalScope.defun('<=', ['a', 'b'], ['>=', ['b'], ['a']], false);
@@ -287,7 +363,7 @@ export class BaseVM {
             throw new Error('Time consumed puts VM over-budget, cancelling operation');
     }
         
-    public async eval(arg: Value, scope: VMScope): Promise<Value> {
+    public async run(arg: Value, scope: VMScope): Promise<Value> {
         this.consumeTime(vmEvalTime);
         
         // arg.length == 0 is also known as "nil"
@@ -308,11 +384,9 @@ export class BaseVM {
                     //  a list of statements is now possible.
                     // The way this works is that if the first arg is an *array*,
                     //  then all args including first are statements
-                    
-                    // this means that () will return ()
-                    let lastResult: Value = [];
+                    let lastResult: Value = falseValue;
                     for (const stmt of args)
-                        lastResult = await this.eval(stmt, scope);
+                        lastResult = await this.run(stmt, scope);
                     return lastResult;
                 }
             }
@@ -353,7 +427,7 @@ export class VM extends BaseVM {
         'quote-silent-cause': wrapFunc('quote-silent-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, true)),
         'name': wrapFunc('name', 1, async (args: Value[]): Promise<Value> => {
             // Determines the local name of someone, if possible.
-            const res = args[0].toString();
+            const res = asString(args[0]);
             const guild: discord.Guild | undefined = (this.context.channel as any).guild;
             if (guild) {
                 const member: discord.GuildMember | undefined = guild.members.get(res);
@@ -364,7 +438,7 @@ export class VM extends BaseVM {
         }),
         'find-user': wrapFunc('find-user', 1, async (args: Value[]): Promise<Value> => {
             this.consumeTime(vmFindUserTime);
-            const res1 = args[0].toString();
+            const res1 = asString(args[0]);
             const guild: discord.Guild | undefined = (this.context.channel as any).guild;
             const res = findMemberByRef(guild, res1);
             if (res)
@@ -396,7 +470,7 @@ export class VM extends BaseVM {
     private async quote(urlV: Value, cause: boolean, silent: boolean): Promise<Value> {
         this.consumeTime(vmQuoteTime);
         
-        const url = urlV.toString();
+        const url = asString(urlV);
         const details = discordMessageLinkURL.exec(url);
         if (!details)
             return 'Quotation failure. Invalid message link.\n';
@@ -457,7 +531,7 @@ export class VM extends BaseVM {
  */
 export async function runFormat(text: string, runner: VM): Promise<string> {
     const res = await runFormatInternal(text, async (v: Value): Promise<string> => {
-        return (await runner.eval(v, runner.globalScope)).toString();
+        return (await runner.run(v, runner.globalScope)).toString();
     });
     // return res + '\n' + runner.time + 'TU';
     return res;

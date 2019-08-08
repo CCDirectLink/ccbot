@@ -123,7 +123,14 @@ export function findMemberByRef(t: discord.Guild | undefined | null, ref: string
 // An integer parser that knows when to abort
 export function safeParseInt(a: string): number {
     const res = parseInt(a);
-    if (Number.isNaN(res))
-        throw new Error('Number ' + a + ' is not a number');
+    if (!Number.isSafeInteger(res))
+        throw new Error('Number ' + a + ' is not a sane integer');
+    if (res.toString() !== a)
+        throw new Error('Number ' + a + ' does not convert back into itself');
     return res;
+}
+
+export function checkIntegerResult(a: number) {
+    if (!Number.isSafeInteger(a))
+        throw new Error('Operation result became ' + a);
 }
