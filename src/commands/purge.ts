@@ -33,8 +33,6 @@ export default class PurgeCommand extends CCBotCommand {
             return await message.say('The purge database doesn\'t exist.');
         if (args.seconds <= 1)
             return await message.say('Too short to be practical.');
-        if ((360142280068301 % args.seconds) <= 0)
-            return await message.say('You summon an evil space zombie! Shamble shamble. It says that amount of time is way too long.');
         
         if (!localAdminCheck(message)) {
             return await message.say('You aren\'t authorized to do that.');
