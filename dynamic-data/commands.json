@@ -177,7 +177,7 @@
         "thanks": {
             "description": "Writes a template thank-you message to the devs :)",
             "embed": {
-                "description": "From %(name (cause)),\n\t%(random-element '(Keep% up% the% good% work! You% guys% are% awesome.))\nTo,\n\t\tRadical Fish Games"
+                "description": "From %(name (cause)),\n\t%(random-element '(\"Keep up the good work!\" \"You guys are awesome.\"))\nTo,\n\t\tRadical Fish Games"
             }
         }
     },
@@ -329,6 +329,13 @@
             "embed": {
                 "title": "The 'nth' invocation",
                 "description": "The 'nth' invocation takes two parameters: an index and a list. It returns a value from the given index of the list."
+            }
+        },
+        "help-undocumented": {
+            "description": "The undocumented invocations",
+            "embed": {
+                "title": "The undocumented invocations",
+                "description": "<=, >=, <, >, =, /=, not, +, *, numberp, type"
             }
         }
     }

@@ -4,16 +4,18 @@ import {safeParseInt, findMemberByRef, channelAsTBF, nsfw, nsfwGuild} from './ut
 import {CCBot} from './ccbot';
 
 const vmMaxTime = 1024;
-const vmEvalTime = 16;
+const vmEvalTime = 8;
 const vmQuoteTime = 128;
 const vmFindUserTime = 128;
-const vmSetTime = 16;
 const vmConcatCharacterTime = 1;
 const vmMaxAnythingLength = 2048;
 
 export type Value = string | ValueX;
 interface ValueX extends Array<Value> {}
-export const lispT: string = "t";
+// This is the value used for true.
+export const lispT: string = 't';
+// This is the value used for false and also nil.
+export const lispNil: string[] = [];
 
 export type VMFunction = (arg: Value[], scope: VMScope) => Promise<Value>;
 
@@ -69,7 +71,7 @@ function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user:
 export function wrapFunc(name: string, argCount: number, fun: (args: Value[]) => Promise<Value>): VMFunction {
     return async (args: Value[], scope: VMScope): Promise<Value> => {
         if ((argCount + 1) != args.length)
-            throw new Error('Incorrect form for defun\'d ' + name);
+            throw new Error('Incorrect form for function ' + name);
         const resArgs: Value[] = [];
         for (let i = 0; i < argCount; i++)
             resArgs.push(await scope.vm.eval(args[i + 1], scope));
@@ -81,11 +83,11 @@ export function wrapFunc(name: string, argCount: number, fun: (args: Value[]) =>
  * Scoping. Not actually used but kept in for safety purposes...
  */
 export class VMScope {
-    public readonly vm: VM;
+    public readonly vm: BaseVM;
     public readonly parent: VMScope | null;
     public readonly functions: Map<String, VMFunction> = new Map();
     
-    public constructor(vm: VM, parent: VMScope | null) {
+    public constructor(vm: BaseVM, parent: VMScope | null) {
         this.vm = vm;
         this.parent = parent;
     }
@@ -140,8 +142,7 @@ export class VMScope {
  * If it gets too big, *give it time & memory budgets*.
  * But ideally, just don't let it get to that point...
  */
-export class VM {
-    public readonly context: VMContext;
+export class BaseVM {
     public time: number = 0;
     public globalScope: VMScope;
     /**
@@ -162,11 +163,55 @@ export class VM {
                 throw new Error('Incorrect form for \'');
             return args[1];
         },
-        // Operations
+        // Tests
+        'type': wrapFunc('type', 1, async (args: Value[]): Promise<Value> => {
+            if (args[0].constructor === String)
+                return 'string';
+            if (args[0].constructor === Array)
+                return 'list';
+            return 'unknown';
+        }),
+        'numberp': wrapFunc('numberp', 1, async (args: Value[]): Promise<Value> => {
+            if (args[0].constructor !== String)
+                return lispNil;
+            return (!Number.isNaN(parseInt(args[0] as string))) ? lispT : lispNil;
+        }),
+        '=': wrapFunc('=', 2, async (args: Value[]): Promise<Value> => {
+            // In the design this is roughly based on, this is mathematical equivalence.
+            // Here, it's string equivalence.
+            // Since numbers are strings here, things probably work out.
+            
+            // This is a built-in and we don't trust built-ins to handle recursive functions if we can help it
+            if ((args[0].constructor === Array) || (args[1].constructor === Array))
+                throw new Error('Not allowed to check equality of lists with \'=\'');
+            return (args[0] === args[1]) ? lispT : lispNil;
+        }),
+        '>=': wrapFunc('>=', 2, async (args: Value[]): Promise<Value> => {
+            if (args[0].constructor !== String)
+                throw new Error('Bad LHS on >=: ' + args[0].toString());
+            if (args[1].constructor !== String)
+                throw new Error('Bad RHS on >=: ' + args[1].toString());
+            // The only one of the relative comparison operators that's actually needed.
+            // In the design this is roughly based on, it actually checks that *all arguments, in order,* follow the chain.
+            // Obviously this seemed kind of awkward to write.
+            return (safeParseInt(args[0] as string) >= safeParseInt(args[1] as string)) ? lispT : lispNil;
+        }),
+        // Maths
         'random': wrapFunc('random', 1, async (args: Value[]): Promise<Value> => {
             const size = safeParseInt(args[0].toString());
             return Math.floor(Math.random() * size).toString();
         }),
+        '+': wrapFunc('+', 2, async (args: Value[]): Promise<Value> => {
+            const a = safeParseInt(args[0].toString());
+            const b = safeParseInt(args[1].toString());
+            return (a + b).toString();
+        }),
+        '*': wrapFunc('*', 2, async (args: Value[]): Promise<Value> => {
+            const a = safeParseInt(args[0].toString());
+            const b = safeParseInt(args[1].toString());
+            return (a * b).toString();
+        }),
+        // Operations
         'length': wrapFunc('length', 1, async (args: Value[]): Promise<Value> => {
             const res = args[0];
             if ((res.constructor === Array) || res.constructor === String)
@@ -200,7 +245,6 @@ export class VM {
         'set': async (args: Value[], scope: VMScope): Promise<Value> => {
             if (args.length != 3)
                 throw new Error('Incorrect form for set');
-            this.consumeTime(vmSetTime);
             const name = (await this.eval(args[1], scope)).toString();
             const value = await this.eval(args[2], scope);
             scope.set(name, value, false);
@@ -219,58 +263,22 @@ export class VM {
                 }
             }
             return await this.eval(args[2], scope);
-        },
-        // Discord Queries
-        'quote': wrapFunc('quote', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, false)),
-        'quote-cause': wrapFunc('quote-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, false)),
-        'quote-silent': wrapFunc('quote-silent', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, true)),
-        'quote-silent-cause': wrapFunc('quote-silent-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, true)),
-        'name': wrapFunc('name', 1, async (args: Value[]): Promise<Value> => {
-            if (args.length != 2)
-                throw new Error('Incorrect form for name');
-            // Determines the local name of someone, if possible.
-            const res = args[0].toString();
-            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
-            if (guild) {
-                const member: discord.GuildMember | undefined = guild.members.get(res);
-                if (member)
-                    return member.nickname || member.user.username || res;
-            }
-            return res;
-        }),
-        'find-user': async (args: Value[], scope: VMScope): Promise<Value> => {
-            if (args.length != 2)
-                throw new Error('Incorrect form for find-user');
-            this.consumeTime(vmFindUserTime);
-            const res1 = (await this.eval(args[1], scope)).toString();
-            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
-            const res = findMemberByRef(guild, res1);
-            if (res)
-                return res.id;
-            return [];
-        },
-        // Context
-        'args': wrapFunc('args', 1, async (): Promise<Value> => this.context.args),
-        'prefix': wrapFunc('prefix', 1, async (): Promise<Value> => {
-            return ((this.context.channel as any).guild && (this.context.channel as any).guild.commandPrefix) || this.context.client.commandPrefix || this.context.client.user.toString();
-        }),
-        'cause': wrapFunc('cause', 1, async (): Promise<Value> => this.context.cause.id),
-        'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
-            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
-            const emote = this.context.client.emoteRegistry.getEmote(guild || null, args[0].toString());
-            if (emote.guild && nsfwGuild(this.context.client, emote.guild) && !nsfw(this.context.channel))
-                return '';
-            return emote.toString();
-        })
+        }
     };
     
-    public constructor(ctx: VMContext) {
-        this.context = ctx;
+    public constructor() {
         this.time = 0;
         this.globalScope = new VMScope(this, null);
         for (const k in this.bootstrapFunctions)
             this.globalScope.addFunction(k, this.bootstrapFunctions[k], false);
+        // Stuff that's written in the language itself to reduce the amount of code we have to worry about.
         this.globalScope.defun('random-element', ['array'], ['nth', ['random', ['length', ['array']]], ['array']], false);
+        this.globalScope.defun('not', ['a'], ['if', ['a'], lispNil, lispT], false);
+        this.globalScope.defun('/=', ['a', 'b'], ['not', ['=', ['a'], ['b']]], false);
+        this.globalScope.defun('>', ['a', 'b'], ['not', [['>='], ['b'], ['a']]], false);
+        this.globalScope.defun('<', ['a', 'b'], ['not', [['>='], ['a'], ['b']]], false);
+        this.globalScope.defun('<=', ['a', 'b'], ['>=', ['b'], ['a']], false);
+        this.globalScope.defun('-', ['a', 'b'], ['+', ['a'], ['*', '-1', ['b']]], false);
     }
     
     public consumeTime(time: number): void {
@@ -310,6 +318,79 @@ export class VM {
             }
         }
         return arg;
+    }
+}
+
+/**
+ * Creates the VM for the formatted parts.
+ * The VM is essentially LISPy, but keep in mind:
+ * The only valid types are strings and lists.
+ *
+ * WARNING! The VM handles arbitrary input from any user.
+ * If it didn't, there'd be no point having this layer in the first place.
+ * Don't trust it with too much information.
+ * If it gets too big, *give it time & memory budgets*.
+ * But ideally, just don't let it get to that point...
+ */
+export class VM extends BaseVM {
+    public readonly context: VMContext;
+    /**
+     * This bit's different from LISP.
+     * Since there's no symbols,
+     *  there's no way to have it so that a *string* doesn't get looked up but *variables* do,
+     *  without requiring all strings get quoted.
+     * The good news is, LISP doesn't support ("thinghere" a b c)
+     * So we don't support variable lookup, but we *do* support adding a new function,
+     *  with a given name, that returns a given value.
+     * And we can scope that.
+     * Which brings us to this: This contains all the functions to load into the global scope.
+     */
+    private bootstrapFunctionsEx: Record<string, VMFunction> = {
+        // Discord Queries
+        'quote': wrapFunc('quote', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, false)),
+        'quote-cause': wrapFunc('quote-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, false)),
+        'quote-silent': wrapFunc('quote-silent', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], false, true)),
+        'quote-silent-cause': wrapFunc('quote-silent-cause', 1, async (args: Value[]): Promise<Value> => this.quote(args[0], true, true)),
+        'name': wrapFunc('name', 1, async (args: Value[]): Promise<Value> => {
+            // Determines the local name of someone, if possible.
+            const res = args[0].toString();
+            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
+            if (guild) {
+                const member: discord.GuildMember | undefined = guild.members.get(res);
+                if (member)
+                    return member.nickname || member.user.username || res;
+            }
+            return res;
+        }),
+        'find-user': wrapFunc('find-user', 1, async (args: Value[]): Promise<Value> => {
+            this.consumeTime(vmFindUserTime);
+            const res1 = args[0].toString();
+            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
+            const res = findMemberByRef(guild, res1);
+            if (res)
+                return res.id;
+            return [];
+        }),
+        // Context
+        'args': wrapFunc('args', 0, async (): Promise<Value> => this.context.args),
+        'prefix': wrapFunc('prefix', 0, async (): Promise<Value> => {
+            return ((this.context.channel as any).guild && (this.context.channel as any).guild.commandPrefix) || this.context.client.commandPrefix || this.context.client.user.toString();
+        }),
+        'cause': wrapFunc('cause', 0, async (): Promise<Value> => this.context.cause.id),
+        'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
+            const guild: discord.Guild | undefined = (this.context.channel as any).guild;
+            const emote = this.context.client.emoteRegistry.getEmote(guild || null, args[0].toString());
+            if (emote.guild && nsfwGuild(this.context.client, emote.guild) && !nsfw(this.context.channel))
+                return '';
+            return emote.toString();
+        })
+    };
+    
+    public constructor(ctx: VMContext) {
+        super();
+        this.context = ctx;
+        for (const k in this.bootstrapFunctionsEx)
+            this.globalScope.addFunction(k, this.bootstrapFunctionsEx[k], false);
     }
     
     private async quote(urlV: Value, cause: boolean, silent: boolean): Promise<Value> {
