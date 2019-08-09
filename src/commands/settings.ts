@@ -2,6 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {localAdminCheck} from '../utils';
+import {getUserDatablock} from '../entities/user-datablock';
 
 // Important (i.e. non-obvious) limits
 const limitLocalCommand = 2000;
@@ -10,8 +11,19 @@ const limitLocalChannelName = 128;
 const limitLocalEmotesArray = 2000;
 const limitLocalRoleGroup = 2000;
 
-// Local settings control
+export enum SettingsOperation {
+    Get,
+    Set,
+    Rm
+};
 
+export enum SettingsContext {
+    Global,
+    Local,
+    User
+};
+
+// <editor-fold desc="Backend" defaultstate=collapsed>
 // Returns null on success.
 async function runLocalSettingTransaction(provider: commando.SettingProvider, context: discord.Guild, name: string, value: undefined | string | undefined[]): Promise<string | null> {
     let maxLength = 0;
@@ -82,123 +94,146 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     return null;
 }
 
+function isAuthorized(message: commando.CommandMessage, operation: SettingsOperation, context: SettingsContext, contextInstance: string): boolean {
+    // Validate instance
+    if ((context == SettingsContext.Global) && (contextInstance != 'global'))
+        return false;
+    if ((context == SettingsContext.Local) && (!message.client.guilds.has(contextInstance)))
+        return false;
+    if ((context == SettingsContext.User) && (!message.client.users.has(contextInstance)))
+        return false;
+    // Authorized?
+    if (message.client.isOwner(message.author))
+        return true;
+    if (context == SettingsContext.Local) {
+        if (!message.guild)
+            return false;
+        if (!localAdminCheck(message))
+            return false;
+        if (contextInstance != message.guild.id)
+            return false;
+        return true;
+    } else if (context == SettingsContext.User) {
+        return message.author.id == contextInstance;
+    } else {
+        // Also covers Global (which has no access except for owner) so do not make true by default
+        return false;
+    }
+}
+// </editor-fold>
+
 /**
- * A command for the local administrator group to configure bot systems.
+ * A command to configure bot systems.
  */
-export class SettingsSetCommand extends CCBotCommand {
-    public constructor(client: CCBot) {
+export class SettingsCommand extends CCBotCommand {
+    public readonly operation: SettingsOperation;
+    public readonly context: SettingsContext;
+    public constructor(client: CCBot, op: SettingsOperation, target: SettingsContext) {
+        const localName = SettingsOperation[op].toLowerCase() + '-' + SettingsContext[target].toLowerCase();
         const opt = {
-            name: '-util set',
-            description: 'Sets a guild-wide (where applicable) or bot-wide (if from a DM) setting.',
+            name: '-util ' + localName,
+            description: SettingsOperation[op] + ' ' + SettingsContext[target].toLowerCase() + ' setting.',
             group: 'util',
-            memberName: 'set',
+            memberName: localName,
             args: [
                 {
-                    key: 'target',
-                    prompt: 'What should be configured?',
-                    type: 'string'
-                },
-                {
-                    key: 'value',
-                    prompt: 'What value would you like today? (JSON)',
+                    key: 'key',
+                    prompt: 'Which setting?',
                     type: 'string'
                 }
             ]
         };
+        if (op == SettingsOperation.Set) {
+            opt.args.push({
+                key: 'value',
+                prompt: 'What value would you like today? (JSON)',
+                type: 'string'
+            })
+        }
         super(client, opt);
+        this.operation = op;
+        this.context = target;
     }
 
-    public async run(message: commando.CommandMessage, args: {target: string; value: string}): Promise<discord.Message|discord.Message[]> {
-        const effectiveGuild: discord.Guild | undefined = message.guild;
-        if (!effectiveGuild) {
-            if (!this.client.owners.includes(message.author))
-                return message.say('You do not have global settings authorization.');
-            await this.client.provider.set('global', args.target, args.value);
-            return message.say('Done!');
-        } else if (!localAdminCheck(message)) {
-            return message.say('You do not have local settings authorization.\nContact someone with global settings authorization if you believe this is a mistake.');
-        } else {
-            let value;
-            try {
-                value = JSON.parse(args.value);
-            } catch (e) {
-                return message.say('Your JSON was incorrect:\n' + e);
+    public async run(message: commando.CommandMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
+        let instance = '';
+        if (this.context === SettingsContext.Global) {
+            instance = 'global';
+        } else if (this.context === SettingsContext.Local) {
+            if (message.guild) {
+                instance = message.guild.id;
+            } else {
+                return message.say('No local guild.');
             }
-            return message.say((await runLocalSettingTransaction(this.client.provider, effectiveGuild, args.target, value)) || 'Successful.');
+        } else if (this.context === SettingsContext.User) {
+            instance = message.author.id;
         }
-    }
-}
 
-/**
- * A command for the local administrator group to configure bot systems.
- */
-export class SettingsRmCommand extends CCBotCommand {
-    public constructor(client: CCBot) {
-        const opt = {
-            name: '-util rm',
-            description: 'Removes a guild-wide (where applicable) or bot-wide (if from a DM) setting.',
-            group: 'util',
-            memberName: 'rm',
-            args: [
-                {
-                    key: 'target',
-                    prompt: 'What should be configured?',
-                    type: 'string'
-                }
-            ]
-        };
-        super(client, opt);
-    }
+        if (!isAuthorized(message, this.operation, this.context, instance))
+            return message.say('You aren\'t authorized to do that.');
 
-    public async run(message: commando.CommandMessage, args: {target: string}): Promise<discord.Message|discord.Message[]> {
-        let effectiveGuild: 'global' | discord.Guild = message.guild;
-        if (!effectiveGuild) {
-            effectiveGuild = 'global';
-            if (!this.client.owners.includes(message.author))
-                return message.say('You do not have global settings authorization.');
-            await this.client.provider.remove(effectiveGuild, args.target);
-            return message.say('Done!');
-        } else if (!localAdminCheck(message)) {
-            return message.say('You do not have local settings authorization.\nContact someone with global settings authorization if you believe this is a mistake.');
+        let value = undefined;
+        if (this.operation == SettingsOperation.Get) {
+            // Reading
+            if ((this.context == SettingsContext.Global) || (this.context == SettingsContext.Local)) {
+                // This relies on instance === 'global' for Global context.
+                // Essentially, if not for runLocalSettingTransaction,
+                //  both local & global contexts would use the same code
+                value = this.client.provider.get(instance, args.key);
+            } else if (this.context == SettingsContext.User) {
+                const dbl = await getUserDatablock(this.client, instance);
+                value = dbl.get()[args.key];
+            }
+            if (value === undefined)
+                return message.say('That value does not exist.');
+            return message.say('Done: `' + JSON.stringify(value) + '`');
         } else {
-            return message.say((await runLocalSettingTransaction(this.client.provider, effectiveGuild, args.target, undefined)) || 'Successful.');
+            // Writing
+            if (this.operation == SettingsOperation.Set) {
+                try {
+                    value = JSON.parse(args.value);
+                } catch (e) {
+                    return message.say('Your JSON was incorrect:\n' + e);
+                }
+            }
+            if (this.context == SettingsContext.Global) {
+                await this.client.provider.set('global', args.key, value);
+                return message.say('Done!');
+            } else if (this.context == SettingsContext.Local) {
+                const guild = this.client.guilds.get(instance);
+                if (!guild)
+                    return message.say('How\'d you get here, then?');
+                return message.say((await runLocalSettingTransaction(this.client.provider, guild, args.key, value)) || 'Successful.');
+            } else if (this.context == SettingsContext.User) {
+                const dbl = await getUserDatablock(this.client, instance);
+                const db = dbl.get();
+                db[args.key] = value;
+                dbl.set(db);
+                return message.say('Done!');
+            }
         }
+        return message.say('Unable to handle the specified request.');
     }
 }
 
 /**
- * A command for the local administrator group to configure bot systems.
+ * A command to configure bot systems.
  */
-export class SettingsGetCommand extends CCBotCommand {
+export class ShowUserSettingsCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-util get',
-            description: 'Gets a guild-wide (where applicable) or bot-wide (if from a DM) setting.',
+            name: '-util show-user-settings',
+            description: 'Show the entire contents of your user settings datablock.',
             group: 'util',
-            memberName: 'get',
-            args: [
-                {
-                    key: 'target',
-                    prompt: 'What should be read?',
-                    type: 'string'
-                }
-            ]
+            memberName: 'show-user-settings'
         };
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {target: string}): Promise<discord.Message|discord.Message[]> {
-        let effectiveGuild: 'global' | discord.Guild = message.guild;
-        if (!effectiveGuild) {
-            effectiveGuild = 'global';
-            if (!this.client.owners.includes(message.author))
-                return message.say('You do not have global settings authorization.');
-        } else if (!localAdminCheck(message)) {
-            return message.say('You do not have local settings authorization.\nContact someone with global settings authorization if you believe this is a mistake.');
-        }
-        const val = await this.client.provider.get(effectiveGuild, args.target);
-        if (val == undefined)
-            return message.say('That setting is not defined.');
-        return message.say('Done: `' + JSON.stringify(val) + '`');
+    public async run(message: commando.CommandMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
+        const res = (await getUserDatablock(this.client, message.author)).content;
+        return message.embed(new discord.RichEmbed({
+            description: '```json\n' + res + '\n```'
+        }));
     }
 }

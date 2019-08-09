@@ -2,6 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {findMemberByRef} from '../utils';
+import {userAwareGetEmote} from '../entities/user-datablock';
 
 /**
  * For hugging.
@@ -46,7 +47,7 @@ export default class HugCommand extends CCBotCommand {
         if (effectiveLength > 10)
             return await message.say('The physics of that are questionable, sadly...');
         const lines = [];
-        const hugEmote = this.client.emoteRegistry.getEmote(message.guild || null, 'shizuHUG').toString().repeat(tryTimes);
+        const hugEmote = (await userAwareGetEmote(this.client, message.author, message.guild || null, 'shizuHUG')).toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
             const member = findMemberByRef(message.guild || null, args.people[i]);

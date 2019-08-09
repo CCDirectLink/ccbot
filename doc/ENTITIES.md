@@ -135,3 +135,5 @@ This ensures that message-related events are sent to the entity, but it also
 `purge-database-manager`: An instance of the `purge-database` entity.
 
 `purge-channel-SOMEIDHERE`: `purge-database-channel` entities for various channels.
+
+`user-datablock-SOMEIDHERE`: A user's datablock; instances of the `user-datablock` entity.

@@ -1,6 +1,7 @@
 import * as discord from 'discord.js';
 import {safeParseInt, checkIntegerResult, findMemberByRef, channelAsTBF, nsfw, nsfwGuild} from './utils';
 import {CCBot} from './ccbot';
+import {userAwareGetEmote} from './entities/user-datablock';
 
 const vmMaxTime = 1024;
 const vmEvalTime = 8;
@@ -453,7 +454,7 @@ export class VM extends BaseVM {
         'cause': wrapFunc('cause', 0, async (): Promise<Value> => this.context.cause.id),
         'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
             const guild: discord.Guild | undefined = (this.context.channel as any).guild;
-            const emote = this.context.client.emoteRegistry.getEmote(guild || null, args[0].toString());
+            const emote = await userAwareGetEmote(this.context.client, this.context.writer, guild || null, args[0].toString());
             if (emote.guild && nsfwGuild(this.context.client, emote.guild) && !nsfw(this.context.channel))
                 return '';
             return emote.toString();

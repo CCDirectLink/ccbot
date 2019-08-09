@@ -4,6 +4,7 @@ import * as structures from '../data/structures';
 import {nsfw} from '../utils';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {VM, VMContext, runFormat} from '../formatter';
+import {userAwareGetEmote} from '../entities/user-datablock';
 
 /**
  * Copies an object while also formatting it.
@@ -82,7 +83,7 @@ export default class JSONCommand extends CCBotCommand {
         // Side-effects (reacts)
         if (this.command.commandReactions)
             for (const react of this.command.commandReactions)
-                await message.react(this.client.emoteRegistry.getEmote(message.guild || null, react));
+                await message.react(await userAwareGetEmote(this.client, message.author, message.guild || null, react));
 
         // Actually send resulting message if necessary
         if (this.command.format || hasMeta)

@@ -6,7 +6,7 @@ import HugCommand from './commands/hug';
 import PurgeCommand from './commands/purge';
 import ArmyCommand from './commands/army';
 import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
-import {SettingsSetCommand, SettingsGetCommand, SettingsRmCommand} from './commands/settings';
+import {SettingsCommand, ShowUserSettingsCommand, SettingsOperation, SettingsContext} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
 import {ModsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
@@ -28,9 +28,16 @@ export default function registerAllCommands(cr: CCBot) {
 
     // util
     cr.registry.registerCommand(new ReloadCommand(cr));
-    cr.registry.registerCommand(new SettingsSetCommand(cr));
-    cr.registry.registerCommand(new SettingsGetCommand(cr));
-    cr.registry.registerCommand(new SettingsRmCommand(cr));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Global));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Global));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Global));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Local));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Local));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Local));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.User));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.User));
+    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.User));
+    cr.registry.registerCommand(new ShowUserSettingsCommand(cr));
     cr.registry.registerCommand(new CounterCommand(cr));
     
     cr.registry.registerGroup("general");

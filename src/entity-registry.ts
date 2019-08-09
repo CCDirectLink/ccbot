@@ -113,7 +113,11 @@ export abstract class Entity<C> {
         if (time >= this.killTime) {
             this.kill(false);
         } else {
-            setTimeout((): void => this.entityCheckIfShouldKill(), this.killTime - time);
+            let effectiveTime = this.killTime - time;
+            // Workaround for Node timeout maximum limit. Works because we always re-verify the time
+            if (effectiveTime >= 0x40100000)
+                effectiveTime = 0x40000000 | (effectiveTime & 0xFFFFF);
+            setTimeout((): void => this.entityCheckIfShouldKill(), effectiveTime);
         }
     }
     
@@ -172,7 +176,7 @@ let logEntryNumber = 0;
 export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public readonly client: C;
     public readonly entityTypes: {[type: string]: (c: C, data: any) => Promise<T>} = {};
-    public readonly entities: {[id: string]: T} = {};
+    public readonly entities: Record<string, T> = {};
 
     // Until this is true, the EntityRegistry does nothing.
     // This is important because until the bot is ready,

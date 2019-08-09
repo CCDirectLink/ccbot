@@ -3,6 +3,7 @@ import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {naturalComparison, localAdminCheck, nsfw, nsfwGuild} from '../utils';
 import {outputElements} from '../entities/page-switcher';
+import {userAwareGetEmote} from '../entities/user-datablock';
 
 /**
  * A command to list the accessible emotes.
@@ -27,7 +28,7 @@ export class ListEmotesCommand extends CCBotCommand {
     }
     
     public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
-        
+        // User aliases don't apply here, it's the *actual* emote list.
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort(naturalComparison);
         const elements: string[] = [];
@@ -78,7 +79,7 @@ export class EmoteCommand extends CCBotCommand {
         }
         const texts = [];
         for (let i = 0; i < args.emotes.length; i++) {
-            const emote = this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]);
+            const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
                 continue;
             texts.push(emote.toString());
@@ -138,10 +139,10 @@ export class ReactCommand extends CCBotCommand {
         if (targetMessage.channel !== targetChannel)
             return await message.say('Lea bye.');
         for (let i = start; i < args.emotes.length; i++) {
-            const emote = this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]);
+            const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
             if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(targetChannel))
                 continue;
-            await targetMessage.react(this.client.emoteRegistry.getEmote(message.guild || null, args.emotes[i]));
+            await targetMessage.react(emote);
         }
         return [];
     }

@@ -6,6 +6,7 @@ import loadReactRoles from './entities/react-roles';
 import loadRandomActivity from './entities/random-activity';
 import loadModDatabase from './entities/mod-database';
 import {loadPurgeDatabase, loadPurgeDatabaseChannel} from './entities/purge-database';
+import {loadUserDatablock} from './entities/user-datablock';
 import {CCBot} from './ccbot';
 
 /**
@@ -22,4 +23,5 @@ export default function registerAllEntities(cr: CCBot) {
     cr.entities.entityTypes['mod-database'] = loadModDatabase;
     cr.entities.entityTypes['purge-database'] = loadPurgeDatabase;
     cr.entities.entityTypes['purge-database-channel'] = loadPurgeDatabaseChannel;
+    cr.entities.entityTypes['user-datablock'] = loadUserDatablock;
 }

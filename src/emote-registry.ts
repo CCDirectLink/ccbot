@@ -87,6 +87,9 @@ export default class CCBotEmoteRegistry {
      * Gets an emote as a discord.Emoji
      * This is a bit weird because the stable discord.js API is messy regarding non-custom emoji.
      * It both does and does not support it.
+     * NOTE! Use userAwareGetEmote whenever possible.
+     * Emote grabbing should operate from the Writer's perspective,
+     *  which means hug emote can be overridden by user, etc.
      */
     getEmote(guild: discord.Guild | null, name: string): discord.Emoji {
         // Local emote overrides
