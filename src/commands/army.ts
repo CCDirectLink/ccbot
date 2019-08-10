@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {randomArrayElement} from '../utils';
+import {randomArrayElement, emoteSafe} from '../utils';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 // Scientific reasons for Lea to have to exist.
@@ -58,7 +58,11 @@ export default class ArmyCommand extends CCBotCommand {
         // Awkward, but solves the issue.
         if (args.height == 0)
             args.height = args.width;
+
         const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, this.emote);
+        if (!emoteSafe(emoteUse, message.channel))
+            return message.say('they appear to have been transformed into something unsuitable for this channel');
+        
         // Initial safety checks
         if ((args.width < 1) || (args.height < 1))
             return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');

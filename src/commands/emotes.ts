@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {naturalComparison, localAdminCheck, nsfw, nsfwGuild} from '../utils';
+import {naturalComparison, localAdminCheck, emoteSafe} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -37,7 +37,7 @@ export class ListEmotesCommand extends CCBotCommand {
             if (eref.indexOf(args.search) == -1)
                 continue;
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
-            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
+            if (!emoteSafe(emote, message.channel))
                 continue;
             elements.push(eref + ' ' + emote.toString());
         }
@@ -80,7 +80,7 @@ export class EmoteCommand extends CCBotCommand {
         const texts = [];
         for (let i = 0; i < args.emotes.length; i++) {
             const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
-            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(message.channel))
+            if (!emoteSafe(emote, message.channel))
                 continue;
             texts.push(emote.toString());
         }
@@ -140,7 +140,7 @@ export class ReactCommand extends CCBotCommand {
             return await message.say('Lea bye.');
         for (let i = start; i < args.emotes.length; i++) {
             const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
-            if (emote.guild && nsfwGuild(this.client, emote.guild) && !nsfw(targetChannel))
+            if (!emoteSafe(emote, targetChannel))
                 continue;
             await targetMessage.react(emote);
         }

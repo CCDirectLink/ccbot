@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {findMemberByRef} from '../utils';
+import {findMemberByRef, emoteSafe} from '../utils';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 /**
@@ -47,7 +47,10 @@ export default class HugCommand extends CCBotCommand {
         if (effectiveLength > 10)
             return await message.say('The physics of that are questionable, sadly...');
         const lines = [];
-        const hugEmote = (await userAwareGetEmote(this.client, message.author, message.guild || null, 'shizuHUG')).toString().repeat(tryTimes);
+        const hugEmote = await userAwareGetEmote(this.client, message.author, message.guild || null, 'shizuHUG');
+        if (!emoteSafe(hugEmote, message.channel))
+            return await message.say('A configuration issue has made shizuHUG an NSFW emote, and this isn\'t an NSFW channel.');
+        const hugEmoteString = hugEmote.toString().repeat(tryTimes);
         const alreadyHugged: Set<discord.User> = new Set();
         for (let i = 0; i < effectiveLength; i++) {
             const member = findMemberByRef(message.guild || null, args.people[i]);

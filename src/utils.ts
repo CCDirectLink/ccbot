@@ -138,3 +138,14 @@ export function checkIntegerResult(a: number) {
 export function guildOf(a: object): commando.GuildExtension | undefined {
     return (a as {guild?: commando.GuildExtension}).guild;
 }
+
+/**
+ * Ensures an emote is safe to use.
+ */
+export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boolean {
+    if (!emote.guild)
+        return true;
+    if (nsfw(channel))
+        return true;
+    return !nsfwGuild(emote.client as commando.CommandoClient, emote.guild);
+}

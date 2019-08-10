@@ -17,6 +17,7 @@ Later tiers override previous tiers.
 2. Scanned Emotes. (Conflicts here result in one getting the name and the rest getting a '#<number>' postfix. Which emote is chosen is based on emotePath; see settings; and NSFW-ness.)
 3. Owner-configured emotes.
 4. Guild-configured emotes.
+5. User-configured emotes, if allowed in this case. See SETTINGS.md: User on this
 
 The scanned emotes are stored in the Global Emote Registry.
 

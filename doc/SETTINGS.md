@@ -44,3 +44,7 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
  Does *not* do "if not per-guild, fallover to global setting", but instead is useful to make DMs nicer.
 
 (document Commando's enable/disable system at some point)
+
+## User-local
+
+`emote-<EMOTE REF>`: Local user aliases. These do not show up in lsemotes. They can have some effects on commands.
