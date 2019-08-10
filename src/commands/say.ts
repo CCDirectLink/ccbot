@@ -3,6 +3,7 @@ import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {silence} from '../utils';
 import {VM, VMContext, runFormat} from '../formatter';
+import {getUserDatablock} from '../entities/user-datablock';
 
 /**
  * For ventriloquism.
@@ -34,6 +35,11 @@ export default class SayCommand extends CCBotCommand {
             protectedContent: false,
             args: []
         };
+        // Bootstrap?
+        const bootstrap = (await getUserDatablock(this.client, message.author)).get()['bootstrap'];
+        if (bootstrap && (bootstrap.constructor === String))
+            args.text = bootstrap + args.text;
+        // VM
         let text: string;
         try {
             text = await runFormat(args.text, new VM(vmContext));

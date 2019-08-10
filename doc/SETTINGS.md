@@ -48,3 +48,4 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 ## User-local
 
 `emote-<EMOTE REF>`: Local user aliases. These do not show up in lsemotes. They can have some effects on commands.
+`bootstrap`: Prepended to all 'say's
