@@ -58,6 +58,8 @@ export interface VMContext {
     // This prevents untrusted code from causing escalation.
     protectedContent: boolean;
     args: Value[];
+    // The current embed.
+    embed?: discord.RichEmbedOptions;
 }
 
 const discordMessageLinkURL = /([0-9]+)\/([0-9]+)$/;
@@ -235,6 +237,9 @@ export class BaseVM {
                 if ((index >= 0) && (index < res.length))
                     return res[index];
             throw new Error('Index out of bounds for nth: ' + res.toString() + '[' + index + ']');
+        }),
+        'list': wrapFunc('list', -1, async (args: Value[]): Promise<Value> => {
+            return args;
         }),
         'strcat': async (args: Value[], scope: VMScope): Promise<Value> => {
             let first = true;
@@ -444,7 +449,7 @@ export class VM extends BaseVM {
             const res = findMemberByRef(guild, res1);
             if (res)
                 return res.id;
-            return [];
+            return falseValue;
         }),
         // Context
         'args': wrapFunc('args', 0, async (): Promise<Value> => this.context.args),
@@ -458,6 +463,33 @@ export class VM extends BaseVM {
             if (emote.guild && nsfwGuild(this.context.client, emote.guild) && !nsfw(this.context.channel))
                 return '';
             return emote.toString();
+        }),
+        // Context Modification ; Embeds
+        'embed': wrapFunc('embed', 1, async (args: Value[]): Promise<Value> => {
+            let val = args[0];
+            if (val === '') {
+                delete this.context.embed;
+            } else if (val.constructor == Array) {
+                if (val.length == 0)
+                    throw new Error('Embed control list has no type.');
+                val = val as Value[];
+                const tp = asString(val[0]);
+                if (tp === 'image') {
+                    if (val.length != 3)
+                        throw new Error('Embed control list format image needs name, url');
+                    const url = asString(val[2]);
+                    this.context.embed = {
+                        title: asString(val[1]),
+                        url: url,
+                        image: {
+                            url: url
+                        }
+                    };
+                } else {
+                    throw new Error('Embed control list type not understood: ' + tp);
+                }
+            }
+            return falseValue;
         })
     };
     

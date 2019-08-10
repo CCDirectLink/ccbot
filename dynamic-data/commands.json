@@ -249,6 +249,13 @@
             }
         },
         
+        "help-list": {
+            "description": "The 'list' invocation",
+            "embed": {
+                "title": "The 'list' invocation",
+                "description": "The 'list' invocation has an arbitrary amount of parameters. It returns a list containing them all in order after evaluation."
+            }
+        },
         "help-length": {
             "description": "The 'length' invocation",
             "embed": {
@@ -361,6 +368,13 @@
             "embed": {
                 "title": "The 'args' invocation",
                 "description": "The 'args' invocation has no parameters, and returns the list of command arguments if relevant."
+            }
+        },
+        "help-embed": {
+            "description": "The 'embed' invocation",
+            "embed": {
+                "title": "The 'embed' invocation",
+                "description": "The 'embed' invocation has one parameter: the embed description.\nDescriptions of valid embed descriptions will be shown via examples.\nDeleting an existing embed: `%%(embed \"\")`\nExample Image (note the ' - the embed details may come from other invocations):\n`%%(embed '(image \"CrossCode Stream Drawing; see https://discordapp.com/channels/143364538958348288/461638004490895390/602281244977528832\" \"https://lh6.googleusercontent.com/uUAgjHNYZu7IWdIaV_WtDafdo6vqpJsam63_XxvN4d3107yMlESv2XTHQuWFoENLUCFQuCtmNLbq_A=w1366-h679\"))`"
             }
         }
     }

@@ -50,6 +50,8 @@ export default class JSONCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
+
+        // VM State Init
         const vmContext: VMContext = {
             client: this.client,
             channel: message.channel,
@@ -57,8 +59,10 @@ export default class JSONCommand extends CCBotCommand {
             // JSON commands are always part of the bot (for now)
             writer: message.author,
             protectedContent: false,
-            args: []
+            args: [],
         };
+        
+        // VM Arguments Init
         if (args && args.args) {
             if (args.args.constructor === Array) {
                 vmContext.args = args.args;
@@ -69,24 +73,39 @@ export default class JSONCommand extends CCBotCommand {
         for (const arg of vmContext.args)
             if (arg.constructor !== String)
                 return await message.say('That command can only eat strings, but it was given non-strings.');
-        const vm = new VM(vmContext);
-        const formatText = await runFormat(this.command.format || '', vm);
+        
+        // VM Execution
+        let formatText;
+        {
+            const vm = new VM(vmContext);
+            // Basic Command
+            formatText = await runFormat(this.command.format || '', vm);
+            // MO/JSON-supplied Embed
+            if (this.command.embed)
+                vmContext.embed = await copyAndFormat(vm, this.command.embed) as object;
+        }
 
         // Message Options
         const opts: discord.MessageOptions = {};
         let hasMeta = false;
-        if (this.command.embed) {
-            opts.embed = await copyAndFormat(vm, this.command.embed) as object;
-            hasMeta = true;
+        {
+            // Embed
+            if (vmContext.embed) {
+                opts.embed = vmContext.embed;
+                hasMeta = true;
+            }
         }
 
-        // Side-effects (reacts)
-        if (this.command.commandReactions)
-            for (const react of this.command.commandReactions)
-                await message.react(await userAwareGetEmote(this.client, message.author, message.guild || null, react));
+        // Side-effects
+        {
+            // Reactions to original command message
+            if (this.command.commandReactions)
+                for (const react of this.command.commandReactions)
+                    await message.react(await userAwareGetEmote(this.client, message.author, message.guild || null, react));
+        }
 
         // Actually send resulting message if necessary
-        if (this.command.format || hasMeta)
+        if ((formatText != '') || hasMeta)
             return await message.say(formatText, opts);
         return [];
     }
