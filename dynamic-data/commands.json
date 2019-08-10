@@ -320,6 +320,13 @@
                 "description": "The 'set' invocation takes two parameters: a string for an invocation name, and some arbitrary value.\nIt creates a new invocation type at the relevant scope that simply returns the given value."
             }
         },
+        "help-set-func": {
+            "description": "The 'set-func' invocation",
+            "embed": {
+                "title": "The 'set-func' invocation",
+                "description": "The 'set-func' invocation never ever evaluates its parameters.\nThe first parameter can be a string or a list.\nIf it's a string, the second parameter must also be a string, and set-func copies the function referred to by the second parameter to the first.\nIf the first parameter is not a string, it must be a list of the form (name arg1 arg2 arg3) or such.\nThere may be as many or as few arguments as you want, but the name must always be present and a string.\nThe second parameter is code to run in the function that will be created with the given name and parameters.\nThe parameters are evaluated and copied to local variables in a new scope (inside the scope where set-func was run) before your code is run.\nCombined with the `bootstrap` user setting, this allows you to create simple macros."
+            }
+        },
 
         "help-emote": {
             "description": "The 'emote' invocation",

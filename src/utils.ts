@@ -134,3 +134,7 @@ export function checkIntegerResult(a: number) {
     if (!Number.isSafeInteger(a))
         throw new Error('Operation result became ' + a);
 }
+
+export function guildOf(a: object): commando.GuildExtension | undefined {
+    return (a as {guild?: commando.GuildExtension}).guild;
+}

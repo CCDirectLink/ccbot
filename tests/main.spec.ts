@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import DynamicDataManager from '../src/dynamic-data';
-import {runFormatInternal} from '../src/formatter';
+import {VM, runFormatInternal} from '../src/formatter/core';
+import {installBasic} from '../src/formatter/lib-basic';
 
 describe('DynamicDataManager', (): void => {
     const ddm: DynamicDataManager = new DynamicDataManager();
@@ -59,4 +60,18 @@ describe('Hello function', (): void => {
         const result = 'Hello world!';
         expect(result).to.equal('Hello world!');
     });
+});
+
+describe('VM', (): void => {
+    it('should never, ever ever, allow the user to run more than 8192 evals, ever', async (): Promise<void> => {
+        try {
+            const vm: VM = new VM();
+            installBasic(vm);
+            for (let i = 0; i < 8192; i++)
+                await vm.run(['set', 'monkey', i.toString()], vm.globalScope);
+            throw new Error('Failed: Managed to consume too much time');
+        } catch (e) {
+            // Success!
+        }
+    })
 });
