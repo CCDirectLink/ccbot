@@ -15,13 +15,13 @@ export enum SettingsOperation {
     Get,
     Set,
     Rm
-};
+}
 
 export enum SettingsContext {
     Global,
     Local,
     User
-};
+}
 
 // <editor-fold desc="Backend" defaultstate=collapsed>
 // Returns null on success.
@@ -230,7 +230,7 @@ export class ShowUserSettingsCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         const res = (await getUserDatablock(this.client, message.author)).content;
         return message.embed(new discord.RichEmbed({
             description: '```json\n' + res + '\n```'

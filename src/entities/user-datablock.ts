@@ -30,11 +30,11 @@ export class UserDatablockEntity extends CCBotEntity {
         this.content = data.content;
     }
     
-    public get(): Record<string, any> {
+    public get(): Record<string, object> {
         this.postponeDeathAndUpdate();
         return JSON.parse(this.content);
     }
-    public set(updated: Record<string, any>): void {
+    public set(updated: Record<string, object>): void {
         const res = JSON.stringify(updated, null, '\t');
         if (res.length > userDatablockMaxLength)
             throw new Error('User Datablock cannot be above ' + userDatablockMaxLength + ' characters.');
