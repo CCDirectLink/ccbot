@@ -1,5 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
+import * as https from 'https';
+import * as http from 'http';
 
 /**
  * Returns if a given channel is appropriate for NSFW information.
@@ -148,4 +150,50 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boole
     if (nsfw(channel))
         return true;
     return !nsfwGuild(emote.client as commando.CommandoClient, emote.guild);
+}
+
+/**
+ * Retrieves a JSON file from the 'web
+ */
+export function getJSON(endpoint: string, headers: Record<string, string>): Promise<object> {
+    let secure = false;
+    if (endpoint.startsWith('https:')) {
+        secure = true;
+    } else if (endpoint.startsWith('http:')) {
+        secure = false;
+    }
+    headers['user-agent'] = 'ccbot-new (red queen)';
+    return new Promise((resolve, reject): void => {
+        const target = secure ? https : http;
+        const request = target.get(endpoint, {
+            headers: headers
+        }, (res: http.IncomingMessage): void => {
+            res.setEncoding('utf8');
+            let data = '';
+            res.on('data', (piece): void => {
+                data += piece;
+            });
+            res.on('end', (): void => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+        request.on('error', (e: Error): void => {
+            reject(e);
+        });
+    });
+}
+
+/**
+ * Puts anti-stupidity limits on anything that looks remotely like an HTTP request-related number.
+ * This is meant for numbers *below* the setTimeout ceiling and *will throw* if a number above that is given.
+ */
+export function boundRequestTimeout(n: number | undefined): number {
+    n = n || 60000;
+    if (n >= 0x40000000)
+        throw new Error('boundRequestTimeout, which usually does not handle several-day-long timeouts, received a several-day-long timeout. Something is wrong with your configuration.');
+    return Math.min(Math.max(n, 60000), 0x40000000);
 }

@@ -137,3 +137,5 @@ This ensures that message-related events are sent to the entity, but it also
 `purge-channel-SOMEIDHERE`: `purge-database-channel` entities for various channels.
 
 `user-datablock-SOMEIDHERE`: A user's datablock; instances of the `user-datablock` entity.
+
+`stream-provider-*`: Entities derived from StreamProviderEntity use these IDs.

@@ -37,6 +37,9 @@ export interface Secrets {
     dataCollectionPort?: number;
     // If present, sets a host for the data collection (important for net. security)
     dataCollectionHost?: string;
+    // Twitch Client ID, if you have one.
+    // If not, twitch-stream-provider is not registered as a valid entity
+    twitchClientId?: string;
 }
 
 // entities.json - array of newEntity data objects

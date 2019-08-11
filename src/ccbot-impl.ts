@@ -13,12 +13,12 @@ import registerAllEntities from './all-entities';
  * Only the constructor should be here - the rest is API for the commands and so should be in CCBot.
  */
 export default class CCBotImpl extends CCBot {
-    constructor(co: commando.CommandoClientOptions, safety: boolean) {
+    constructor(co: commando.CommandoClientOptions, safety: boolean, twitchClientId: string | undefined) {
         super(co, safety);
         this.registry = new CCBotCommandRegistry(this);
         this.dispatcher = new CCBotCommandDispatcher(this, this.registry);
         registerAllCommands(this);
-        registerAllEntities(this);
+        registerAllEntities(this, twitchClientId);
         this.setProvider(new CCBotSettingProvider(this.dynamicData.settings));
     }
 };
