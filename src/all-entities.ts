@@ -9,12 +9,13 @@ import loadStreamWatcher from './entities/stream-watcher';
 import {loadPurgeDatabase, loadPurgeDatabaseChannel} from './entities/purge-database';
 import {loadUserDatablock} from './entities/user-datablock';
 import {newTwitchStreamProviderLoader} from './entities/twitch-stream-provider';
+import {newYouTubeStreamProviderLoader} from './entities/youtube-stream-provider';
 import {CCBot} from './ccbot';
 
 /**
  * Registers all the entities. (More or less.)
  */
-export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined) {
+export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined) {
     cr.entities.entityTypes['date-activity'] = loadDateActivity;
     cr.entities.entityTypes['page-switcher'] = loadPageSwitcher;
     if (!cr.sideBySideSafety)
@@ -28,5 +29,7 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
     cr.entities.entityTypes['user-datablock'] = loadUserDatablock;
     if (twitchClientId)
         cr.entities.entityTypes['twitch-stream-provider'] = newTwitchStreamProviderLoader(twitchClientId);
+    if (ytClientId)
+        cr.entities.entityTypes['youtube-stream-provider'] = newYouTubeStreamProviderLoader(ytClientId);
     cr.entities.entityTypes['stream-watcher'] = loadStreamWatcher;
 }

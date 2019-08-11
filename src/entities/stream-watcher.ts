@@ -6,7 +6,7 @@ import {silence, channelAsTBF, guildOf} from '../utils';
 import {WatcherEntityData, WatcherEntity, StreamProviderEntity} from '../watchers';
 
 // All the kinds of stream provider we care about
-const streamProviders: string[] = ['twitch'];
+const streamProviders: string[] = ['twitch', 'youtube'];
 
 export interface StreamWatcherData extends WatcherEntityData {
     // Channel ID.
@@ -23,7 +23,7 @@ class StreamWatcherEntity extends WatcherEntity {
     private message: discord.Message;
     
     public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: StreamWatcherData) {
-        super(c, 'message-' + message.id, data);
+        super(c, 'message-' + message.id, data, 10000);
         this.channel = channel;
         this.message = message;
     }
@@ -47,6 +47,11 @@ class StreamWatcherEntity extends WatcherEntity {
                     let langTag = '';
                     if (stream.language)
                         langTag = '(' + stream.language.toUpperCase() + ')';
+                        
+                    let titleTag = '';
+                    if (stream.title)
+                        titleTag = ': ' + stream.title;
+                    
                     const streamLongTail: string[] = [stream.url];
                     if (stream.started)
                         streamLongTail.push('Started at ' + stream.started + '.');
@@ -60,7 +65,7 @@ class StreamWatcherEntity extends WatcherEntity {
                             streamLongTail.push('Possibly here as ' + foundMember.nickname);
                     }
                     streams.push({
-                        name: stream.userName + ' ' + langTag + ' on ' + stream.service + ': ' + stream.title,
+                        name: stream.userName + ' ' + langTag + ' on ' + stream.service + titleTag,
                         value: streamLongTail.join('\n')
                     });
                 }

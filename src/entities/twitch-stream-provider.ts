@@ -62,7 +62,6 @@ export class TwitchStreamProviderEntity extends StreamProviderEntity {
     
     public async watcherTick(): Promise<void> {
         const streams = (await this.requestMaker('helix/streams?game_id=' + gameId)) as TwitchPaginated<TwitchStream>;
-        this.streams = [];
         
         // Twitch requires we have a user's "login" (username) for their stream URL.
         // So we need to grab those.
@@ -74,6 +73,7 @@ export class TwitchStreamProviderEntity extends StreamProviderEntity {
         if (userGrabComponents.length > 0)
             users = (await this.requestMaker('helix/users?' + userGrabComponents.join('&'))) as TwitchPaginated<TwitchUser>;
 
+        this.streams = [];
         for (let index = 0; index < users.data.length; index++) {
             const stream = streams.data[index];
             const user = users.data[index];

@@ -40,6 +40,9 @@ export interface Secrets {
     // Twitch Client ID, if you have one.
     // If not, twitch-stream-provider is not registered as a valid entity
     twitchClientId?: string;
+    // YouTube Data API v3 API key, if you have one.
+    // If not, youtube-stream-provider is not registered as a valid entity
+    youtubeData3Key?: string;
 }
 
 // entities.json - array of newEntity data objects

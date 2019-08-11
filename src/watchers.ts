@@ -19,11 +19,12 @@ export abstract class WatcherEntity extends CCBotEntity {
     public refreshMs: number;
     public lastError: Error | null;
     
-    public constructor(c: CCBot, id: string, data: WatcherEntityData) {
+    public constructor(c: CCBot, id: string, data: WatcherEntityData, earlyDelay?: number) {
         super(c, id, data);
         this.refreshMs = data.refreshMs;
         this.lastError = null;
-        setImmediate(() => {this.startWatcherTick();});
+        earlyDelay = earlyDelay || 0;
+        setTimeout(() => {this.startWatcherTick();}, earlyDelay);
     }
     
     private async startWatcherTick(): Promise<void> {
