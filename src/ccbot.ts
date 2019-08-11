@@ -57,6 +57,7 @@ export abstract class CCBot extends commando.CommandoClient {
     async destroy(): Promise<void> {
         await super.destroy();
         await this.dynamicData.destroy();
+        await this.entities.destroy();
     }
     
     /**
