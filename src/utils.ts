@@ -2,6 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import * as https from 'https';
 import * as http from 'http';
+import * as url from 'url';
 
 /**
  * Returns if a given channel is appropriate for NSFW information.
@@ -154,20 +155,27 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boole
 
 /**
  * Retrieves a JSON file from the 'web
+ * NOTE: headers is modified for added spice.
  */
 export function getJSON(endpoint: string, headers: Record<string, string>): Promise<object> {
-    let secure = false;
-    if (endpoint.startsWith('https:')) {
-        secure = true;
-    } else if (endpoint.startsWith('http:')) {
-        secure = false;
-    }
+    // Older versions of Node don't do the "automatic parsing of URLs" thing if an object is passed
+    // Rest of the bot works fine so might as well put this here
+    const endpointURL: url.URL = new url.URL(endpoint);
+    const builtObj: http.ClientRequestArgs = {
+        protocol: endpointURL.protocol,
+        hostname: endpointURL.hostname,
+        port: endpointURL.port,
+        path: endpointURL.pathname + endpointURL.search,
+        headers: headers
+    };
+    let secure = endpointURL.protocol == 'https:';
     headers['user-agent'] = 'ccbot-new (red queen)';
+    // Empty-string-check-behavior INTENDED
+    if (endpointURL.username)
+        builtObj.auth = endpointURL.username + ':' + endpointURL.password
     return new Promise((resolve, reject): void => {
         const target = secure ? https : http;
-        const request = target.get(endpoint, {
-            headers: headers
-        }, (res: http.IncomingMessage): void => {
+        const request = target.get(builtObj, (res: http.IncomingMessage): void => {
             res.setEncoding('utf8');
             let data = '';
             res.on('data', (piece): void => {
