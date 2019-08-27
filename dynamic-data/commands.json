@@ -97,18 +97,41 @@
         },
         "triggered": {
             "description": "mildly angery Lea",
+            "DOESNOTEXISToriginalSource": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif",
             "embed": {
                 "title": "...WHY?!?!",
+                "url": "https://media.discordapp.net/attachments/535539399816118303/615836451485253645/lea_triggered_without_text.gif",
+                "image": {
+                    "url": "https://media.discordapp.net/attachments/535539399816118303/615836451485253645/lea_triggered_without_text.gif"
+                }
+            }
+        },
+        "verytriggered": {
+            "description": "*severely* angery Lea",
+            "DOESNOTEXISToriginalSource": "https://cdn.discordapp.com/attachments/381866628108910593/382331699213893632/triggeredlea.gif",
+            "embed": {
+                "title": ".cc verytriggered",
+                "url": "https://cdn.discordapp.com/attachments/535539399816118303/615839009733607444/herewegoagain.gif",
+                "image": {
+                    "title": "何？",
+                    "url": "https://cdn.discordapp.com/attachments/535539399816118303/615839009733607444/herewegoagain.gif"
+                }
+            }
+        },
+        "triggered-original": {
+            "description": "UNDOCUMENTED",
+            "embed": {
+                "title": "original version to preserve some means of credit to the original memer. sorry about this",
                 "url": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif",
                 "image": {
                     "url": "https://cdn.discordapp.com/attachments/374851126627008514/382063690557685760/Lea_triggered.gif"
                 }
             }
         },
-        "verytriggered": {
-            "description": "*severely* angery Lea",
+        "verytriggered-original": {
+            "description": "UNDOCUMENTED",
             "embed": {
-                "title": ".cc verytriggered",
+                "title": "original version to preserve some means of credit to the original memer. sorry about this",
                 "url": "https://cdn.discordapp.com/attachments/381866628108910593/382331699213893632/triggeredlea.gif",
                 "image": {
                     "title": "何？",
