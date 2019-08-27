@@ -129,7 +129,11 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         // [SAFETY] Determine the local state of the roles module.
         let rolesState: string = getRolesState(this.client, message.guild);
         // [SAFETY] All commands that are potentially conflicting get a '-' postfix.
-        if ((group != 'util') && (group != 'formatter') && (group != 'commands') && (command != 'hug') && (command != 'lsemotes') && ((rolesState != 'yes') || (group != 'roles')) && this.client.sideBySideSafety) {
+        const safeGroups: string[] = ['util', 'formatter', 'commands'];
+        if (rolesState != 'yes')
+            safeGroups.push('roles');
+        const safeCommands: string[] = ['general hug', 'general lsemotes'];
+        if (((safeGroups.indexOf(group) == -1) && (safeCommands.indexOf(group + ' ' + command) == -1)) && this.client.sideBySideSafety) {
             if (!command.endsWith('-'))
                 return null;
             command = command.substring(0, command.length - 1);
