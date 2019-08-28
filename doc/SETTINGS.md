@@ -8,16 +8,20 @@ They can be controlled per-guild by the local ADMINISTRATOR or bot owners.
 
 They can be controlled globally only by bot owners.
 
-## Global
+## Global (global)
 
 `nsfw-<GUILD ID>`: Boolean, effectively forcefully enables the per-guild `nsfw` setting.
-Example: `-util set-boolean nsfw-558469426765103135 true`
 
 `emotePath`: Array of strings; guild IDs, from most important to least, from which to prioritize emotes.
 
-## Per-Guild
+## Per-Guild (local)
 
 `nsfw`: All emotes that come from this guild are marked NSFW
+
+`emotes-sfw`: Array of emotes that are definitely SFW, by Discord emote ID (not names!)
+ (NOTE: If you even need to consider doing a global override here:
+  have you considered taking it up with the admin;
+  or failing that, forcing all emotes they have to be considered NSFW?)
 
 `roles-*`: Please see `ROLES.md`
 
@@ -34,7 +38,7 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 
 `greeting`: Specifies the bot's greeting, if usable.
 
-## Both
+## Both (local, global)
 
 `prefix`: Part of Commando
 `emotes`: See EMOTES.md (Automatically maintained for per-guild settings)
@@ -45,7 +49,7 @@ Example: `-util set-boolean nsfw-558469426765103135 true`
 
 (document Commando's enable/disable system at some point)
 
-## User-local
+## User-local (user)
 
 `emote-<EMOTE REF>`: Local user aliases. These do not show up in lsemotes. They can have some effects on commands.
 `bootstrap`: Prepended to all 'say's

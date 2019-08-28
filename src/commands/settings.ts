@@ -41,6 +41,9 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else if (name === 'greeting') {
         if ((value === undefined) || (value.constructor === String))
             maxLength = limitLocalCommand;
+    } else if (name === 'emotes-sfw') {
+        if ((value === undefined) || (value.constructor === Array))
+            maxLength = limitLocalEmotesArray;
     } else if (name.startsWith('emote-') || startsWithRG) {
         // NOTE: Despite the name of variables here, this gets both emote- and roles-group- items.
         const base = startsWithRG ? 'roles-group-' : 'emote-';

@@ -29,6 +29,37 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
     return (val || false) && true;
 }
 
+/**
+ * Ensures an emote is safe to use.
+ */
+export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boolean {
+    // if channel is NSFW, it's always safe to use it here
+    if (nsfw(channel))
+        return true;
+    // otherwise, let's reason this out:
+    const client: commando.CommandoClient = channel.client as commando.CommandoClient;
+    const guild = emote.guild;
+    if (!guild)
+        return true; // No guild? Discord built-in, can't be lewd
+    // *global* NSFW flag means WE DO NOT TRUST THIS GUILD (i.e. they've not properly documented their NSFW stuff)
+    if (client.provider.get('global', 'nsfw-' + guild.id, false))
+        return false;
+    // We trust the guild, so first check the specific emote
+    if (emote.id) {
+        const sfw: string[] = client.provider.get(guild, 'emotes-sfw', [])
+        if (sfw !== null)
+            if (sfw !== undefined)
+                if (sfw.constructor === Array)
+                    if (sfw.indexOf(emote.id) != -1)
+                        return true;
+    }
+    // Failing this, *local* NSFW flag means guild emotes should be considered NSFW by default
+    if (client.provider.get(guild, 'nsfw', false))
+        return false;
+    // Failing this, we have no reason to believe the emote is NSFW
+    return false;
+}
+
 export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
     if (channel && ((channel as any).sendEmbed))
         return (channel as unknown) as (discord.Channel & discord.TextBasedChannelFields);
@@ -140,17 +171,6 @@ export function checkIntegerResult(a: number) {
 
 export function guildOf(a: object): commando.GuildExtension | undefined {
     return (a as {guild?: commando.GuildExtension}).guild;
-}
-
-/**
- * Ensures an emote is safe to use.
- */
-export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boolean {
-    if (!emote.guild)
-        return true;
-    if (nsfw(channel))
-        return true;
-    return !nsfwGuild(emote.client as commando.CommandoClient, emote.guild);
 }
 
 /**

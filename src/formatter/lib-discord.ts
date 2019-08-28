@@ -1,6 +1,6 @@
 import * as discord from 'discord.js';
 import {VM, asString, wrapFunc, Value, falseValue} from './core';
-import {findMemberByRef, guildOf, channelAsTBF, nsfw, nsfwGuild} from '../utils';
+import {findMemberByRef, guildOf, channelAsTBF, emoteSafe} from '../utils';
 import {CCBot} from '../ccbot';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -133,7 +133,7 @@ export function installDiscord(vm: VM, context: VMContext): void {
         'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
             const guild = guildOf(context.channel);
             const emote = await userAwareGetEmote(context.client, context.writer, guild || null, args[0].toString());
-            if (emote.guild && nsfwGuild(context.client, emote.guild) && !nsfw(context.channel))
+            if (!emoteSafe(emote, context.channel))
                 return '';
             return emote.toString();
         }),

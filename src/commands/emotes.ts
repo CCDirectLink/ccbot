@@ -84,6 +84,8 @@ export class EmoteCommand extends CCBotCommand {
                 continue;
             texts.push(emote.toString());
         }
+        if (texts.length == 0)
+            texts.push('No emotes, or they were all nsfw');
         return message.say(texts.join(' '));
     }
 }
