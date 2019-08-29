@@ -200,7 +200,11 @@ export class SettingsCommand extends CCBotCommand {
                 }
             }
             if (this.context == SettingsContext.Global) {
-                await this.client.provider.set('global', args.key, value);
+                if (value === undefined) {
+                    await this.client.provider.remove('global', args.key);
+                } else {
+                    await this.client.provider.set('global', args.key, value);
+                }
                 return message.say('Done!');
             } else if (this.context == SettingsContext.Local) {
                 const guild = this.client.guilds.get(instance);
@@ -210,7 +214,11 @@ export class SettingsCommand extends CCBotCommand {
             } else if (this.context == SettingsContext.User) {
                 const dbl = await getUserDatablock(this.client, instance);
                 const db = dbl.get();
-                db[args.key] = value;
+                if (value === undefined) {
+                    delete db[args.key];
+                } else {
+                    db[args.key] = value;
+                }
                 dbl.set(db);
                 return message.say('Done!');
             }
