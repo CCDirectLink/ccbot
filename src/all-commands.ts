@@ -1,7 +1,7 @@
 import ReloadCommand from './commands/reload';
 import CounterCommand from './commands/counter';
 import PingCommand from './commands/ping';
-import HelpCommand from './commands/help';
+import {InspireCommand, AddQuoteCommand, RmQuoteCommand} from './commands/inspire';
 import HugCommand from './commands/hug';
 import PurgeCommand from './commands/purge';
 import ArmyCommand from './commands/army';
@@ -39,7 +39,10 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.User));
     cr.registry.registerCommand(new ShowUserSettingsCommand(cr));
     cr.registry.registerCommand(new CounterCommand(cr));
-    
+    // part of inspire
+    cr.registry.registerCommand(new AddQuoteCommand(cr));
+    cr.registry.registerCommand(new RmQuoteCommand(cr));
+
     cr.registry.registerGroup("general");
     cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
     cr.registry.registerCommand(new PingCommand(cr));
@@ -49,7 +52,8 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new SayCommand(cr));
     cr.registry.registerCommand(new HugCommand(cr));
     cr.registry.registerCommand(new PurgeCommand(cr));
-    
+    cr.registry.registerCommand(new InspireCommand(cr));
+
     cr.registry.registerGroup("roles");
     cr.registry.registerCommand(new RolesAddCommand(cr));
     cr.registry.registerCommand(new RolesRmCommand(cr));

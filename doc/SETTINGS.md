@@ -14,6 +14,10 @@ They can be controlled globally only by bot owners.
 
 `emotePath`: Array of strings; guild IDs, from most important to least, from which to prioritize emotes.
 
+`quotes`: Array of strings: Quotes.
+
+`lastQuote`: The index of the last shown quote to prevent repetition.
+
 ## Per-Guild (local)
 
 `nsfw`: All emotes that come from this guild are marked NSFW
