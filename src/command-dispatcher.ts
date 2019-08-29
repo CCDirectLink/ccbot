@@ -36,11 +36,13 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
             await cleanupMessage(this.client, a as discord.Message);
         }
         // Get rid of embed
-        if (b.options) {
-            if (!b.options.embed)
-                b.options.embed = null;
-        } else {
-            b.options = {embed: null};
+        if (b) {
+            if (b.options) {
+                if (!b.options.embed)
+                    b.options.embed = null;
+            } else {
+                b.options = {embed: null};
+            }
         }
         return super.editResponse(a, b);
     }
