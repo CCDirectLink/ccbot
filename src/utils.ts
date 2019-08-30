@@ -57,7 +57,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boole
     if (client.provider.get(guild, 'nsfw', false))
         return false;
     // Failing this, we have no reason to believe the emote is NSFW
-    return false;
+    return true;
 }
 
 export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
