@@ -31,7 +31,7 @@ export default class HelpCommand extends CCBotCommand {
         
         for (const cmd of this.group.commands.values()) {
             const fmt = cmd.format ? ' ' + cmd.format : '';
-            if (cmd.description != "UNDOCUMENTED")
+            if (cmd.description != 'UNDOCUMENTED')
                 lines.push('** -' + this.group.id + ' ' + cmd.memberName + fmt + ' **: ' + cmd.description);
         }
         

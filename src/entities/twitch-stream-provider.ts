@@ -1,5 +1,5 @@
 import {CCBotEntity, CCBot} from '../ccbot';
-import {StreamProviderEntityData, StreamInformation, StreamProviderEntity} from '../watchers';
+import {StreamProviderEntityData, StreamProviderEntity} from '../watchers';
 import {getJSON} from '../utils';
 
 // These represent external serialized data, be careful.
@@ -7,7 +7,7 @@ interface TwitchPaginated<X> {
     data: X[];
     pagination?: {
         cursor: string;
-    }
+    };
 }
 
 interface TwitchStream {

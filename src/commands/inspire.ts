@@ -26,7 +26,7 @@ export class InspireCommand extends CCBotCommand {
                 await this.client.provider.set('global', 'lastQuote', 0);
             return message.say('0: ' + quotes[0]);
         }
-        let effectiveLength: number = ((lastQuote >= 0) && (lastQuote < quotes.length)) ? (quotes.length - 1) : quotes.length;
+        const effectiveLength: number = ((lastQuote >= 0) && (lastQuote < quotes.length)) ? (quotes.length - 1) : quotes.length;
         let target = Math.floor(Math.random() * effectiveLength);
         if (lastQuote >= 0)
             if (target >= lastQuote)

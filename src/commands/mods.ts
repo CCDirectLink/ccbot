@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {ModlikeDatabaseEntity, ModDatabaseEntity, ToolDatabaseEntity} from '../entities/mod-database';
+import {ModlikeDatabaseEntity} from '../entities/mod-database';
 import {Mod, ModsIndex, ToolsIndex} from '../data/structures';
 import {outputElements} from '../entities/page-switcher';
 

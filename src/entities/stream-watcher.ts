@@ -1,6 +1,4 @@
 import * as discord from 'discord.js';
-import * as commando from 'discord.js-commando';
-import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {silence, channelAsTBF, guildOf} from '../utils';
 import {WatcherEntityData, WatcherEntity, StreamProviderEntity} from '../watchers';

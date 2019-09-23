@@ -1,5 +1,5 @@
 import {CCBotEntity, CCBot} from '../ccbot';
-import {StreamProviderEntityData, StreamInformation, StreamProviderEntity} from '../watchers';
+import {StreamProviderEntityData, StreamProviderEntity} from '../watchers';
 import {getJSON} from '../utils';
 
 // These represent external serialized data, be careful.
@@ -67,7 +67,7 @@ export class YouTubeStreamProviderEntity extends StreamProviderEntity {
                     url: 'https://www.youtube.com/watch?v=' + stream.id.videoId
                 });
         } catch (e) {
-            console.log(JSON.stringify(streams));
+            // console.log(JSON.stringify(streams));
             throw e;
         }
     }

@@ -1,5 +1,4 @@
 import {CCBotEntity, CCBot} from '../ccbot';
-import {EntityData} from '../entity-registry';
 import {ModsIndex, ToolsIndex} from '../data/structures';
 import {getJSON} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';

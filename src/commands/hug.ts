@@ -60,7 +60,7 @@ export default class HugCommand extends CCBotCommand {
                 if (member.user == message.author) {
                     lines.push('You shouldn\'t have to hug yourself, but ' + this.client.user + ' will hug you! ' + hugEmote);
                 } else {
-                    lines.push(hugEmote + ' ' + member.user.toString());
+                    lines.push(hugEmoteString + ' ' + member.user.toString());
                 }
                 alreadyHugged.add(member.user);
             } else {
