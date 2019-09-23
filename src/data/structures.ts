@@ -70,3 +70,6 @@ export interface Mod {
 export interface ModsIndex {
     mods: {[name: string]: Mod};
 }
+export interface ToolsIndex {
+    tools: {[name: string]: Mod};
+}

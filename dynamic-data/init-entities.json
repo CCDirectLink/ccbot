@@ -11,6 +11,11 @@
         "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/mods.json"
     },
     {
+        "type": "tool-database",
+        "refreshMs": 3600000,
+        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/tools.json"
+    },
+    {
         "type": "purge-database",
         "timeMs": 1209600000
     },

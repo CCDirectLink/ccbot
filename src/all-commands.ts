@@ -8,7 +8,7 @@ import ArmyCommand from './commands/army';
 import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
 import {SettingsCommand, ShowUserSettingsCommand, SettingsOperation, SettingsContext} from './commands/settings';
 import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
-import {ModsGetCommand} from './commands/mods';
+import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import {CCBot} from './ccbot';
 
@@ -60,5 +60,7 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new RolesListCommand(cr));
 
     cr.registry.registerGroup("mods");
-    cr.registry.registerCommand(new ModsGetCommand(cr));
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, false));
+    cr.registry.registerGroup("tools");
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, true));
 }

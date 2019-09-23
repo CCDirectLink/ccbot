@@ -4,7 +4,7 @@ import loadOldBehaviors from './entities/old-behaviors';
 import loadGreeter from './entities/greeter';
 import loadReactRoles from './entities/react-roles';
 import loadRandomActivity from './entities/random-activity';
-import loadModDatabase from './entities/mod-database';
+import {loadModDatabase, loadToolDatabase} from './entities/mod-database';
 import loadStreamWatcher from './entities/stream-watcher';
 import {loadPurgeDatabase, loadPurgeDatabaseChannel} from './entities/purge-database';
 import {loadUserDatablock} from './entities/user-datablock';
@@ -24,6 +24,7 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
     cr.entities.entityTypes['react-roles'] = loadReactRoles;
     cr.entities.entityTypes['random-activity'] = loadRandomActivity;
     cr.entities.entityTypes['mod-database'] = loadModDatabase;
+    cr.entities.entityTypes['tool-database'] = loadToolDatabase;
     cr.entities.entityTypes['purge-database'] = loadPurgeDatabase;
     cr.entities.entityTypes['purge-database-channel'] = loadPurgeDatabaseChannel;
     cr.entities.entityTypes['user-datablock'] = loadUserDatablock;

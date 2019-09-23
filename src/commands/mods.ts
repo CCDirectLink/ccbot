@@ -1,27 +1,35 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {ModDatabaseEntity} from '../entities/mod-database';
-import {Mod, ModsIndex} from '../data/structures';
+import {ModlikeDatabaseEntity, ModDatabaseEntity, ToolDatabaseEntity} from '../entities/mod-database';
+import {Mod, ModsIndex, ToolsIndex} from '../data/structures';
 import {outputElements} from '../entities/page-switcher';
 
 /**
  * Gets a list of mods.
  */
-export class ModsGetCommand extends CCBotCommand {
-    public constructor(client: CCBot) {
-        const opt = {
+export class ModsToolsGetCommand extends CCBotCommand {
+    public readonly tools: boolean;
+    public constructor(client: CCBot, tools: boolean) {
+        const opt = !tools ? {
             name: '-mods get',
             description: 'Gets a list of the available mods.',
             group: 'mods',
             memberName: 'get'
+        } : {
+            name: '-tools get',
+            description: 'Gets a list of the available mods.',
+            group: 'tools',
+            memberName: 'get'
         };
         super(client, opt);
+        this.tools = tools;
     }
     
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
-        if ('mod-database-manager' in this.client.entities.entities) {
-            const modDB: ModDatabaseEntity = this.client.entities.entities['mod-database-manager'] as ModDatabaseEntity;
+        const entityName = !this.tools ? 'mod-database-manager' : 'tool-database-manager';
+        if (entityName in this.client.entities.entities) {
+            const modDB: ModlikeDatabaseEntity<{}> = this.client.entities.entities[entityName] as ModlikeDatabaseEntity<{}>;
             if (modDB.database === null) {
                 let possibleError = '';
                 if (modDB.lastError)
@@ -31,9 +39,14 @@ export class ModsGetCommand extends CCBotCommand {
                 });
             } else {
                 const mods: string[] = [];
-                const modIndex: ModsIndex = modDB.database;
-                for (const id in modIndex.mods) {
-                    const mod: Mod = modIndex.mods[id];
+                let modIndex: {[name: string]: Mod};
+                if (!this.tools) {
+                    modIndex = (modDB.database as ModsIndex).mods;
+                } else {
+                    modIndex = (modDB.database as ToolsIndex).tools;
+                }
+                for (const id in modIndex) {
+                    const mod: Mod = modIndex[id];
                     const components: string[] = [`**${mod.name} (${mod.version})**`];
                     if (mod.license)
                         components.push('License: ' + mod.license);
@@ -42,8 +55,9 @@ export class ModsGetCommand extends CCBotCommand {
                     components.push('');
                     mods.push(components.join('\n'));
                 }
+                const footer = !this.tools ? '\nNote: All mods require a mod loader to work. (See `-mods installation` for details.)' : '\nNote: Tools may have their own installation procedures. Check their pages for details.';
                 return outputElements(this.client, message, mods, 25, 2000, {
-                    textFooter: '\nNote: All mods require a mod loader to work. (See `-mods installation` for details.)',
+                    textFooter: footer,
                     footer: {
                         text: 'From CCModDB'
                     }
