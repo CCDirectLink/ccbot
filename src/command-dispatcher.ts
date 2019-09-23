@@ -131,7 +131,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         // [SAFETY] Determine the local state of the roles module.
         let rolesState: string = getRolesState(this.client, message.guild);
         // [SAFETY] All commands that are potentially conflicting get a '-' postfix.
-        const safeGroups: string[] = ['util', 'formatter', 'commands'];
+        const safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
         if (rolesState != 'yes')
             safeGroups.push('roles');
         const safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire'];
