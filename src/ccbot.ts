@@ -38,6 +38,8 @@ export abstract class CCBot extends commando.CommandoClient {
         this.on('emojiCreate', callbackUpdateGER);
         this.on('emojiDelete', callbackUpdateGER);
         this.on('emojiUpdate', callbackUpdateGER);
+        this.on('guildCreate', callbackUpdateGER);
+        this.on('guildDelete', callbackUpdateGER);
     }
     
     /**
