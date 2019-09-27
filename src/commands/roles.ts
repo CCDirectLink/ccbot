@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {convertRoles, convertRoleGroup} from '../role-utils';
+import {convertRoles, convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {outputElements} from '../entities/page-switcher';
 
 /**
@@ -93,7 +93,13 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
                 return 'You need at least one ' + groupName + ' role.';
         }
     }
-    
+
+    // -- Denial checks --
+
+    const denial = getUserDeniedRoles(client, member);
+    if (addRoles.filter(v => denial.includes(v)).length > 0)
+        return 'Some added roles are denied.';
+
     // -- Action performance & description --
     
     if (removeRoles.length > 0)

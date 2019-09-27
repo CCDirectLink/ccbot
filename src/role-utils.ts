@@ -26,3 +26,18 @@ export function convertRoles(client: commando.CommandoClient, guild: discord.Gui
     return roleIDs;
 }
 
+/**
+ * Gets the list of roles denied to a user.
+ * This is ultimate-level authority, even above administrators to an extent (as they can change the settings)
+ */
+export function getUserDeniedRoles(client: commando.CommandoClient, member: discord.GuildMember): string[] {
+    const denial = convertRoleGroup(client, member.guild, 'deny-role');
+    for (let s of convertRoleGroup(client, member.guild, 'deny-user-' + member.id))
+        denial.push(s);
+    for (let s of convertRoleGroup(client, member.guild, 'allow-user-' + member.id)) {
+        let idx: number;
+        while ((idx = denial.indexOf(s)) != -1)
+            denial.splice(idx, 1);
+    }
+    return denial;
+}

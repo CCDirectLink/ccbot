@@ -2,7 +2,7 @@
 
 The role management system is just as messy as it was in the previous bot, but now it provides a cleaner user interface.
 
-## Concepts
+## Concepts 1
 
 The system has two primary concepts: Role groups and role group groups.
 
@@ -10,11 +10,29 @@ Both are arrays of strings, those strings being the names of the relevant object
 
 Note that a role can be in several groups, and thus in several role group groups.
 
-There is 1 hard-coded role group, and 4 hard-coded role group groups.
+There are 2\* hard-coded role group, and 4 hard-coded role group groups.
 
-The hard-coded role group is `roles-group-auto-role`.
+\* But see user role groups.
 
-This is a set of roles added to members entering the guild.
+## Concepts 2
+
+There are 2 hard-coded role groups.
+
+`roles-group-auto-role` is a set of roles added to members entering the guild.
+
+In addition, if a group `roles-group-auto-user-<user ID>` exists, such as `roles-group-auto-user-234666977765883904`, that's included too.
+
+If a user with important roles enters or leaves often, this allows them to keep their roles.
+
+`roles-group-deny-role` is a set of roles users *cannot ever ever have, even via admin intervention*.
+
+A group of the form `roles-group-allow-user-<user ID>` removes per-user entries from this.
+
+A group of the form `roles-group-deny-user-<user ID>` adds per-user entries to this.
+
+Allow takes precedence over deny.
+
+## Concepts 3
 
 The hard-coded role group groups control how users control roles.
 

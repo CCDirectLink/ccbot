@@ -1,8 +1,8 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getRolesState, getGuildTextChannel} from '../utils';
-import {convertRoleGroup} from '../role-utils';
+import {getRolesState, getGuildTextChannel, silence} from '../utils';
+import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {VM, runFormat} from '../formatter';
 
 /**
@@ -10,7 +10,8 @@ import {VM, runFormat} from '../formatter';
  */
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;
-    
+    private memberUpdateListener: (a: discord.GuildMember, b: discord.GuildMember) => void;
+
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'greeter-manager', data);
         this.memberListener = (m: discord.GuildMember): void => {
@@ -35,14 +36,32 @@ class GreeterEntity extends CCBotEntity {
                     })();
                 }
             }
-            m.addRoles(convertRoleGroup(c, m.guild, 'auto-role'));
+            const denied = getUserDeniedRoles(this.client, m);
+            const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, 'auto-user-' + m.id));
+            // Check for explicitly denied roles here to avoid infighting
+            const addRoles: string[] = allAutoRoles.filter(v => !denied.includes(v));
+            if (addRoles.length > 0)
+                silence(m.addRoles(addRoles));
+        };
+        this.memberUpdateListener = (_: discord.GuildMember, m: discord.GuildMember): void => {
+            if (this.killed)
+                return;
+            const rolesState: string = getRolesState(this.client, m.guild);
+            if (rolesState == 'no')
+                return;
+            const denied = getUserDeniedRoles(this.client, m);
+            const rmRoles = m.roles.keyArray().filter(v => denied.includes(v));
+            if (rmRoles.length > 0)
+                silence(m.removeRoles(rmRoles));
         };
         this.client.on('guildMemberAdd', this.memberListener);
+        this.client.on('guildMemberUpdate', this.memberUpdateListener);
     }
     
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('guildMemberAdd', this.memberListener);
+        this.client.removeListener('guildMemberUpdate', this.memberUpdateListener);
     }
 }
 
