@@ -53,7 +53,9 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
  */
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
-    
+    safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
+    safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
+
     constructor(c: CCBot, r: commando.CommandRegistry) {
         super(c, r);
     }
@@ -131,14 +133,19 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         // [SAFETY] Determine the local state of the roles module.
         let rolesState: string = getRolesState(this.client, message.guild);
         // [SAFETY] All commands that are potentially conflicting get a '-' postfix.
-        const safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
-        if (rolesState != 'yes')
-            safeGroups.push('roles');
-        const safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
-        if (((safeGroups.indexOf(group) == -1) && (safeCommands.indexOf(group + ' ' + command) == -1)) && this.client.sideBySideSafety) {
-            if (!command.endsWith('-'))
-                return null;
-            command = command.substring(0, command.length - 1);
+        if (this.client.sideBySideSafety) {
+            let commandIsSafe = false;
+            if ((rolesState == 'yes') && (group == 'roles'))
+                commandIsSafe = true;
+            if (this.safeGroups.indexOf(group) != -1)
+                commandIsSafe = true;
+            if (this.safeCommands.indexOf(group + ' ' + command) != -1)
+                commandIsSafe = true;
+            if (!commandIsSafe) {
+                if (!command.endsWith('-'))
+                    return null;
+                command = command.substring(0, command.length - 1);
+            }
         }
         // [SAFETY] Disable access to roles module if we don't trust it yet
         if ((rolesState == 'no') && (group == 'roles'))
