@@ -91,6 +91,19 @@
                 }
             }
         },
+        "smite": {
+            "description": "Smites a cheater!",
+            "format": "%((set victim (find-user (nth 0 (args)))) (if (victim) (strcat \"<@\" (victim) \"> _is smited with a bolt of justice!_\") \"could not find the target.\"))",
+            "options": {
+                "args": [
+                    {
+                        "key": "args",
+                        "prompt": "Who requires the application of justice?",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "thinking": {
             "description": "reacts with the standard thonk",
             "commandReactions": ["leaTHINK"]

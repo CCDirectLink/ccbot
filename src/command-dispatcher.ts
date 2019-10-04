@@ -134,7 +134,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         const safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
         if (rolesState != 'yes')
             safeGroups.push('roles');
-        const safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire'];
+        const safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
         if (((safeGroups.indexOf(group) == -1) && (safeCommands.indexOf(group + ' ' + command) == -1)) && this.client.sideBySideSafety) {
             if (!command.endsWith('-'))
                 return null;
