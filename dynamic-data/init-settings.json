@@ -22,7 +22,8 @@
             "quadroguard",
             "pentafist",
             "hexacast"
-        ]
+        ],
+        "nsfw": false
     },
     "382339402338402315": {
         "comment": "CrossCode Modding (NOTE! 'admin' isn't implemented & the role whitelist is TOO EMPTY right now!!!)",
@@ -37,12 +38,14 @@
         "roles-group-assignable": [
         ],
         "prefix": ".cc",
-        "optin-roles": "yes"
+        "optin-roles": "yes",
+        "nsfw": false
     },
     "210920824503402496": {
         "comment": "Lovely Emote Additions",
         "greeting": "<@%(cause)>, Welcome!",
-        "channel-editlog": "edit-log"
+        "channel-editlog": "edit-log",
+        "nsfw": false
     },
     "558469426765103135": {
         "comment": "CrossCode PP Up",
@@ -81,6 +84,7 @@
     },
     "global": {
         "comment": "Regarding those places not shown here, they all had effectively default settings.",
+        "emotePath": ["143364538958348288", "210920824503402496", "382339402338402315"],
         "emotes": ["leaHAPPY", "leaTHINK", "leaBAT", "leaCheese", "ohno", "emilieWhy", "apolloPoint", "apolloShout", "shizuHUG"],
         "emote-leaHAPPY": "337987483788902410",
         "emote-leaTHINK": "397961863805140992",

@@ -9,12 +9,13 @@ import {userAwareGetEmote} from '../entities/user-datablock';
  * A command to list the accessible emotes.
  */
 export class ListEmotesCommand extends CCBotCommand {
-    public constructor(client: CCBot) {
+    public constructor(client: CCBot, sfw: boolean) {
+        const name = sfw ? 'lsemotes-sfw' : 'lsemotes';
         const opt = {
-            name: '-general lsemotes',
-            description: 'Displays all emotes.',
+            name: '-general ' + name,
+            description: sfw ? 'Displays SFW emotes (even in an NSFW context).' : 'Displays all emotes that the channel allows.',
             group: 'general',
-            memberName: 'lsemotes',
+            memberName: name,
             args: [
                 {
                     key: 'search',

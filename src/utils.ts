@@ -25,7 +25,7 @@ export function nsfw(channel: discord.Channel): boolean {
 export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild): boolean {
     if (client.provider.get('global', 'nsfw-' + guild.id, false))
         return true;
-    const val = client.provider.get(guild, 'nsfw', false);
+    const val = client.provider.get(guild, 'nsfw', true);
     return (val || false) && true;
 }
 
@@ -42,7 +42,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boole
     if (!guild)
         return true; // No guild? Discord built-in, can't be lewd
     // *global* NSFW flag means WE DO NOT TRUST THIS GUILD (i.e. they've not properly documented their NSFW stuff)
-    if (client.provider.get('global', 'nsfw-' + guild.id, false))
+    if (client.provider.get('global', 'nsfw-' + guild.id, true))
         return false;
     // We trust the guild, so first check the specific emote
     if (emote.id) {
