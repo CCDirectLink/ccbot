@@ -54,7 +54,7 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
     safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
-    safeCommands: string[] = ['general hug', 'general lsemotes', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
+    safeCommands: string[] = ['general hug', 'general lsemotes', 'general emote', 'general say', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
 
     constructor(c: CCBot, r: commando.CommandRegistry) {
         super(c, r);
