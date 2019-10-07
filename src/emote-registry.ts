@@ -3,6 +3,22 @@ import * as commando from 'discord.js-commando';
 import {naturalComparison, nsfwGuild} from './utils';
 
 /**
+ * Determine if a bit of text looks like an emoji.
+ * Notably, it doesn't actually have to *be* an emoji,
+ *  it just has to not look too much like one to stop people complaining over 'bugs' that don't exist.
+ * We're not embedding a dictionary of every possible emoji combination just so that
+ *  emote doesn't accept a few invalid combinations.
+ */
+function looksLikeAnEmoji(text: string): boolean {
+    for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+        if (code < 128)
+            return false;
+    }
+    return true;
+}
+
+/**
  * A registry of emotes.
  * Not enough of a separatable process to qualify for Entity status,
  *  but it would be messy for this to remain in the main CCBot class.
@@ -132,7 +148,7 @@ export default class CCBotEmoteRegistry {
         // It exists because it has to for a nicer API overall.
         const transmuted = new discord.Emoji({client: this} as any as discord.Guild, {
             //id: null,
-            name: text,
+            name: looksLikeAnEmoji(text) ? text : '❓', // Was this really such a problem?
             requiresColons: false,
             managed: true,
             animated: false,

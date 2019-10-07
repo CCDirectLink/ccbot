@@ -46,7 +46,7 @@ They can be controlled globally only by bot owners.
 
 `prefix`: Part of Commando
 `emotes`: See EMOTES.md (Automatically maintained for per-guild settings)
-`emote-<EMOTE REF>`: See EMOTES.md
+`emote-<EMOTE REF>`: See EMOTES.md. Values are emoteResolverNina inputs because otherwise it would be recursive.
 
 `headerless-say`: Removes the "who did it" header from the `say` command.
  Does *not* do "if not per-guild, fallover to global setting", but instead is useful to make DMs nicer.
@@ -55,5 +55,5 @@ They can be controlled globally only by bot owners.
 
 ## User-local (user)
 
-`emote-<EMOTE REF>`: Local user aliases. These do not show up in lsemotes. They can have some effects on commands.
+`emote-<EMOTE REF>`: Local user aliases. These do not show up in lsemotes. They can have some effects on commands. These are emote references, NOT emoteResolverNina inputs
 `bootstrap`: Prepended to all 'say's
