@@ -3,7 +3,7 @@ import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {getRolesState, getGuildTextChannel, silence} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
-import {VM, runFormat} from '../formatter';
+import {say} from '../commands/say';
 
 /**
  * Implements greetings and role assignment.
@@ -24,16 +24,18 @@ class GreeterEntity extends CCBotEntity {
             if (channel) {
                 const greeting = c.provider.get(m.guild, 'greeting');
                 if (greeting) {
-                    (async (): Promise<void> => {
-                        channel.send(await runFormat(greeting.toString(), new VM({
+                    silence((async () => {
+                        const result = await say(greeting, {
                             client: c,
                             channel: channel,
                             cause: m.user,
                             writer: null,
                             protectedContent: false,
                             args: []
-                        })));
-                    })();
+                        })
+                        if (result)
+                            channel.send(result.text, result.opts);
+                    })());
                 }
             }
             const denied = getUserDeniedRoles(this.client, m);
