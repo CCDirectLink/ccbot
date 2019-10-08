@@ -5,6 +5,11 @@ import * as http from 'http';
 import * as url from 'url';
 
 /**
+ * Alias that's simpler to access
+ */
+export const mdEsc = discord.Util.escapeMarkdown;
+
+/**
  * Returns if a given channel is appropriate for NSFW information.
  */
 export function nsfw(channel: discord.Channel): boolean {
@@ -30,12 +35,14 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
 }
 
 /**
- * Ensures an emote is safe to use.
+ * Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
  */
-export function emoteSafe(emote: discord.Emoji, channel: discord.Channel): boolean {
+export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: boolean): boolean {
+    sfw = sfw || false;
     // if channel is NSFW, it's always safe to use it here
-    if (nsfw(channel))
-        return true;
+    if (!sfw)
+        if (nsfw(channel))
+            return true;
     // otherwise, let's reason this out:
     const client: commando.CommandoClient = channel.client as commando.CommandoClient;
     const guild = emote.guild;

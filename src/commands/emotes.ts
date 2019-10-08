@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {naturalComparison, localAdminCheck, emoteSafe} from '../utils';
+import {naturalComparison, localAdminCheck, emoteSafe, mdEsc} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -9,6 +9,8 @@ import {userAwareGetEmote} from '../entities/user-datablock';
  * A command to list the accessible emotes.
  */
 export class ListEmotesCommand extends CCBotCommand {
+    sfw: boolean;
+
     public constructor(client: CCBot, sfw: boolean) {
         const name = sfw ? 'lsemotes-sfw' : 'lsemotes';
         const opt = {
@@ -19,13 +21,14 @@ export class ListEmotesCommand extends CCBotCommand {
             args: [
                 {
                     key: 'search',
-                    prompt: 'Search terms?',
+                    prompt: 'Search terms (or a guild ID)?',
                     type: 'string',
                     default: ''
                 }
             ]
         };
         super(client, opt);
+        this.sfw = sfw;
     }
     
     public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
@@ -34,13 +37,22 @@ export class ListEmotesCommand extends CCBotCommand {
         refs.sort(naturalComparison);
         const elements: string[] = [];
         
+        const vision = localAdminCheck(message);
+
         for (const eref of refs) {
-            if (eref.indexOf(args.search) == -1)
-                continue;
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
-            if (!emoteSafe(emote, message.channel))
+            if (!emoteSafe(emote, message.channel, this.sfw))
                 continue;
-            elements.push(eref + ' ' + emote.toString());
+            // This allows ".cc lsemotes <guild ID>" to report all emotes
+            if (((!emote.guild) || (emote.guild.id !== args.search)) && (eref.indexOf(args.search) == -1))
+                continue;
+            let details = '';
+            if (vision) {
+                // Use this to diagnose problematic emotes
+                if (emote.guild)
+                    details += ' from ' + mdEsc(emote.guild.name) + ' [' + emote.guild.id + ']';
+            }
+            elements.push(mdEsc(eref) + ' ' + emote.toString() + details);
         }
         
         return outputElements(this.client, message, elements, 20, 2000);
