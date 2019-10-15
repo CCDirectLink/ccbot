@@ -49,7 +49,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: 
     if (!guild)
         return true; // No guild? Discord built-in, can't be lewd
     // *global* NSFW flag means WE DO NOT TRUST THIS GUILD (i.e. they've not properly documented their NSFW stuff)
-    if (client.provider.get('global', 'nsfw-' + guild.id, true))
+    if (client.provider.get('global', 'nsfw-' + guild.id, false))
         return false;
     // We trust the guild, so first check the specific emote
     if (emote.id) {
@@ -61,7 +61,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: 
                         return true;
     }
     // Failing this, *local* NSFW flag means guild emotes should be considered NSFW by default
-    if (client.provider.get(guild, 'nsfw', false))
+    if (client.provider.get(guild, 'nsfw', true))
         return false;
     // Failing this, we have no reason to believe the emote is NSFW
     return true;
