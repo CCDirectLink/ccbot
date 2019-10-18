@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {localAdminCheck} from '../utils';
+import {localRPCheck} from '../role-utils';
 import {PurgeDatabaseChannelEntity} from '../entities/purge-database';
 
 /**
@@ -34,8 +34,8 @@ export default class PurgeCommand extends CCBotCommand {
         if (args.seconds <= 1)
             return await message.say('Too short to be practical.');
         
-        if (!localAdminCheck(message)) {
-            return await message.say('You aren\'t authorized to do that.');
+        if (!localRPCheck(message, ['READ_MESSAGES', 'MANAGE_MESSAGES'], 'purgers')) {
+            return await message.say('You aren\'t authorized to do that.\nYou need READ\_MESSAGES & MANAGE\_MESSAGES, or you need to be in the `purgers` role group.');
         } else {
             // Typing information is wrong
             if (!message.channel.bulkDelete)

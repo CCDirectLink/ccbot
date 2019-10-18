@@ -1,5 +1,6 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
+import {localAdminCheck} from './utils';
 
 /**
  * Retrieves and converts a role group to role IDs.
@@ -40,4 +41,22 @@ export function getUserDeniedRoles(client: commando.CommandoClient, member: disc
             denial.splice(idx, 1);
     }
     return denial;
+}
+
+/**
+ * Performs: localAdminCheck OR (HAS ALL OF enablingPermissions) OR (HAS A ROLE IN enablingRoleGroup)
+ */
+export function localRPCheck(message: commando.CommandMessage, enablingPermissions: string[], enablingRoleGroup: string): boolean {
+    if (localAdminCheck(message))
+        return true;
+    if (message.member) {
+        for (const role of convertRoleGroup(message.client, message.member.guild, enablingRoleGroup))
+            if (message.member.roles.has(role))
+                return true;
+        // Last chance, so return false if this fails
+        for (const permission of enablingPermissions)
+            if (!message.member.hasPermission(permission as discord.PermissionResolvable))
+                return false;
+    }
+    return false;
 }

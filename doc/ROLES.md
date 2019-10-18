@@ -16,7 +16,7 @@ There are 2\* hard-coded role group, and 4 hard-coded role group groups.
 
 ## Concepts 2
 
-There are 2 hard-coded role groups.
+There are 3 hard-coded role groups.
 
 `roles-group-auto-role` is a set of roles added to members entering the guild.
 
@@ -31,6 +31,10 @@ A group of the form `roles-group-allow-user-<user ID>` removes per-user entries 
 A group of the form `roles-group-deny-user-<user ID>` adds per-user entries to this.
 
 Allow takes precedence over deny.
+
+The remaining role group(s) control what people are allowed to use what commands.
+
+If a user has any role listed in `roles-group-purgers`, they can use `.cc purge`.
 
 ## Concepts 3
 
