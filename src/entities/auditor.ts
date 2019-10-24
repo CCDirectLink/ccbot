@@ -84,9 +84,9 @@ class AuditorEntity extends CCBotEntity {
             const channelMessageCollection = (frm as unknown as {messages: discord.Collection<string, discord.Message>}).messages;
             const message = channelMessageCollection.get(id[0]);
             if (message) {
-                resultingEmbed.description += this.summarize(message);
+                resultingEmbed.description += 'Information on the message before changes:\n' + this.summarize(message);
             } else {
-                resultingEmbed.description += '\nFurther information about the old version of the message is unavailable.';
+                resultingEmbed.description += 'Further information about the old version of the message is unavailable.';
                 weNeedToCheckMessageZero = true;
             }
         }
@@ -116,7 +116,7 @@ class AuditorEntity extends CCBotEntity {
     }
     private summarize(message: discord.Message): string {
         let summary = '\nAuthor: ' + message.author.username + '#' + message.author.discriminator + ' (' + message.author.id + ')';
-        summary += '\nOld content:\n```\n' + discord.Util.escapeMarkdown(message.content, true, false) + '\n```';
+        summary += '\nContent:\n```\n' + discord.Util.escapeMarkdown(message.content, true, false) + '\n```';
         for (let k of message.attachments.keyArray()) {
             const attachment = message.attachments.get(k) as discord.MessageAttachment;
             summary += '\nHad attachment: ' + discord.Util.escapeMarkdown(attachment.filename) + ' `' + discord.Util.escapeMarkdown(attachment.url, false, true) + '`';
