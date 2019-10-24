@@ -21,14 +21,25 @@ class AuditorEntity extends CCBotEntity {
             let calculated_icon: string = 'https://discordapp.com/assets/6e054ab8981d3f1ce8debfd1235d3ea3.svg';
             if (u.avatar)
                 calculated_icon = 'https://cdn.discordapp.com/avatars/' + u.id + '/' + u.avatar + '.png';
-            silence(channel.sendEmbed({
-                title: 'Ban ' + (added ? 'Added' : 'Removed'),
-                timestamp: new Date(),
-                footer: {
-                    text: u.username + '#' + u.discriminator + ' (' + u.id + ')',
-                    icon_url: calculated_icon
+            // Ok, well now we have all the details to make a post. Let's see if we can get additional info.
+            silence((async (): Promise<void> => {
+                let reason = '';
+                if (added) {
+                    try {
+                        const info = await g.fetchBan(u.id);
+                        reason = discord.Util.escapeMarkdown(info.reason || '');
+                    } catch (e) {}
                 }
-            }));
+                await channel.sendEmbed({
+                    title: 'Ban ' + (added ? 'Added' : 'Removed'),
+                    description: reason,
+                    timestamp: new Date(),
+                    footer: {
+                        text: u.username + '#' + u.discriminator + ' (' + u.id + ')',
+                        icon_url: calculated_icon
+                    }
+                });
+            })());
         };
         this.updateListener = (frm: discord.Channel & discord.TextBasedChannelFields, id: string): void => {
             this.updateAndDeletionMachine(frm, [id], false);
