@@ -17,7 +17,12 @@ export abstract class CCBot extends commando.CommandoClient {
     dynamicData: DynamicDataManager;
     entities: EntityRegistry<CCBot, CCBotEntity>;
     emoteRegistry: CCBotEmoteRegistry;
-    
+
+    // THE FOLLOWING EVENTS ARE EXTENSIONS:
+    // 'ccbotMessageDeletes', discord.Channel & discord.TextBasedChannelFields, string[]
+    // 'ccbotMessageUpdateUnchecked', discord.Channel & discord.TextBasedChannelFields, string
+    // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
+
     constructor(co: commando.CommandoClientOptions, safety: boolean) {
         super(co);
         this.sideBySideSafety = safety;
@@ -89,6 +94,24 @@ export abstract class CCBot extends commando.CommandoClient {
                 emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name);
             }
             entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
+        } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {
+            const channel = this.channels.get(event.d.channel_id);
+            // No channel means no guild, so nowhere to route
+            if (!channel)
+                return;
+            if (event.t == 'MESSAGE_UPDATE') {
+                this.emit('ccbotMessageUpdateUnchecked', channel, event.d.id);
+            } else if (event.t == 'MESSAGE_DELETE') {
+                this.emit('ccbotMessageDeletes', channel, [event.d.id]);
+            } else if (event.t == 'MESSAGE_DELETE_BULK') {
+                this.emit('ccbotMessageDeletes', channel, event.d.ids);
+            }
+        } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
+            const guild = this.guilds.get(event.d.guild_id);
+            // No guild, no idea who to inform
+            if (!guild)
+                return;
+            this.emit('ccbotBanAddRemove', guild, event.d.user, event.t == 'GUILD_BAN_ADD');
         }
     }
 };

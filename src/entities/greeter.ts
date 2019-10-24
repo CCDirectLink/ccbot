@@ -6,7 +6,7 @@ import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
 /**
- * Implements greetings and role assignment.
+ * Implements greetings and automatic role assignment.
  */
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;

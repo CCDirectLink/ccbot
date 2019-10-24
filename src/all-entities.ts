@@ -2,6 +2,7 @@ import loadDateActivity from './entities/date-activity';
 import loadPageSwitcher from './entities/page-switcher';
 import loadOldBehaviors from './entities/old-behaviors';
 import loadGreeter from './entities/greeter';
+import loadAuditor from './entities/auditor';
 import loadReactRoles from './entities/react-roles';
 import loadRandomActivity from './entities/random-activity';
 import {loadModDatabase, loadToolDatabase} from './entities/mod-database';
@@ -21,6 +22,7 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
     if (!cr.sideBySideSafety)
         cr.entities.entityTypes['old-behaviors'] = loadOldBehaviors;
     cr.entities.entityTypes['greeter'] = loadGreeter;
+    cr.entities.entityTypes['auditor'] = loadAuditor;
     cr.entities.entityTypes['react-roles'] = loadReactRoles;
     cr.entities.entityTypes['random-activity'] = loadRandomActivity;
     cr.entities.entityTypes['mod-database'] = loadModDatabase;

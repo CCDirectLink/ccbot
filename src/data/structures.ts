@@ -73,3 +73,18 @@ export interface ModsIndex {
 export interface ToolsIndex {
     tools: {[name: string]: Mod};
 }
+
+// Discord API (we bypass discord.js for some event receipts because it's unreliable)
+export interface DiscordAPIUser {
+    id: string;
+    username: string;
+    discriminator: string;
+    avatar?: string;
+    bot?: boolean;
+    mfa_enabled?: boolean;
+    locale?: string;
+    verified?: boolean;
+    email?: string;
+    flags?: number;
+    premium_type?: number;
+}

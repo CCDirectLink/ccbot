@@ -128,7 +128,9 @@ This ensures that message-related events are sent to the entity, but it also
 
 `old-behaviors-manager`: Meant to be an instance of the `old-behaviors` entity.
 
-`greeter-manager`: Implements 'greeting'.
+`greeter-manager`: An instance of the `greeter` entity. Greets people & assigns them roles.
+
+`auditor-manager`: An instance of the `auditor` entity. Responsible for message/action logging channels.
 
 `mod-database-manager`: An instance of the `mod-database` entity.
 
