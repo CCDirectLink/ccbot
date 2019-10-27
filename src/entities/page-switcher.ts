@@ -47,10 +47,17 @@ export interface PageSwitcherOutputElementsAdditionalOptions {
     };
 }
 
+export interface PageSwitcherOutputElementWithCategory {
+    category: string;
+    text: string;
+}
+export type PageSwitcherOutputElement = string | PageSwitcherOutputElementWithCategory;
+
 /**
  * Outputs *either* a page switcher or a single post depending on what's appropriate.
+ * Very customizable.
  */
-export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: string[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
+export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: PageSwitcherOutputElement[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
     options = options || {};
 
     const footer = options.footer;
@@ -77,19 +84,50 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     };
     // Create first page.
     newPage();
-    for (let element of elements) {
-        if (elementsOnPage == elementsPerPage)
+    // Category (managed by the loop rather than the paginator stuff because of all the special conditions)
+    let currentCategory = '';
+    for (let elementRaw of elements) {
+        // Convert element
+        let elementFull: PageSwitcherOutputElementWithCategory;
+        if (elementRaw.constructor == String) {
+            elementFull = {category: '', text: elementRaw as string};
+        } else {
+            elementFull = elementRaw as PageSwitcherOutputElementWithCategory;
+        }
+        let element = elementFull.text;
+        let elementPrependedCategory = '';
+        // Reset category prepended indicator
+        const prependCategoryIfNecessary = (): void => {
+            if (currentCategory != elementFull.category) {
+                element = elementFull.category + '\n' + elementFull.text;
+                currentCategory = elementFull.category;
+                elementPrependedCategory = elementFull.category;
+            }
+        };
+        if (elementsOnPage == elementsPerPage) {
             newPage();
-        // Attempt 1: Move elements to new page    
+            currentCategory = elementPrependedCategory;
+        }
+        prependCategoryIfNecessary();
+        // Attempt 1: Move elements to new page
         const nsl = pages[pages.length - 1].description.length + element.length;
         if (nsl >= pageLength) {
-            newPage();
+            // If there's no elements on the page, making a new page won't work,
+            //  so essentially we go straight to attempt 2
+            if (elementsOnPage != 0)
+                newPage();
+            // Either alone on page or, so ensure we prepended category
+            currentCategory = elementPrependedCategory;
+            prependCategoryIfNecessary();
             // Attempt 2: Split element across pages
+            // Category remains the same
             while (element.length >= pageLength) {
                 pages[pages.length - 1].description += element.substring(0, pageLength);
                 newPage();
                 element = element.substring(pageLength);
             }
+            // If the element or part of the element starts this page, elementsOnPage is 0,
+            //  so we won't get \n prefix (good)
         }
         if (elementsOnPage != 0)
             element = '\n' + element;

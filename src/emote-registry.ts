@@ -100,6 +100,23 @@ export default class CCBotEmoteRegistry {
     }
     
     /**
+     * Checks if an emote is overridden at guild or global level.
+     */
+    isOverride(guild: discord.Guild | null, name: string): string | null {
+        // Local emote overrides
+        if (guild) {
+            const value = this.client.provider.get(guild, 'emote-' + name);
+            if (value)
+                return 'guild';
+        }
+        // Global emote overrides
+        const value = this.client.provider.get('global', 'emote-' + name);
+        if (value)
+            return 'global';
+        return null;
+    }
+
+    /**
      * Gets an emote as a discord.Emoji
      * This is a bit weird because the stable discord.js API is messy regarding non-custom emoji.
      * It both does and does not support it.

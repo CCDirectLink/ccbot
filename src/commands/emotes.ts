@@ -2,7 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {naturalComparison, localAdminCheck, emoteSafe, mdEsc} from '../utils';
-import {outputElements} from '../entities/page-switcher';
+import {outputElements, PageSwitcherOutputElement} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 /**
@@ -15,7 +15,7 @@ export class ListEmotesCommand extends CCBotCommand {
         const name = sfw ? 'lsemotes-sfw' : 'lsemotes';
         const opt = {
             name: '-general ' + name,
-            description: sfw ? 'Displays SFW emotes (even in an NSFW context).' : 'Displays all emotes that the channel allows.',
+            description: sfw ? 'Like lsemotes, but always only shows SFW emotes.' : 'Displays all emotes that the channel allows. Can search if given text, can get by guild ID if given a guild ID, and can show local overrides with "overrides".',
             group: 'general',
             memberName: name,
             args: [
@@ -32,27 +32,37 @@ export class ListEmotesCommand extends CCBotCommand {
     }
     
     public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
+        if (args.search == 'overrides')
+            if (!message.guild)
+                return await message.say('Cannot get overrides for a guild that doesn\'t exist.');
         // User aliases don't apply here, it's the *actual* emote list.
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort(naturalComparison);
-        const elements: string[] = [];
-        
-        const vision = localAdminCheck(message);
-
+        const elements: PageSwitcherOutputElement[] = [];
+                
         for (const eref of refs) {
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
             if (!emoteSafe(emote, message.channel, this.sfw))
                 continue;
-            // This allows ".cc lsemotes <guild ID>" to report all emotes
-            if (((!emote.guild) || (emote.guild.id !== args.search)) && (eref.indexOf(args.search) == -1))
-                continue;
-            let details = '';
-            if (vision) {
+            let details = '**Native:**';
+            if (args.search == 'overrides') {
+                const overrideType = this.client.emoteRegistry.isOverride(message.guild || null, eref);
+                if (!overrideType)
+                    continue;
+                details = '**' + overrideType + ' override:**';
+            } else {
+                // ".cc lsemotes <guild ID>" : emotes per guild
+                // ".cc lsemotes XYZ" : Text search "XYZ"
+                if (((!emote.guild) || (emote.guild.id !== args.search)) && (eref.indexOf(args.search) == -1))
+                    continue;
                 // Use this to diagnose problematic emotes
                 if (emote.guild)
-                    details += ' from ' + mdEsc(emote.guild.name) + ' [' + emote.guild.id + ']';
+                    details = '**' + mdEsc(emote.guild.name) + ' [' + emote.guild.id + ']:**';
             }
-            elements.push(mdEsc(eref) + ' ' + emote.toString() + details);
+            elements.push({
+                category: details,
+                text: mdEsc(eref) + ' ' + emote.toString()
+            });
         }
         
         return outputElements(this.client, message, elements, 20, 2000);
