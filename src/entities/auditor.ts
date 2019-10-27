@@ -84,6 +84,9 @@ class AuditorEntity extends CCBotEntity {
             const channelMessageCollection = (frm as unknown as {messages: discord.Collection<string, discord.Message>}).messages;
             const message = channelMessageCollection.get(id[0]);
             if (message) {
+                // If it's our own message, don't listen, since embeds create edits.
+                if (message.author.id == this.client.user.id)
+                    return;
                 resultingEmbed.description += 'Information on the message before changes:\n' + this.summarize(message);
             } else {
                 resultingEmbed.description += 'Further information about the old version of the message is unavailable.';
