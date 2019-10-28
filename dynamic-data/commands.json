@@ -93,6 +93,16 @@
                 }
             }
         },
+        "poleace": {
+            "description": "The Lea Police",
+            "embed": {
+                "title": "WEEWOOWEEWOOWEEWOOWEEWOO",
+                "url": "https://media.discordapp.net/attachments/493480361137799198/577210409719955466/PoLeaCe.gif",
+                "image": {
+                    "url": "https://media.discordapp.net/attachments/493480361137799198/577210409719955466/PoLeaCe.gif"
+                }
+            }
+        },
         "smite": {
             "description": "Smites a cheater!",
             "format": "%((set victim (find-user (nth 0 (args)))) (if (victim) (strcat \"<@\" (victim) \"> _is smited with a bolt of justice!_\") \"could not find the target.\"))",
