@@ -190,21 +190,22 @@ export class RolesListCommand extends CCBotCommand {
             return await message.say('You are floating in a void, free, unburdened by any force, not even gravity.\nThus, your roles are what you will them to be.');
         const whitelist = getWhitelist(this.client, message.guild);
         const autorole = convertRoleGroup(this.client, message.guild, 'auto-role');
+        const linesInteresting: string[] = [];
         const lines: string[] = [];
         for (const role of message.guild.roles.values()) {
             const caps: string[] = [];
             if (autorole.includes(role.id))
                 caps.push('automatic');
             if (whitelist.includes(role.id))
-                caps.push('grantable');
+                caps.push('grantable (`-roles add/rm ' + role.name + '`)');
             const inccaps: string[] = getInvolvement(this.client, message.guild, 'inclusive', [role.id]);
             if (inccaps.length != 0)
                 caps.push('inclusive (' + inccaps.join() + ')');
             const exccaps: string[] = getInvolvement(this.client, message.guild, 'exclusive', [role.id]);
             if (exccaps.length != 0)
                 caps.push('exclusive (' + exccaps.join() + ')');
-            lines.push('`' + role.name + '` ' + caps.join())
+            (caps.length > 0 ? linesInteresting : lines).push('`' + role.name + '` ' + caps.join())
         }
-        return await outputElements(this.client, message, lines, 10, 2000);
+        return await outputElements(this.client, message, linesInteresting.concat(lines), 10, 2000);
     }
 }
