@@ -3,8 +3,10 @@ import {EntityData} from '../entity-registry';
 import {silence, randomArrayElement} from '../utils';
 
 type ActivityType = ('PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING');
+type ActivityStatus = ('online' | 'idle' | 'dnd' | 'invisible');
 
 export interface Activity {
+    status?: ActivityStatus;
     type: ActivityType;
     name: string;
 }
@@ -29,7 +31,10 @@ class RandomActivityEntity extends CCBotEntity {
     
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
-            silence(this.client.user.setActivity(null));
+            silence(this.client.user.setPresence({
+                status: 'online',
+                game: null
+            }));
     }
     
     public updateText(): void {
@@ -37,6 +42,7 @@ class RandomActivityEntity extends CCBotEntity {
             return;
         const element = randomArrayElement(this.activities);
         this.client.user.setPresence({
+            status: element.status || 'online',
             game: {
                 type: element.type as ActivityType,
                 name: element.name
