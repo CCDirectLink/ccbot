@@ -98,7 +98,7 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
     // -- Denial checks --
 
     const denial = getUserDeniedRoles(client, member);
-    if (addRoles.filter(v => denial.includes(v)).length > 0)
+    if (addRoles.filter((v: string): boolean => denial.includes(v)).length > 0)
         return 'Some added roles are denied.';
 
     // -- Action performance & description --

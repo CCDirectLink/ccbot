@@ -1,4 +1,3 @@
-import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from './ccbot';
 import {EntityData} from './entity-registry';
 import {boundRequestTimeout} from './utils';
@@ -24,7 +23,7 @@ export abstract class WatcherEntity extends CCBotEntity {
         this.refreshMs = data.refreshMs;
         this.lastError = null;
         earlyDelay = earlyDelay || 0;
-        setTimeout(() => {this.startWatcherTick();}, earlyDelay);
+        setTimeout((): void => {this.startWatcherTick();}, earlyDelay);
     }
     
     private async startWatcherTick(): Promise<void> {
@@ -34,10 +33,9 @@ export abstract class WatcherEntity extends CCBotEntity {
             await this.watcherTick();
             this.lastError = null;
         } catch (e) {
-            console.log(e);
             this.lastError = e;
         }
-        setTimeout(() => {
+        setTimeout((): void => {
             this.startWatcherTick();
         }, boundRequestTimeout(this.refreshMs));
     }

@@ -24,7 +24,7 @@ class GreeterEntity extends CCBotEntity {
             if (channel) {
                 const greeting = c.provider.get(m.guild, 'greeting');
                 if (greeting) {
-                    silence((async () => {
+                    silence((async (): Promise<void> => {
                         const result = await say(greeting, {
                             client: c,
                             channel: channel,
@@ -41,7 +41,7 @@ class GreeterEntity extends CCBotEntity {
             const denied = getUserDeniedRoles(this.client, m);
             const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, 'auto-user-' + m.id));
             // Check for explicitly denied roles here to avoid infighting
-            const addRoles: string[] = allAutoRoles.filter(v => !denied.includes(v));
+            const addRoles: string[] = allAutoRoles.filter((v: string): boolean => !denied.includes(v));
             if (addRoles.length > 0)
                 silence(m.addRoles(addRoles));
         };
@@ -52,7 +52,7 @@ class GreeterEntity extends CCBotEntity {
             if (rolesState == 'no')
                 return;
             const denied = getUserDeniedRoles(this.client, m);
-            const rmRoles = m.roles.keyArray().filter(v => denied.includes(v));
+            const rmRoles = m.roles.keyArray().filter((v: string): boolean => denied.includes(v));
             if (rmRoles.length > 0)
                 silence(m.removeRoles(rmRoles));
         };

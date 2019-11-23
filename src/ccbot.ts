@@ -1,9 +1,8 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
-import CCBotCommandRegistry from './command-registry';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
-import {Entity, EntityRegistry} from './entity-registry';
+import {Entity, EntityData, EntityRegistry} from './entity-registry';
 
 /**
  * The modified CommandoClient used by this bot.
@@ -12,32 +11,32 @@ import {Entity, EntityRegistry} from './entity-registry';
  * See ccbot-impl.ts for why this is.
  */
 export abstract class CCBot extends commando.CommandoClient {
-    sideBySideSafety: boolean;
+    public sideBySideSafety: boolean;
 
-    dynamicData: DynamicDataManager;
-    entities: EntityRegistry<CCBot, CCBotEntity>;
-    emoteRegistry: CCBotEmoteRegistry;
+    public dynamicData: DynamicDataManager;
+    public entities: EntityRegistry<CCBot, CCBotEntity>;
+    public emoteRegistry: CCBotEmoteRegistry;
 
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
     // 'ccbotMessageDeletes', discord.Channel & discord.TextBasedChannelFields, string[]
     // 'ccbotMessageUpdateUnchecked', discord.Channel & discord.TextBasedChannelFields, string
     // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
 
-    constructor(co: commando.CommandoClientOptions, safety: boolean) {
+    protected constructor(co: commando.CommandoClientOptions, safety: boolean) {
         super(co);
         this.sideBySideSafety = safety;
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
         this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, 'entities.json');
         // This implicitly occurs after entity registration in ccbot-impl.
-        this.once('ready', () => {
+        this.once('ready', (): void => {
             this.entities.start();
             this.emoteRegistry.updateGlobalEmoteRegistry();
         });
-        this.on('raw', (event: any): void => {
-            this.handleRawEvent(event);
+        this.on('raw', (event: unknown): void => {
+            this.handleRawEvent(event as {t: string; d: any});
         });
-        const callbackUpdateGER = () => {
+        const callbackUpdateGER = (): void => {
             this.emoteRegistry.updateGlobalEmoteRegistry();
         };
         this.on('emojiCreate', callbackUpdateGER);
@@ -50,7 +49,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /**
      * Ensures data is loaded before anything is done. Important to prevent any potential corruption.
      */
-    async loadData(): Promise<void> {
+    public async loadData(): Promise<void> {
         await Promise.all([
             this.dynamicData.commands.initialLoad,
             this.dynamicData.settings.initialLoad,
@@ -61,7 +60,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /**
      * Overrides destroy to ensure all data is saved.
      */
-    async destroy(): Promise<void> {
+    public async destroy(): Promise<void> {
         await super.destroy();
         await this.dynamicData.destroy();
         await this.entities.destroy();
@@ -72,7 +71,7 @@ export abstract class CCBot extends commando.CommandoClient {
      * As far as I know the only kinds of events that need this kind of thing are reaction events,
      *  and I have already solved those... well enough.
      */
-    handleRawEvent(event: any): void {
+    private handleRawEvent(event: {t: string; d: any}): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
@@ -83,7 +82,7 @@ export abstract class CCBot extends commando.CommandoClient {
             const entity = this.entities.entities['message-' + event.d.message_id];
             if (!entity)
                 return;
-            const emojiDetails: {id?: string, name: string} = event.d.emoji;
+            const emojiDetails: {id?: string; name: string} = event.d.emoji;
             let emoji: discord.Emoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.get(emojiDetails.id);
@@ -114,15 +113,15 @@ export abstract class CCBot extends commando.CommandoClient {
             this.emit('ccbotBanAddRemove', guild, event.d.user, event.t == 'GUILD_BAN_ADD');
         }
     }
-};
+}
 
 /**
  * *All commands in the project should be based off of this class, directly or indirectly.*
  * A version of commando.Command with CCBot taking the place of the client field.
  */
 export class CCBotCommand extends commando.Command {
-    client!: CCBot;
-    constructor(client: CCBot, options: commando.CommandInfo) {
+    public client!: CCBot;
+    public constructor(client: CCBot, options: commando.CommandInfo) {
         super(client, options);
         // Add default throttling options. The source of these might need to be put elsewhere.
         // Note though that a live-updatable mechanism would need to rely on a by-reference scheme,
@@ -141,7 +140,7 @@ export class CCBotCommand extends commando.Command {
  * A version of Entity with fixed generics and the relevant callbacks.
  */
 export class CCBotEntity extends Entity<CCBot> {    
-    public constructor(c: CCBot, id: string, data: any) {
+    public constructor(c: CCBot, id: string, data: EntityData) {
         super(c, id, data);
     }
 
@@ -162,6 +161,6 @@ export class CCBotEntity extends Entity<CCBot> {
      * This thus basically turns entities with those IDs into 'message managers'.
      */
     public emoteReactionTouched(emote: discord.Emoji, user: discord.User, add: boolean): void {
-        
+        // All 3 arguments are not used on purpose.
     }
 }

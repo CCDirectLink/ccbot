@@ -35,7 +35,7 @@ export default class PurgeCommand extends CCBotCommand {
             return await message.say('Too short to be practical.');
         
         if (!localRPCheck(message, ['READ_MESSAGES', 'MANAGE_MESSAGES'], 'purgers')) {
-            return await message.say('You aren\'t authorized to do that.\nYou need READ\_MESSAGES & MANAGE\_MESSAGES, or you need to be in the `purgers` role group.');
+            return await message.say('You aren\'t authorized to do that.\nYou need READ\\_MESSAGES & MANAGE\\_MESSAGES, or you need to be in the `purgers` role group.');
         } else {
             // Typing information is wrong
             if (!message.channel.bulkDelete)

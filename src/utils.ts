@@ -13,16 +13,16 @@ export const mdEsc = discord.Util.escapeMarkdown;
  * Returns if a given channel is appropriate for NSFW information.
  */
 export function nsfw(channel: discord.Channel): boolean {
-    if (channel.type == "text") {
+    if (channel.type == 'text') {
         const c2: discord.TextChannel = channel as discord.TextChannel;
         if (c2.guild.verified)
             return false;
         return c2.nsfw;
-    } else if (channel.type == "dm") {
+    } else if (channel.type == 'dm') {
         return true;
     }
     return false;
-};
+}
 
 /**
  * Returns if a given guild is considered a liability SFW-wise.
@@ -68,7 +68,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: 
 }
 
 export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
-    if (channel && ((channel as any).sendEmbed))
+    if (channel && ((channel as unknown as discord.TextBasedChannelFields).sendEmbed))
         return (channel as unknown) as (discord.Channel & discord.TextBasedChannelFields);
     return undefined;
 }
@@ -95,8 +95,8 @@ export function getRolesState(client: commando.CommandoClient & {sideBySideSafet
 /**
  * Use if you think a failed promise really doesn't matter.
  */
-export function silence(n: Promise<any>) {
-    n.catch(() => {});
+export function silence(n: Promise<unknown>): void {
+    n.catch((): void => {});
 }
 
 /**
@@ -113,8 +113,8 @@ export function naturalComparison(a: string, b: string): number {
     a = a.toLowerCase();
     b = b.toLowerCase();
     for (let i = 0; i < Math.min(a.length, b.length); i++) {
-        let cha = a.charCodeAt(i);
-        let chb = b.charCodeAt(i);
+        const cha = a.charCodeAt(i);
+        const chb = b.charCodeAt(i);
         if (cha < chb)
             return -1;
         if (cha > chb)
@@ -139,7 +139,7 @@ export function localAdminCheck(t: commando.CommandMessage): boolean {
     return false;
 }
 
-export const mentionRegex = /\<\@\!?([0-9]*)\>/g;
+export const mentionRegex = /<@!?([0-9]*)>/g;
 
 export function findMemberByRef(t: discord.Guild | undefined | null, ref: string): discord.GuildMember | null {
     if (!t)
@@ -171,7 +171,7 @@ export function safeParseInt(a: string): number {
     return res;
 }
 
-export function checkIntegerResult(a: number) {
+export function checkIntegerResult(a: number): void {
     if (!Number.isSafeInteger(a))
         throw new Error('Operation result became ' + a);
 }
@@ -195,7 +195,7 @@ export function getJSON(endpoint: string, headers: Record<string, string>): Prom
         path: endpointURL.pathname + endpointURL.search,
         headers: headers
     };
-    let secure = endpointURL.protocol == 'https:';
+    const secure = endpointURL.protocol == 'https:';
     headers['user-agent'] = 'ccbot-new (red queen)';
     // Empty-string-check-behavior INTENDED
     if (endpointURL.username)
@@ -237,38 +237,38 @@ export function boundRequestTimeout(n: number | undefined): number {
  * Reports a random "Done!"-like response to make the spam less boring.
  */
 export function doneResponse(): string {
-	return randomArrayElement([
-		'Ah, yes. I\'ve done it.',
-		'As you wish.',
-		'Done!',
-		'Done thing!',
-		'Did it in ten (^-1). Seconds. Flat.',
-		'Did it! (Do I get a sandwich now?)',
-		'Eeeyup!',
-		'I\'ve done that.',
-		'It\'s done.',
-		'It\'s done!',
-		'Ja! <Yes!>',
-		'Objective complete.',
-		'Objective complete! What next?',
-		'Okay!',
-		'Ok! (Hi!)',
-		'Ok, did it!',
-		'Okie-dokie!',
-		'Okie-dokie-lokie!',
-		'Success!',
-		'Successful.',
-		'Succeeded!',
-		'Sure! ...Done!',
-		'Yes!',
-		'Yep!',
-		'Your wish is my command.',
-		'Yup!',
-		'Yuppers!',
-		'Yeah, did it.',
-		'👍',
-		'*nods*',
-		'*smiles, then nods*',
-		'*wakes up and sees the command. Her eyes widen, she performs the task, and she nods.*',
-	])
+    return randomArrayElement([
+        'Ah, yes. I\'ve done it.',
+        'As you wish.',
+        'Done!',
+        'Done thing!',
+        'Did it in ten (^-1). Seconds. Flat.',
+        'Did it! (Do I get a sandwich now?)',
+        'Eeeyup!',
+        'I\'ve done that.',
+        'It\'s done.',
+        'It\'s done!',
+        'Ja! <Yes!>',
+        'Objective complete.',
+        'Objective complete! What next?',
+        'Okay!',
+        'Ok! (Hi!)',
+        'Ok, did it!',
+        'Okie-dokie!',
+        'Okie-dokie-lokie!',
+        'Success!',
+        'Successful.',
+        'Succeeded!',
+        'Sure! ...Done!',
+        'Yes!',
+        'Yep!',
+        'Your wish is my command.',
+        'Yup!',
+        'Yuppers!',
+        'Yeah, did it.',
+        '👍',
+        '*nods*',
+        '*smiles, then nods*',
+        '*wakes up and sees the command. Her eyes widen, she performs the task, and she nods.*',
+    ])
 }

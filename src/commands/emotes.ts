@@ -9,7 +9,7 @@ import {userAwareGetEmote} from '../entities/user-datablock';
  * A command to list the accessible emotes.
  */
 export class ListEmotesCommand extends CCBotCommand {
-    sfw: boolean;
+    private sfw: boolean;
 
     public constructor(client: CCBot, sfw: boolean) {
         const name = sfw ? 'lsemotes-sfw' : 'lsemotes';

@@ -15,7 +15,7 @@ import {CCBot} from './ccbot';
 /**
  * Registers all the commands. (More or less.)
  */
-export default function registerAllCommands(cr: CCBot) {
+export default function registerAllCommands(cr: CCBot): void {
     cr.registry.registerDefaultTypes();
     cr.registry.registerDefaultGroups();
     cr.registry.registerDefaultCommands({
@@ -43,7 +43,7 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new AddQuoteCommand(cr));
     cr.registry.registerCommand(new RmQuoteCommand(cr));
 
-    cr.registry.registerGroup("general");
+    cr.registry.registerGroup('general');
     cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
     cr.registry.registerCommand(new PingCommand(cr));
     cr.registry.registerCommand(new ListEmotesCommand(cr, false));
@@ -55,13 +55,13 @@ export default function registerAllCommands(cr: CCBot) {
     cr.registry.registerCommand(new PurgeCommand(cr));
     cr.registry.registerCommand(new InspireCommand(cr));
 
-    cr.registry.registerGroup("roles");
+    cr.registry.registerGroup('roles');
     cr.registry.registerCommand(new RolesAddCommand(cr));
     cr.registry.registerCommand(new RolesRmCommand(cr));
     cr.registry.registerCommand(new RolesListCommand(cr));
 
-    cr.registry.registerGroup("mods");
+    cr.registry.registerGroup('mods');
     cr.registry.registerCommand(new ModsToolsGetCommand(cr, false));
-    cr.registry.registerGroup("tools");
+    cr.registry.registerGroup('tools');
     cr.registry.registerCommand(new ModsToolsGetCommand(cr, true));
 }

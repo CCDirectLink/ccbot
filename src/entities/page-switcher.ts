@@ -86,7 +86,7 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     newPage();
     // Category (managed by the loop rather than the paginator stuff because of all the special conditions)
     let currentCategory = '';
-    for (let elementRaw of elements) {
+    for (const elementRaw of elements) {
         // Convert element
         let elementFull: PageSwitcherOutputElementWithCategory;
         if (elementRaw.constructor == String) {

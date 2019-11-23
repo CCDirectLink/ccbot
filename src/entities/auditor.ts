@@ -18,9 +18,9 @@ class AuditorEntity extends CCBotEntity {
             const channel = getGuildTextChannel(c, g, 'editlog');
             if (!channel)
                 return;
-            let calculated_icon: string = 'https://discordapp.com/assets/6e054ab8981d3f1ce8debfd1235d3ea3.svg';
+            let calculatedIcon = 'https://discordapp.com/assets/6e054ab8981d3f1ce8debfd1235d3ea3.svg';
             if (u.avatar)
-                calculated_icon = 'https://cdn.discordapp.com/avatars/' + u.id + '/' + u.avatar + '.png';
+                calculatedIcon = 'https://cdn.discordapp.com/avatars/' + u.id + '/' + u.avatar + '.png';
             // Ok, well now we have all the details to make a post. Let's see if we can get additional info.
             silence((async (): Promise<void> => {
                 let reason = '';
@@ -28,7 +28,9 @@ class AuditorEntity extends CCBotEntity {
                     try {
                         const info = await g.fetchBan(u.id);
                         reason = discord.Util.escapeMarkdown(info.reason || '');
-                    } catch (e) {}
+                    } catch (e) {
+                        // Deilberately left blank
+                    }
                 }
                 await channel.sendEmbed({
                     title: 'Ban ' + (added ? 'Added' : 'Removed'),
@@ -36,7 +38,8 @@ class AuditorEntity extends CCBotEntity {
                     timestamp: new Date(),
                     footer: {
                         text: u.username + '#' + u.discriminator + ' (' + u.id + ')',
-                        icon_url: calculated_icon
+                        // As a string to get ESLint to ignore it
+                        'icon_url': calculatedIcon
                     }
                 });
             })());
@@ -62,7 +65,7 @@ class AuditorEntity extends CCBotEntity {
         // Do not listen to messages in the channel we're using to send reports about listening to messages.
         if (targetChannel == frm)
             return;
-        let resultingEmbed: discord.RichEmbedOptions = {
+        const resultingEmbed: discord.RichEmbedOptions = {
             title: (id.length != 1) ? (deletion ? 'Bulk Delete' : 'Bulk Update') : (deletion ? 'Message Deleted' : 'Message Updated'),
             color: deletion ? 0xFF0000 : 0xFFFF00,
             timestamp: new Date()
@@ -120,12 +123,14 @@ class AuditorEntity extends CCBotEntity {
     private summarize(message: discord.Message): string {
         let summary = '\nAuthor: ' + message.author.username + '#' + message.author.discriminator + ' (' + message.author.id + ')';
         summary += '\nContent:\n```\n' + discord.Util.escapeMarkdown(message.content, true, false) + '\n```';
-        for (let k of message.attachments.keyArray()) {
+        for (const k of message.attachments.keyArray()) {
             const attachment = message.attachments.get(k) as discord.MessageAttachment;
             summary += '\nHad attachment: ' + discord.Util.escapeMarkdown(attachment.filename) + ' `' + discord.Util.escapeMarkdown(attachment.url, false, true) + '`';
         }
-        for (let embed of message.embeds)
+        // Old-fashioned, but ESLint won't let me hear the end of it otherwise.
+        for (let i = 0; i < message.embeds.length; i++) {
             summary += '\nHad embed';
+        }
         if (message.guild)
             summary += '\nFor current details, see https://discordapp.com/channels/' + message.guild.id + '/' + message.channel.id + '/' + message.id;
         return summary;
