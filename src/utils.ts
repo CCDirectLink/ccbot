@@ -232,3 +232,43 @@ export function boundRequestTimeout(n: number | undefined): number {
         throw new Error('boundRequestTimeout, which usually does not handle several-day-long timeouts, received a several-day-long timeout. Something is wrong with your configuration.');
     return Math.min(Math.max(n, 60000), 0x40000000);
 }
+
+/**
+ * Reports a random "Done!"-like response to make the spam less boring.
+ */
+export function doneResponse(): string {
+	return randomArrayElement([
+		'Ah, yes. I\'ve done it.',
+		'As you wish.',
+		'Done!',
+		'Done thing!',
+		'Did it in ten (^-1). Seconds. Flat.',
+		'Did it! (Do I get a sandwich now?)',
+		'Eeeyup!',
+		'I\'ve done that.',
+		'It\'s done.',
+		'It\'s done!',
+		'Ja! <Yes!>',
+		'Objective complete.',
+		'Objective complete! What next?',
+		'Okay!',
+		'Ok! (Hi!)',
+		'Ok, did it!',
+		'Okie-dokie!',
+		'Okie-dokie-lokie!',
+		'Success!',
+		'Successful.',
+		'Succeeded!',
+		'Sure! ...Done!',
+		'Yes!',
+		'Yep!',
+		'Your wish is my command.',
+		'Yup!',
+		'Yuppers!',
+		'Yeah, did it.',
+		'👍',
+		'*nods*',
+		'*smiles, then nods*',
+		'*wakes up and sees the command. Her eyes widen, she performs the task, and she nods.*',
+	])
+}

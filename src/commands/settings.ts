@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {localAdminCheck} from '../utils';
+import {localAdminCheck, doneResponse} from '../utils';
 import {getUserDatablock} from '../entities/user-datablock';
 
 // Important (i.e. non-obvious) limits
@@ -205,12 +205,12 @@ export class SettingsCommand extends CCBotCommand {
                 } else {
                     await this.client.provider.set('global', args.key, value);
                 }
-                return message.say('Done!');
+                return message.say(doneResponse());
             } else if (this.context == SettingsContext.Local) {
                 const guild = this.client.guilds.get(instance);
                 if (!guild)
                     return message.say('How\'d you get here, then?');
-                return message.say((await runLocalSettingTransaction(this.client.provider, guild, args.key, value)) || 'Successful.');
+                return message.say((await runLocalSettingTransaction(this.client.provider, guild, args.key, value)) || doneResponse());
             } else if (this.context == SettingsContext.User) {
                 const dbl = await getUserDatablock(this.client, instance);
                 const db = dbl.get();
@@ -220,7 +220,7 @@ export class SettingsCommand extends CCBotCommand {
                     db[args.key] = value;
                 }
                 dbl.set(db);
-                return message.say('Done!');
+                return message.say(doneResponse());
             }
         }
         return message.say('Unable to handle the specified request.');

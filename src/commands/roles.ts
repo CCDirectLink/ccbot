@@ -2,6 +2,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 import {convertRoles, convertRoleGroup, getUserDeniedRoles} from '../role-utils';
+import {doneResponse} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 
 /**
@@ -107,7 +108,7 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
     if (addRoles.length > 0)
         await member.addRoles(addRoles);
     
-    return 'Done!';
+    return doneResponse();
 }
 
 async function genericARRunner(message: commando.CommandMessage, args: {roles: string[]}, add: boolean): Promise<discord.Message | discord.Message[]> {
