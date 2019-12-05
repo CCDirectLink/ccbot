@@ -70,20 +70,20 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         text = text.replace(/^\s+|\s+$/g, '');
         
         //  Get & remove the prefix
-        let commandPrefix: string;
+        let commandPrefix1: string | undefined;
+		let commandPrefix2: string | undefined;
         if (message.guild) {
-            commandPrefix = (message.guild as any).commandPrefix;
+            commandPrefix1 = (message.guild as any).commandPrefix;
+			commandPrefix2 = undefined;
         } else {
-            commandPrefix = this.client.commandPrefix;
+            commandPrefix1 = this.client.commandPrefix;
+			commandPrefix2 = this.client.user.toString();
         }
-
-        const universalPrefix: string = this.client.user.toString();
-        commandPrefix = commandPrefix || universalPrefix;
         
-        if (text.startsWith(commandPrefix)) {
-            text = text.substring(commandPrefix.length);
-        } else if (text.startsWith(universalPrefix)) {
-            text = text.substring(universalPrefix.length);
+        if (commandPrefix1 && text.startsWith(commandPrefix1)) {
+            text = text.substring(commandPrefix1.length);
+        } else if (commandPrefix2 && text.startsWith(commandPrefix2)) {
+            text = text.substring(commandPrefix2.length);
         } else if (!message.guild) {
             text = text;
         } else {
