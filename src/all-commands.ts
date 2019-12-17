@@ -61,7 +61,10 @@ export default function registerAllCommands(cr: CCBot): void {
     cr.registry.registerCommand(new RolesListCommand(cr));
 
     cr.registry.registerGroup('mods');
-    cr.registry.registerCommand(new ModsToolsGetCommand(cr, false));
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'mods', 'get', false));
     cr.registry.registerGroup('tools');
-    cr.registry.registerCommand(new ModsToolsGetCommand(cr, true));
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'tools', 'get', true));
+    // aliases
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'general', 'mods', false));
+    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true));
 }

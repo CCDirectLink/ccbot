@@ -10,17 +10,12 @@ import {outputElements} from '../entities/page-switcher';
  */
 export class ModsToolsGetCommand extends CCBotCommand {
     public readonly tools: boolean;
-    public constructor(client: CCBot, tools: boolean) {
-        const opt = !tools ? {
-            name: '-mods get',
-            description: 'Gets a list of the available mods.',
-            group: 'mods',
-            memberName: 'get'
-        } : {
-            name: '-tools get',
-            description: 'Gets a list of the available mods.',
-            group: 'tools',
-            memberName: 'get'
+    public constructor(client: CCBot, group: string, name: string, tools: boolean) {
+        const opt = {
+            name: '-' + group + ' ' + name,
+            description: !tools ? 'Gets a list of the available mods.' : 'Gets a list of the available tools.',
+            group: group,
+            memberName: name
         };
         super(client, opt);
         this.tools = tools;
