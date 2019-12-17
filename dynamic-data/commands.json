@@ -5,16 +5,6 @@
     },
     "roles": {
     },
-    "tools": {
-    },
-    "mods": {
-        "installation": {
-            "embed": {
-                "title": "Installation Guide",
-                "description": "CCLoader's guide to modloader installation: https://github.com/CCDirectLink/CCLoader/wiki/Installing-CCLoader\nCCLoader's guide to mod installation: https://github.com/CCDirectLink/CCLoader/wiki/Install-mods\n20kdc's guide to modloader installation: https://20kdc.duckdns.org/ccmodloader/"
-            }
-        }
-    },
     "general": {
         "satoshi": {
             "format": "is karoshi"
@@ -224,6 +214,13 @@
             "description": "Writes a template thank-you message to the devs :)",
             "embed": {
                 "description": "From %(name (cause)),\n\t%(random-element '(\"Keep up the good work!\" \"You guys are awesome.\"))\nTo,\n\t\tRadical Fish Games"
+            }
+        },
+        "installing-mods": {
+            "description": "Information on how to install mods.",
+            "embed": {
+                "title": "Installation Guide",
+                "description": "CCLoader's guide to modloader installation: https://github.com/CCDirectLink/CCLoader/wiki/Installing-CCLoader\nCCLoader's guide to mod installation: https://github.com/CCDirectLink/CCLoader/wiki/Install-mods\n20kdc's guide to modloader installation: https://20kdc.duckdns.org/ccmodloader/"
             }
         }
     },

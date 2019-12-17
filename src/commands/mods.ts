@@ -52,7 +52,7 @@ export class ModsToolsGetCommand extends CCBotCommand {
                     components.push('');
                     mods.push(components.join('\n'));
                 }
-                const footer = !this.tools ? '\nNote: All mods require a mod loader to work. (See `-mods installation` for details.)' : '\nNote: Tools may have their own installation procedures. Check their pages for details.';
+                const footer = !this.tools ? '\nNote: All mods require a mod loader to work. (See `.cc installing-mods` for details.)' : '\nNote: Tools require their own installation procedures. Check their pages for details.';
                 return outputElements(this.client, message, mods, 25, 2000, {
                     textFooter: footer,
                     footer: {

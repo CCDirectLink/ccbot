@@ -7,7 +7,7 @@
     "start": "npm run build && node --inspect ./dist/main.js",
     "watch": "nodemon --watch src -e ts --exec \"npm start\"",
     "test": "npm run lint && mocha -r ts-node/register tests/**/*.spec.ts",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint src/*.ts src/**/*.ts",
     "dist": "npm run test && webpack --config webpack.config.production.js"
   },
   "devDependencies": {
