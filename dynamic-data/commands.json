@@ -1,5 +1,9 @@
 {
     "util": {
+        "unknown-command": {
+            "description": "This command is run if you type a command the bot cannot understand.",
+            "format": "Unknown command. Use `%(prefix) help` to view the command list."
+        }
     },
     "commands": {
     },

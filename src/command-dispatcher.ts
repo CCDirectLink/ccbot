@@ -139,7 +139,15 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     }
     
     parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
-        return new CCBotCommandMessage(message, null, text) as unknown as commando.CommandMessage;
+        // This is imitating the Commando master behavior.
+        // But we use it as a method for overriding the unknown-command.
+        let cmd: commando.Command | null = null;
+        const utilGroup: commando.CommandGroup | undefined = this.registry.groups.get('util');
+        if (utilGroup)
+            cmd = utilGroup.commands.find((cmd: commando.Command): boolean => {
+                return cmd.memberName == 'unknown-command';
+            }) || null;
+        return new CCBotCommandMessage(message, cmd, text) as unknown as commando.CommandMessage;
     }
 }
 
