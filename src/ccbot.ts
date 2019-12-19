@@ -11,8 +11,6 @@ import {Entity, EntityData, EntityRegistry} from './entity-registry';
  * See ccbot-impl.ts for why this is.
  */
 export abstract class CCBot extends commando.CommandoClient {
-    public sideBySideSafety: boolean;
-
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
     public emoteRegistry: CCBotEmoteRegistry;
@@ -22,9 +20,8 @@ export abstract class CCBot extends commando.CommandoClient {
     // 'ccbotMessageUpdateUnchecked', discord.Channel & discord.TextBasedChannelFields, string
     // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
 
-    protected constructor(co: commando.CommandoClientOptions, safety: boolean) {
+    protected constructor(co: commando.CommandoClientOptions) {
         super(co);
-        this.sideBySideSafety = safety;
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
         this.entities = new EntityRegistry<CCBot, CCBotEntity>(this, 'entities.json');

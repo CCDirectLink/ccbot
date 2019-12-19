@@ -3,7 +3,7 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import JSONCommand from './commands/json';
 import {CCBot} from './ccbot';
-import {mentionRegex, getRolesState} from './utils';
+import {mentionRegex} from './utils';
 
 // Not nice.
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
@@ -19,7 +19,7 @@ async function cleanupMessage(client: CCBot, message: discord.Message) {
  * A modified version of CommandMessage that performs better cleanup.
  */
 class CCBotCommandMessage extends (commando.CommandMessage as any) {
-    constructor(message: discord.Message, command: commando.Command, text: string) {
+    constructor(message: discord.Message, command: commando.Command | null, text: string) {
         super(message, command, text);
     }
     
@@ -53,8 +53,6 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
  */
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
-    safeGroups: string[] = ['util', 'formatter', 'commands', 'tools'];
-    safeCommands: string[] = ['general hug', 'general lsemotes', 'general emote', 'general say', 'general triggered', 'general verytriggered', 'general inspire', 'general smite'];
 
     constructor(c: CCBot, r: commando.CommandRegistry) {
         super(c, r);
@@ -71,13 +69,13 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         
         //  Get & remove the prefix
         let commandPrefix1: string | undefined;
-		let commandPrefix2: string | undefined;
+        let commandPrefix2: string | undefined;
         if (message.guild) {
             commandPrefix1 = (message.guild as any).commandPrefix;
-			commandPrefix2 = undefined;
+            commandPrefix2 = undefined;
         } else {
             commandPrefix1 = this.client.commandPrefix;
-			commandPrefix2 = this.client.user.toString();
+            commandPrefix2 = this.client.user.toString();
         }
         
         if (commandPrefix1 && text.startsWith(commandPrefix1)) {
@@ -130,27 +128,6 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         if (!groupInst)
             return this.parseUnknownCommand(message, text);
 
-        // [SAFETY] Determine the local state of the roles module.
-        let rolesState: string = getRolesState(this.client, message.guild);
-        // [SAFETY] All commands that are potentially conflicting get a '-' postfix.
-        if (this.client.sideBySideSafety) {
-            let commandIsSafe = false;
-            if ((rolesState == 'yes') && (group == 'roles'))
-                commandIsSafe = true;
-            if (this.safeGroups.indexOf(group) != -1)
-                commandIsSafe = true;
-            if (this.safeCommands.indexOf(group + ' ' + command) != -1)
-                commandIsSafe = true;
-            if (!commandIsSafe) {
-                if (!command.endsWith('-'))
-                    return null;
-                command = command.substring(0, command.length - 1);
-            }
-        }
-        // [SAFETY] Disable access to roles module if we don't trust it yet
-        if ((rolesState == 'no') && (group == 'roles'))
-            return null;
-
         // So much simpler via 'memberName', command: but that's "deprecated" for some silly reason
         const commandInst: commando.Command | undefined = groupInst.commands.find((cmd: commando.Command): boolean => {
             return cmd.memberName == command;
@@ -162,10 +139,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     }
     
     parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
-        // [SAFETY]
-        if (this.client.sideBySideSafety)
-            return null;
-        return new CCBotCommandMessage(message, this.registry.unknownCommand, text) as unknown as commando.CommandMessage;
+        return new CCBotCommandMessage(message, null, text) as unknown as commando.CommandMessage;
     }
 }
 

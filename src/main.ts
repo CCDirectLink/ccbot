@@ -3,7 +3,6 @@ import * as commando from 'discord.js-commando';
 import {CCBot} from './ccbot';
 import CCBotImpl from './ccbot-impl';
 import {Secrets} from './data/structures'
-import {getRolesState} from './utils'
 import fs from 'fs';
 import net from 'net';
 
@@ -25,7 +24,7 @@ class CCBotMain {
         this.client = new CCBotImpl({
             owner: this.secrets.owner,
             commandPrefix: this.secrets.commandPrefix
-        }, this.secrets.safety, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
+        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
         this.dataCollector = null;
         
         const kickstart = async (): Promise<void> => {
@@ -73,11 +72,10 @@ class CCBotMain {
                     entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;
                 }
                 const guildsBreakdownYes = this.client.guilds.filter((g: discord.Guild): boolean => {
-                    return getRolesState(this.client, g) === 'yes';
+                    return true;
                 }).size;
                 const guildsBreakdownSBS = this.client.guilds.filter((g: discord.Guild): boolean => {
-                    const state = getRolesState(this.client, g);
-                    return (state !== 'no') && (state !== 'yes');
+                    return false;
                 }).size;
                 const guildsBreakdownNo = this.client.guilds.size - (guildsBreakdownYes + guildsBreakdownSBS);
                 socket.end(JSON.stringify({

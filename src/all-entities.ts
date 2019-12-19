@@ -19,8 +19,7 @@ import {CCBot} from './ccbot';
 export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined): void {
     cr.entities.entityTypes['date-activity'] = loadDateActivity;
     cr.entities.entityTypes['page-switcher'] = loadPageSwitcher;
-    if (!cr.sideBySideSafety)
-        cr.entities.entityTypes['old-behaviors'] = loadOldBehaviors;
+    cr.entities.entityTypes['old-behaviors'] = loadOldBehaviors;
     cr.entities.entityTypes['greeter'] = loadGreeter;
     cr.entities.entityTypes['auditor'] = loadAuditor;
     cr.entities.entityTypes['react-roles'] = loadReactRoles;

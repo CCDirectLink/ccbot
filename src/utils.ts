@@ -82,17 +82,6 @@ export function getGuildTextChannel(client: commando.CommandoClient, guild: disc
 }
 
 /**
- * Gets the state of the roles module.
- * Returns 'yes', 'no', or something else as a string
- */
-export function getRolesState(client: commando.CommandoClient & {sideBySideSafety: boolean}, guild: discord.Guild | undefined): string {
-    let rolesState: string = client.sideBySideSafety ? 'no' : 'yes';
-    if (client.sideBySideSafety && guild)
-        rolesState = (client.provider.get(guild, 'optin-roles') || rolesState).toString();
-    return rolesState;
-}
-
-/**
  * Use if you think a failed promise really doesn't matter.
  */
 export function silence(n: Promise<unknown>): void {

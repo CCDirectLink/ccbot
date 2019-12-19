@@ -29,9 +29,6 @@ They can be controlled globally only by bot owners.
 
 `roles-*`: Please see `ROLES.md`
 
-`optin-roles`: roles module access state for side-by-side:
- 'no' (not valid), 'both' (has '-' prefix), 'yes' (overlaps original bot)
-
 `channel-greet`: Greeting channel name
 
 `channel-info`: Information channel name

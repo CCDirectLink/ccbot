@@ -115,16 +115,7 @@ There is a risk that entities that do not have some kill condition could be
 
 ## Known Entity IDs
 
-`activity-manager`: In control of the current activity.
-Expected to update on construction - not allowed to clear on kill.
-This is because on kill, the new manager may have already been constructed.
-If it's particularly needed to clear the current activity,
- create a 'no-activity' activity-manager entity.
-
-`message-SOMEIDHERE`: For `message.id == 'SOMEIDHERE'`, usually more numeric,
- acts as the manager for that message.
-This ensures that message-related events are sent to the entity, but it also
- implies that killing the manager may delete the message in some cases.
+### Global Managers
 
 `old-behaviors-manager`: Meant to be an instance of the `old-behaviors` entity.
 
@@ -138,8 +129,21 @@ This ensures that message-related events are sent to the entity, but it also
 
 `purge-database-manager`: An instance of the `purge-database` entity.
 
+`stream-provider-*`: Entities derived from StreamProviderEntity use these IDs.
+
+### Replacable Managers
+
+`activity-manager`: In control of the current activity.
+On kill, clears the current activity.
+
+### Per-Instance Managers
+
+`message-SOMEIDHERE`: For `message.id == 'SOMEIDHERE'`, usually more numeric,
+ acts as the manager for that message.
+This ensures that message-related events are sent to the entity, but it also
+ implies that killing the manager may delete the message in some cases.
+
 `purge-channel-SOMEIDHERE`: `purge-database-channel` entities for various channels.
 
 `user-datablock-SOMEIDHERE`: A user's datablock; instances of the `user-datablock` entity.
 
-`stream-provider-*`: Entities derived from StreamProviderEntity use these IDs.

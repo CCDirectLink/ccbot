@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getRolesState, getGuildTextChannel, silence} from '../utils';
+import {getGuildTextChannel, silence} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
@@ -16,9 +16,6 @@ class GreeterEntity extends CCBotEntity {
         super(c, 'greeter-manager', data);
         this.memberListener = (m: discord.GuildMember): void => {
             if (this.killed)
-                return;
-            const rolesState: string = getRolesState(this.client, m.guild);
-            if (rolesState == 'no')
                 return;
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {
@@ -47,9 +44,6 @@ class GreeterEntity extends CCBotEntity {
         };
         this.memberUpdateListener = (_: discord.GuildMember, m: discord.GuildMember): void => {
             if (this.killed)
-                return;
-            const rolesState: string = getRolesState(this.client, m.guild);
-            if (rolesState == 'no')
                 return;
             const denied = getUserDeniedRoles(this.client, m);
             const rmRoles = m.roles.keyArray().filter((v: string): boolean => denied.includes(v));
