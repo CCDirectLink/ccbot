@@ -25,7 +25,8 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
     
     reply(content: any, options: any) {
         if (typeof content === "string") {
-            // check for error message
+            // check for error message and block it
+            // don't let it "spam" a channel
             const regexp = /You may not use the/;
             if (content.match(regexp)) {
                 return;
