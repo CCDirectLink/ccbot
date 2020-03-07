@@ -57,7 +57,11 @@ export default class SayCommand extends CCBotCommand {
                     prompt: 'The text to say.',
                     type: 'string'
                 }
-            ]
+            ],
+            throttling: {
+                usages: 5,
+                duration: 60
+            }
         };
         super(client, opt);
     }
