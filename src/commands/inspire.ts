@@ -8,7 +8,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export class InspireCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general inspire',
+            name: 'inspire',
             description: 'inspires you with a quote',
             group: 'general',
             memberName: 'inspire'

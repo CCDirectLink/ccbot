@@ -10,7 +10,7 @@ import {PurgeDatabaseChannelEntity} from '../entities/purge-database';
 export default class PurgeCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general purge',
+            name: 'purge',
             description: 'Deletes messages from the bot. Defaults to 1 minute.',
             group: 'general',
             memberName: 'purge',
