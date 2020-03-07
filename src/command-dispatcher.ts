@@ -23,6 +23,17 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
         super(message, command, text);
     }
     
+    reply(content: any, options: any) {
+        if (typeof content === "string") {
+            // check for error message
+            const regexp = /You may not use the/;
+            if (content.match(regexp)) {
+                return;
+            }
+        }
+        return super.reply(content, options);
+    }
+
     /**
      * Prepares to edit a response.
      * This modified version cleans up after whatever was happening before.
