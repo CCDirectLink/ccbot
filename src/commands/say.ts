@@ -47,7 +47,7 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
 export default class SayCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general say',
+            name: 'say',
             description: 'Has the bot say something. Please see the Format Syntax Guide (.cc -formatter help)',
             group: 'general',
             memberName: 'say',
@@ -57,7 +57,11 @@ export default class SayCommand extends CCBotCommand {
                     prompt: 'The text to say.',
                     type: 'string'
                 }
-            ]
+            ],
+            throttling: {
+                usages: 5,
+                duration: 60
+            }
         };
         super(client, opt);
     }

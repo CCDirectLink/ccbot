@@ -32,7 +32,7 @@ class AuditorEntity extends CCBotEntity {
                         // Deilberately left blank
                     }
                 }
-                await channel.sendEmbed({
+                await channel.send({
                     title: 'Ban ' + (added ? 'Added' : 'Removed'),
                     description: reason,
                     timestamp: new Date(),

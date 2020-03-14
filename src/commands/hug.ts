@@ -10,7 +10,7 @@ import {userAwareGetEmote} from '../entities/user-datablock';
 export default class HugCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: '-general hug',
+            name: 'hug',
             description: 'hugs another user, or set of users. end the list of people with a number to hug them multiple times. Designed by Emileyah, Monika!, Kumatsun & 20kdc.',
             group: 'general',
             memberName: 'hug',

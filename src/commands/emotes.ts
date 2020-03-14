@@ -14,7 +14,7 @@ export class ListEmotesCommand extends CCBotCommand {
     public constructor(client: CCBot, sfw: boolean) {
         const name = sfw ? 'lsemotes-sfw' : 'lsemotes';
         const opt = {
-            name: '-general ' + name,
+            name,
             description: sfw ? 'Like lsemotes, but always only shows SFW emotes.' : 'Displays all emotes that the channel allows. Can search if given text, can get by guild ID if given a guild ID, and can show local overrides with "overrides".',
             group: 'general',
             memberName: name,

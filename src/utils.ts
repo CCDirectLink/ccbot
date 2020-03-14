@@ -68,7 +68,7 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: 
 }
 
 export function channelAsTBF(channel: discord.Channel | undefined): (discord.Channel & discord.TextBasedChannelFields) | undefined {
-    if (channel && ((channel as unknown as discord.TextBasedChannelFields).sendEmbed))
+    if (channel && ((channel as unknown as discord.TextBasedChannelFields).send))
         return (channel as unknown) as (discord.Channel & discord.TextBasedChannelFields);
     return undefined;
 }
