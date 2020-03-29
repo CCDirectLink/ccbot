@@ -39,6 +39,8 @@ They can be controlled globally only by bot owners.
 
 `greeting`: Specifies the bot's greeting, if usable.
 
+`dm-greeting`: Specifies the greeting sent to DMs.
+
 ## Both (local, global)
 
 `prefix`: Part of Commando

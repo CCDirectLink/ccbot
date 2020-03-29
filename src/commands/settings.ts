@@ -53,7 +53,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else if (name === 'optin-roles') {
         if ((value === undefined) || (value === 'yes') || (value === 'both') || (value === 'no'))
             maxLength = 16;
-    } else if (name === 'greeting') {
+    } else if ((name === 'greeting') || (name === 'dm-greeting')) {
         if ((value === undefined) || (value.constructor === String))
             maxLength = limitLocalCommand;
     } else if (name === 'emotes-sfw') {

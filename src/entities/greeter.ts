@@ -20,6 +20,19 @@ import {getGuildTextChannel, silence} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
+async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting: string, channel: discord.Channel & discord.TextBasedChannelFields): Promise<void> {
+    const result = await say(greeting, {
+        client: client,
+        channel: channel,
+        cause: member.user,
+        writer: null,
+        protectedContent: false,
+        args: []
+    });
+    if (result)
+        await channel.send(result.text, result.opts);
+}
+
 /**
  * Implements greetings and automatic role assignment.
  */
@@ -35,21 +48,12 @@ class GreeterEntity extends CCBotEntity {
             const channel = getGuildTextChannel(c, m.guild, 'greet');
             if (channel) {
                 const greeting = c.provider.get(m.guild, 'greeting');
-                if (greeting) {
-                    silence((async (): Promise<void> => {
-                        const result = await say(greeting, {
-                            client: c,
-                            channel: channel,
-                            cause: m.user,
-                            writer: null,
-                            protectedContent: false,
-                            args: []
-                        })
-                        if (result)
-                            channel.send(result.text, result.opts);
-                    })());
-                }
+                if (greeting)
+                    silence(sendGreeting(c, m, greeting, channel));
             }
+            const dmGreeting = c.provider.get(m.guild, 'dm-greeting');
+            if (dmGreeting)
+                silence(m.createDM().then(dmChannel => sendGreeting(c, m, dmGreeting, dmChannel)));
             const denied = getUserDeniedRoles(this.client, m);
             const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, 'auto-user-' + m.id));
             // Check for explicitly denied roles here to avoid infighting
