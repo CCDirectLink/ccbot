@@ -65,9 +65,9 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
     for (const v of request)
         if (!whitelist.includes(v))
             return 'You don\'t have permission for some of these roles.';
-    
+
     // -- Command action filtration --
-    
+
     const addRoles: string[] = [];
     const removeRoles: string[] = [];
     let primaryRoles: string[];
@@ -82,7 +82,7 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
                 removeRoles.push(v);
         primaryRoles = removeRoles;
     }
-    
+
     // -- Involvement processing --
 
     const involvedGroups = getInvolvement(client, member.guild, add ? 'exclusive' : 'inclusive', primaryRoles);
@@ -117,12 +117,12 @@ export async function runRoleCommand(client: CCBot, member: discord.GuildMember,
         return 'Some added roles are denied.';
 
     // -- Action performance & description --
-    
+
     if (removeRoles.length > 0)
         await member.removeRoles(removeRoles);
     if (addRoles.length > 0)
         await member.addRoles(addRoles);
-    
+
     return doneResponse();
 }
 
@@ -153,7 +153,7 @@ export class RolesAddCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
         return genericARRunner(message, args, true);
     }
@@ -180,7 +180,7 @@ export class RolesRmCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {roles: string[]}): Promise<discord.Message|discord.Message[]> {
         return genericARRunner(message, args, false);
     }
@@ -200,7 +200,7 @@ export class RolesListCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         if (!message.guild)
             return await message.say('You are floating in a void, free, unburdened by any force, not even gravity.\nThus, your roles are what you will them to be.');

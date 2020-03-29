@@ -26,7 +26,7 @@ class DateActivityEntity extends CCBotEntity {
         super(c, 'activity-manager', data);
         this.updateDate();
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
             silence(this.client.user.setPresence({
@@ -34,7 +34,7 @@ class DateActivityEntity extends CCBotEntity {
                 game: null
             }));
     }
-    
+
     private updateDate(): void {
         if (this.killed)
             return;

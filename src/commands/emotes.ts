@@ -45,7 +45,7 @@ export class ListEmotesCommand extends CCBotCommand {
         super(client, opt);
         this.sfw = sfw;
     }
-    
+
     public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
         if (args.search == 'overrides')
             if (!message.guild)
@@ -54,7 +54,7 @@ export class ListEmotesCommand extends CCBotCommand {
         const refs: string[] = this.client.emoteRegistry.getEmoteRefs(message.guild || null);
         refs.sort(naturalComparison);
         const elements: PageSwitcherOutputElement[] = [];
-                
+
         for (const eref of refs) {
             const emote = this.client.emoteRegistry.getEmote(message.guild || null, eref);
             if (!emoteSafe(emote, message.channel, this.sfw))
@@ -79,7 +79,7 @@ export class ListEmotesCommand extends CCBotCommand {
                 text: mdEsc(eref) + ' ' + emote.toString()
             });
         }
-        
+
         return outputElements(this.client, message, elements, 20, 2000);
     }
 }
@@ -105,7 +105,7 @@ export class EmoteCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if ((args.emotes.length > 0) && (args.emotes[0] == 'emote_reset')) {
             if (localAdminCheck(message)) {
@@ -149,7 +149,7 @@ export class ReactCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if (args.emotes.length > 8)
             return await message.say('Why?');

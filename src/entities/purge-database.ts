@@ -33,13 +33,13 @@ export interface PurgeDatabaseChannelEntityData extends EntityData {
 export class PurgeDatabaseChannelEntity extends CCBotEntity {
     public channelID: string;
     public messages: string[];
-    
+
     public constructor(c: CCBot, data: PurgeDatabaseChannelEntityData) {
         super(c, 'purge-channel-' + data.channel, data);
         this.channelID = data.channel;
         this.messages = data.messages;
     }
-    
+
     public toSaveData(): PurgeDatabaseChannelEntityData {
         return Object.assign(super.toSaveData(), {
             channel: this.channelID,
@@ -54,7 +54,7 @@ export class PurgeDatabaseChannelEntity extends CCBotEntity {
 export class PurgeDatabaseEntity extends CCBotEntity {
     public timeMs: number;
     private messageCallback: (msg: discord.Message) => void;
-    
+
     public constructor(c: CCBot, data: PurgeDatabaseEntityData) {
         super(c, 'purge-database-manager', data);
         this.timeMs = data.timeMs;
@@ -100,12 +100,12 @@ export class PurgeDatabaseEntity extends CCBotEntity {
         };
         this.client.on('message', this.messageCallback);
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('message', this.messageCallback);
     }
-    
+
     public toSaveData(): PurgeDatabaseEntityData {
         return Object.assign(super.toSaveData(), {
             timeMs: this.timeMs

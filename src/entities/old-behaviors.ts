@@ -23,7 +23,7 @@ import {silence} from '../utils';
  */
 class OldBehaviorsEntity extends CCBotEntity {
     private messageListener: (m: discord.Message) => void;
-    
+
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'old-behaviors-manager', data);
         this.messageListener = (m: discord.Message): void => {
@@ -45,7 +45,7 @@ class OldBehaviorsEntity extends CCBotEntity {
         };
         this.client.on('message', this.messageListener);
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('message', this.messageListener);

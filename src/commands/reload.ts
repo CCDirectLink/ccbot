@@ -31,7 +31,7 @@ export default class ReloadCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         this.client.dynamicData.commands.reload();
         return message.say('[nods] <:leaNOD:400777547991744523>');

@@ -40,7 +40,7 @@ export default class PurgeCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {seconds: number}): Promise<discord.Message|discord.Message[]> {
         // Get the database
         const database: PurgeDatabaseChannelEntity | undefined = this.client.entities.entities['purge-channel-' + message.channel.id] as (PurgeDatabaseChannelEntity | undefined);
@@ -48,7 +48,7 @@ export default class PurgeCommand extends CCBotCommand {
             return await message.say('The purge database doesn\'t exist.');
         if (args.seconds <= 1)
             return await message.say('Too short to be practical.');
-        
+
         if (!localRPCheck(message, ['READ_MESSAGES', 'MANAGE_MESSAGES'], 'purgers')) {
             return await message.say('You aren\'t authorized to do that.\nYou need READ\\_MESSAGES & MANAGE\\_MESSAGES, or you need to be in the `purgers` role group.');
         } else {

@@ -61,14 +61,14 @@ const searchTerm = 'CrossCode';
  */
 export class YouTubeStreamProviderEntity extends StreamProviderEntity {
     private requestMaker: () => Promise<object>;
-    
+
     public constructor(c: CCBot, data: StreamProviderEntityData, clientId: string) {
         super(c, 'youtube', data);
         this.requestMaker = async (): Promise<object> => {
             return await getJSON('https://www.googleapis.com/youtube/v3/search?part=snippet&eventType=live&q=' + searchTerm + '&type=video&key=' + clientId, {});
         };
     }
-    
+
     public async watcherTick(): Promise<void> {
         const streams = (await this.requestMaker()) as YouTubeSearchListResponse;
         this.streams = [];

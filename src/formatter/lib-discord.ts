@@ -76,7 +76,7 @@ function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user:
 export function installDiscord(vm: VM, context: VMContext): void {
     async function quote(urlV: Value, cause: boolean, silent: boolean): Promise<Value> {
         vm.consumeTime(vmQuoteTime);
-        
+
         const url = asString(urlV);
         const details = discordMessageLinkURL.exec(url);
         if (!details)

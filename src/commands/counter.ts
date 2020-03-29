@@ -39,7 +39,7 @@ export default class CounterCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {error: boolean}): Promise<discord.Message|discord.Message[]> {
         if (args.error)
             throw new Error('The user wanted an error.');

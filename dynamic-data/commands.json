@@ -287,7 +287,7 @@
                 "description": "False is an empty string. Anything else is true.\nHowever, if true needs to be returned by a library function, it will be returned as 'true'.\nThe not invocation is equivalent to `(if A \"\" \"true\")` where A is the parameter; that is, it returns the boolean opposite of the input."
             }
         },
-        
+
         "help-'": {
             "description": "The ' invocation",
             "embed": {
@@ -295,7 +295,7 @@
                 "description": "The ' invocation uses a special prefix syntax, where `'1` is equivalent to `(%%' 1)`. It has a single parameter.\nThe parameter is returned as-is - *without evaluation*.\nExample: `%%(random-element '(1 2 3))` -> `1` or `2` or `3`"
             }
         },
-        
+
         "help-list": {
             "description": "The 'list' invocation",
             "embed": {

@@ -64,7 +64,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
         const base = startsWithRG ? 'roles-group-' : 'emote-';
         const arrayName = startsWithRG ? 'roles-groups' : 'emotes';
         const relevantContent = startsWithRG ? Array : String;
-        
+
         let emotesArrayBase: string[] = await provider.get(context, arrayName, []);
         if (emotesArrayBase.constructor !== Array)
             emotesArrayBase = [];

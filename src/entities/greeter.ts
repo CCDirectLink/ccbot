@@ -68,7 +68,7 @@ class GreeterEntity extends CCBotEntity {
         this.client.on('guildMemberAdd', this.memberListener);
         this.client.on('guildMemberUpdate', this.memberUpdateListener);
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('guildMemberAdd', this.memberListener);

@@ -33,7 +33,7 @@ const userDatablockMaxLength = 2000;
 export class UserDatablockEntity extends CCBotEntity {
     public who: string;
     public content: string;
-    
+
     public constructor(c: CCBot, data: UserDatablockEntityData) {
         // Reset timeouts if we change TTL, but try to stagger resulting deathclocks over a 16-second period.
         if (data.killTimeout !== userDatablockTTL) {
@@ -44,7 +44,7 @@ export class UserDatablockEntity extends CCBotEntity {
         this.who = data.who;
         this.content = data.content;
     }
-    
+
     public get(): Record<string, object> {
         this.postponeDeathAndUpdate();
         return JSON.parse(this.content);
@@ -56,7 +56,7 @@ export class UserDatablockEntity extends CCBotEntity {
         this.content = res;
         this.postponeDeathAndUpdate();
     }
-    
+
     public toSaveData(): UserDatablockEntityData {
         return Object.assign(super.toSaveData(), {
             who: this.who,

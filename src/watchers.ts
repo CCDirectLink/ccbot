@@ -32,7 +32,7 @@ export interface WatcherEntityData extends EntityData {
 export abstract class WatcherEntity extends CCBotEntity {
     public refreshMs: number;
     public lastError: Error | null;
-    
+
     public constructor(c: CCBot, id: string, data: WatcherEntityData, earlyDelay?: number) {
         super(c, id, data);
         this.refreshMs = data.refreshMs;
@@ -40,7 +40,7 @@ export abstract class WatcherEntity extends CCBotEntity {
         earlyDelay = earlyDelay || 0;
         setTimeout((): void => {this.startWatcherTick();}, earlyDelay);
     }
-    
+
     private async startWatcherTick(): Promise<void> {
         if (this.killed)
             return;
@@ -54,7 +54,7 @@ export abstract class WatcherEntity extends CCBotEntity {
             this.startWatcherTick();
         }, boundRequestTimeout(this.refreshMs));
     }
-    
+
     /**
      * Override this in your subclass.
      * Downloads data from the streaming service to locate streams.

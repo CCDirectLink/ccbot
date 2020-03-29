@@ -25,14 +25,14 @@ import {CCBot} from './ccbot';
 
 /**
  * A modified version of the CommandRegistry.
- * 
+ *
  * JSON commands are read from the 'commands.json' dynamicData file.
  * Their structure is defined in: data/structures.js
  */
 export default class CCBotCommandRegistry extends commando.CommandRegistry {
     client!: CCBot;
     private allJSONCommands: commando.Command[];
-    
+
     constructor(c: CCBot) {
         super(c);
         this.allJSONCommands = [];
@@ -52,11 +52,11 @@ export default class CCBotCommandRegistry extends commando.CommandRegistry {
         for (const g in commands) {
             if (!this.groups.has(g))
                 this.registerGroup(g);
-            
+
             const gcmd: commando.Command = new HelpCommand(this.client, g);
             this.allJSONCommands.push(gcmd);
             this.registerCommand(gcmd);
-            
+
             for (const k in commands[g]) {
                 const cmd: commando.Command = new JSONCommand(this.client, g, k, commands[g][k]);
                 this.allJSONCommands.push(cmd);

@@ -76,11 +76,11 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     options = options || {};
 
     const footer = options.footer;
-        
+
     // The text-footer is subtracted from page length, so it's always safe to append.
     const textFooter = options.textFooter || '';
     pageLength -= textFooter.length;
-    
+
     // The algorithm begins...
     const pages: (discord.RichEmbedOptions & {description: string})[] = [];
     let elementsOnPage = 0;
@@ -182,7 +182,7 @@ class PageSwitcherEntity extends CCBotEntity {
     private pages: discord.RichEmbedOptions[];
     // Starts out true. Changes to false if it can't get rid of the user's reaction.
     private ignoreRemovals: boolean;
-    
+
     public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: PageSwitcherData) {
         super(c, 'message-' + message.id, data);
         this.channel = channel;
@@ -196,7 +196,7 @@ class PageSwitcherEntity extends CCBotEntity {
             this.ignoreRemovals = data.ignoreRemovals;
         }
     }
-    
+
     public toSaveData(): PageSwitcherData {
         return Object.assign(super.toSaveData(), {
             channel: this.channel.id,
@@ -206,19 +206,19 @@ class PageSwitcherEntity extends CCBotEntity {
             pages: this.pages
         });
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         if (!transferOwnership)
             silence(this.message.delete());
     }
-    
+
     public emoteReactionTouched(target: discord.Emoji, user: discord.User, add: boolean): void {
         super.emoteReactionTouched(target, user, add);
 
         if (user.id != this.user)
             return;
-        
+
         if (this.ignoreRemovals && !add)
             return;
 

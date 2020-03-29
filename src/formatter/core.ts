@@ -69,7 +69,7 @@ export class VMScope {
     public readonly vm: VM;
     public readonly parent: VMScope | null;
     public readonly functions: Map<string, VMFunction> = new Map();
-    
+
     public constructor(vm: VM, parent: VMScope | null) {
         this.vm = vm;
         this.parent = parent;
@@ -114,12 +114,12 @@ export class VM {
         this.time = 0;
         this.globalScope = new VMScope(this, null);
     }
-    
+
     public install(prims: Record<string, VMFunction>): void {
         for (const k in prims)
             this.globalScope.addFunction(k, prims[k], false);
     }
-    
+
     public consumeTime(time: number): void {
         this.time += time;
         this.backupTime++;
@@ -128,10 +128,10 @@ export class VM {
         if (this.backupTime > vmMaxTime)
             throw new Error('I don\'t know what you did but the backup timer didn\'t like it. REPORT THIS IMMEDIATELY');
     }
-        
+
     public async run(arg: Value, scope: VMScope): Promise<Value> {
         this.consumeTime(vmEvalTime);
-        
+
         // arg.length == 0 is also known as "nil"
         if (arg.constructor === Array) {
             const args = arg as Value[];
@@ -274,4 +274,4 @@ export async function runFormat(text: string, runner: VM): Promise<string> {
     });
     // return res + '\n' + runner.time + 'TU';
     return res;
-}    
+}

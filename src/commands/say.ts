@@ -80,7 +80,7 @@ export default class SayCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
         // Bootstrap?
         const bootstrap = (await getUserDatablock(this.client, message.author)).get()['bootstrap'];

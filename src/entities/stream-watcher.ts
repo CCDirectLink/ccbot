@@ -34,13 +34,13 @@ export interface StreamWatcherData extends WatcherEntityData {
 class StreamWatcherEntity extends WatcherEntity {
     private channel: discord.Channel & discord.TextBasedChannelFields;
     private message: discord.Message;
-    
+
     public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: StreamWatcherData) {
         super(c, 'message-' + message.id, data, 10000);
         this.channel = channel;
         this.message = message;
     }
-    
+
     public async watcherTick(): Promise<void> {
         const streams: {
             name: string;
@@ -60,11 +60,11 @@ class StreamWatcherEntity extends WatcherEntity {
                     let langTag = '';
                     if (stream.language)
                         langTag = '(' + stream.language.toUpperCase() + ')';
-                        
+
                     let titleTag = '';
                     if (stream.title)
                         titleTag = ': ' + stream.title;
-                    
+
                     const streamLongTail: string[] = [stream.url];
                     if (stream.started)
                         streamLongTail.push('Started at ' + stream.started + '.');
@@ -92,14 +92,14 @@ class StreamWatcherEntity extends WatcherEntity {
             }
         });
     }
-    
+
     public toSaveData(): StreamWatcherData {
         return Object.assign(super.toSaveData(), {
             channel: this.channel.id,
             message: this.message.id
         });
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         if (!transferOwnership)

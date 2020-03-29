@@ -37,7 +37,7 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
     constructor(message: discord.Message, command: commando.Command | null, text: string) {
         super(message, command, text);
     }
-    
+
     reply(content: any, options: any) {
         if (typeof content === "string") {
             // check for error message and block it
@@ -88,12 +88,12 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     parseMessage(message: discord.Message): commando.CommandMessage | null {
         // Stage 1: Prefix removal, cleanup
         let text: string = message.content;
-        
+
         // The regexes used here are taken from the older code.
 
         // Trim
         text = text.replace(/^\s+|\s+$/g, '');
-        
+
         //  Get & remove the prefix
         let commandPrefix1: string | undefined;
         let commandPrefix2: string | undefined;
@@ -104,7 +104,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
             commandPrefix1 = this.client.commandPrefix;
             commandPrefix2 = this.client.user.toString();
         }
-        
+
         if (commandPrefix1 && text.startsWith(commandPrefix1)) {
             text = text.substring(commandPrefix1.length);
         } else if (commandPrefix2 && text.startsWith(commandPrefix2)) {
@@ -114,7 +114,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         } else {
             return null;
         }
-        
+
         // Stage 2: Further Stuff
 
         // Remove mentions, but keep the content so they work properly for findCheaterByRef
@@ -143,11 +143,11 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         } else {
             text = '';
         }
-        
+
         // console.log([group, command, text]);
-        
+
         // Stage 4: Actually Figure Out What Command It Is
-        
+
         group = group.toLowerCase();
         command = command.toLowerCase();
 
@@ -164,7 +164,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
 
         return new CCBotCommandMessage(message, commandInst, text) as unknown as commando.CommandMessage;
     }
-    
+
     parseUnknownCommand(message: any, text: string): commando.CommandMessage | null {
         // This is imitating the Commando master behavior.
         // But we use it as a method for overriding the unknown-command.

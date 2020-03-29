@@ -44,7 +44,7 @@ class ReactRolesEntity extends CCBotEntity {
         this.messageId = data.message;
         this.reactions = data.reactions;
     }
-    
+
     public toSaveData(): ReactRolesData {
         return Object.assign(super.toSaveData(), {
             guild: this.guild.id,

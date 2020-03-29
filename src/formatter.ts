@@ -42,7 +42,7 @@ export class VM extends formatterCore.VM {
  *  which also makes any formatting directive implicitly usable in other ways if the system gets more complex.
  *
  * The VM within that, above, is LISP-style (different data structure though).
- * 
+ *
  * The special sequences are:
  * %: Escape character. Will escape anything, except ( outside of a list system.
  * %%: How to write '%'.

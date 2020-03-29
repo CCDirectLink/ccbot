@@ -57,7 +57,7 @@ export abstract class CCBot extends commando.CommandoClient {
         this.on('guildCreate', callbackUpdateGER);
         this.on('guildDelete', callbackUpdateGER);
     }
-    
+
     /**
      * Ensures data is loaded before anything is done. Important to prevent any potential corruption.
      */
@@ -68,7 +68,7 @@ export abstract class CCBot extends commando.CommandoClient {
             this.entities.initialLoad
         ]);
     }
-    
+
     /**
      * Overrides destroy to ensure all data is saved.
      */
@@ -77,7 +77,7 @@ export abstract class CCBot extends commando.CommandoClient {
         await this.dynamicData.destroy();
         await this.entities.destroy();
     }
-    
+
     /**
      * You really, really shouldn't have to add something here.
      * As far as I know the only kinds of events that need this kind of thing are reaction events,
@@ -151,7 +151,7 @@ export class CCBotCommand extends commando.Command {
  * *All entities in the project should be based off of this class, directly or indirectly.*
  * A version of Entity with fixed generics and the relevant callbacks.
  */
-export class CCBotEntity extends Entity<CCBot> {    
+export class CCBotEntity extends Entity<CCBot> {
     public constructor(c: CCBot, id: string, data: EntityData) {
         super(c, id, data);
     }
@@ -160,13 +160,13 @@ export class CCBotEntity extends Entity<CCBot> {
         if (!this.killed)
             this.client.entities.killEntity(this.id, transferOwnership);
     }
-    
+
     public updated(): void {
         super.updated();
         if (!this.killed)
             this.client.entities.updated();
     }
-    
+
     /**
      * For those entities with ID 'message-{id}' (such as 'message-597047171090743308'),
      *  this callback receives emote add/remove events.

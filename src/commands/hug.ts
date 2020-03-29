@@ -40,7 +40,7 @@ export default class HugCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage, args: {people: string[]}): Promise<discord.Message|discord.Message[]> {
         /*
          * Design contributions by:
@@ -82,7 +82,7 @@ export default class HugCommand extends CCBotCommand {
                 lines.push('Couldn\'t find ' + args.people[i] + '!');
             }
         }
-        
+
         const text = lines.join('\n');
         if (text.length > 2000)
             return await message.say('Hug overload!');

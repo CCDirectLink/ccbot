@@ -46,7 +46,7 @@ async function copyAndFormat(vm: VM, embed: string | {[k: string]: string | obje
 export default class JSONCommand extends CCBotCommand {
     // The JSON command structure.
     private readonly command: structures.Command;
-    
+
     public constructor(client: CCBot, group: string, name: string, json: structures.Command) {
         const opt = {
             name: '-' + group.toLowerCase() + ' ' + name.toLowerCase(),
@@ -61,7 +61,7 @@ export default class JSONCommand extends CCBotCommand {
         super(client, opt);
         this.command = json;
     }
-    
+
     public async run(message: commando.CommandMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
@@ -76,7 +76,7 @@ export default class JSONCommand extends CCBotCommand {
             protectedContent: false,
             args: [],
         };
-        
+
         // VM Arguments Init
         if (args && args.args) {
             if (args.args.constructor === Array) {
@@ -88,7 +88,7 @@ export default class JSONCommand extends CCBotCommand {
         for (const arg of vmContext.args)
             if (arg.constructor !== String)
                 return await message.say('That command can only eat strings, but it was given non-strings.');
-        
+
         // VM Execution
         let formatText;
         {

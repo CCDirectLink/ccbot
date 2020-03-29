@@ -41,7 +41,7 @@ class CCBotMain {
             commandPrefix: this.secrets.commandPrefix
         }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
         this.dataCollector = null;
-        
+
         const kickstart = async (): Promise<void> => {
             try {
                 // Makes sure that data isn't corrupt, makes sure that data is available

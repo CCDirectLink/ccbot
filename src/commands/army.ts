@@ -68,7 +68,7 @@ export default class ArmyCommand extends CCBotCommand {
         super(client, opt);
         this.emote = emote;
     }
-    
+
     public async run(message: commando.CommandMessage, args: {width: number; height: number}): Promise<discord.Message|discord.Message[]> {
         // Awkward, but solves the issue.
         if (args.height == 0)
@@ -77,7 +77,7 @@ export default class ArmyCommand extends CCBotCommand {
         const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, this.emote);
         if (!emoteSafe(emoteUse, message.channel))
             return message.say('they appear to have been transformed into something unsuitable for this channel');
-        
+
         // Initial safety checks
         if ((args.width < 1) || (args.height < 1))
             return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');

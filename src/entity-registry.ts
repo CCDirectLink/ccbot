@@ -39,7 +39,7 @@ export interface EntityData {
 export abstract class Entity<C> {
     // Used to alert callbacks to the entity's death.
     public killed: boolean = false;
-    
+
     // This is more complicated than just a unique ID,
     //  because various entities have various fixed names as part of the event
     //  structure.
@@ -58,10 +58,10 @@ export abstract class Entity<C> {
     //  due to measures to avoid kill-checks eating CPU.
     // Setting killTime to 0 potentially stops the kill checks, making it permanent for that run.
     private killTime: number;
-    
+
     // This is how much from the current time postponeDeathAndUpdate postpones death for.
     private killTimeout: number;
-    
+
     // This is a JSON serialized copy of the entity used for saving.
     // This is marked private and then accessed via any,
     //  as it's internal to the entity system and shouldn't be touched.
@@ -102,7 +102,7 @@ export abstract class Entity<C> {
         this.killTime = 0;
         this.updated();
     }
-    
+
     /**
      * Postpones killTime relative to now by the timeout value.
      */
@@ -135,7 +135,7 @@ export abstract class Entity<C> {
             setTimeout((): void => this.entityCheckIfShouldKill(), effectiveTime);
         }
     }
-    
+
     /**
      * Used in the subclass to connect to killEntity.
      * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
@@ -143,7 +143,7 @@ export abstract class Entity<C> {
     public kill(transferOwnership: boolean): void {
         throw new Error('Subclass did not implement kill()');
     }
-    
+
     /**
      * Used in the subclass to connect to the registry updated().
      * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
@@ -151,16 +151,16 @@ export abstract class Entity<C> {
     public updated(): void {
         this.entitySerializedOutOfDate = true;
     }
-    
+
     /**
      * Called just after the entity was killed.
      * If the entity is maintaining a state, like an activity, this is where it would be reset.
      * If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
      */
     public onKill(transferOwnership: boolean): void {
-        
+
     }
-    
+
     /**
      * Called to save the entity.
      * Must provide an object that can be passed to newEntity to get the same(ish) entity.
@@ -198,12 +198,12 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     //  certain things might not exist that entities might want to access.
     private started: boolean = false;
     private cachedJSON: string = 'XXX_DID_NOT_LOAD_DATA_XXX';
-    
+
     public constructor(c: C, path: string) {
         super(path, false, false);
         this.client = c;
     }
-    
+
     protected deserialize(json: string): void {
         if (!this.started) {
             this.cachedJSON = json;
@@ -216,7 +216,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
                 // These will have already been reported.
             });
     }
-    
+
     protected serialize(): string {
         if (!this.started)
             throw new Error('Absolutely can\'t serialize at this time, the bot hasn\'t started yet');
@@ -235,7 +235,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         }
         return '[\n ' + entities.join(',\n ') + '\n]';
     }
-    
+
     /**
      * Starts entities (i.e. creates them & such).
      * Before this point, entity-related operations do nothing.
@@ -249,7 +249,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         this.deserialize(this.cachedJSON);
         this.cachedJSON = 'XXX_ALREADY_STARTED_XXX';
     }
-    
+
     // Generates a unique-ish entity ID with a given prefix.
     public generateEntityID(prefix: string): string {
         prefix = prefix + stardate + '-' + Date.now() + '-' + logEntryNumber + '-';
@@ -262,7 +262,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         }
         return nid;
     }
-    
+
     /**
      * Creates an entity synchronously.
      * Useful when circumstances should guarantee atomicity for safety reasons between entities which know each other.
@@ -272,7 +272,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         this.entities[newEnt.id] = newEnt;
         this.updated();
     }
-    
+
     /**
      * Creates a new entity from the JSON data for that entity.
      * Must report errors to console.
@@ -306,7 +306,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
 
     /**
      * Kills the entity with the given ID.
-     */    
+     */
     public killEntity(id: string, transferOwnership: boolean): void {
         if (id in this.entities) {
             const v = this.entities[id];
@@ -316,7 +316,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
             this.updated();
         }
     }
-    
+
     /**
      * Kills absolutely all entities (perhaps in preparation for a load)
      */

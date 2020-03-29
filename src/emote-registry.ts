@@ -40,15 +40,15 @@ function looksLikeAnEmoji(text: string): boolean {
  */
 export default class CCBotEmoteRegistry {
     client: commando.CommandoClient;
-    
+
     // NOTE: This does *not* include per-guild settings or global settings.
     globalEmoteRegistry: Map<string, discord.Emoji> = new Map();
     globalConflicts: number = 0;
-    
+
     constructor(c: commando.CommandoClient) {
         this.client = c;
     }
-    
+
     /**
      * Updates the global emote registry.
      * This is where all the emotes go.
@@ -82,7 +82,7 @@ export default class CCBotEmoteRegistry {
                     let bg = safetyList.indexOf(b.guild.id);
                     if (bg < 0)
                         bg = safetyList.length;
-                    
+
                     if (ag < bg) {
                         return -1;
                     } else if (ag > bg) {
@@ -113,7 +113,7 @@ export default class CCBotEmoteRegistry {
         }
         this.globalEmoteRegistry = localRegistry;
     }
-    
+
     /**
      * Checks if an emote is overridden at guild or global level.
      */
@@ -157,7 +157,7 @@ export default class CCBotEmoteRegistry {
         // Emote IDs / Written custom emotes / Unicode emotes
         return this.emojiResolverNina(name);
     }
-    
+
     /**
      * Don't ask about the name.
      * This defines the syntax of the "emote-".

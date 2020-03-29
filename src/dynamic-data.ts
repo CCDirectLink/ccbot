@@ -24,23 +24,23 @@ export abstract class DynamicTextFile {
     // It does not make sense to have a non-immediate RAM
     public ram: boolean;
     private inMiddleOfSI: Promise<void> | null = null;
-    
+
     // Resolves after the initial load.
     public initialLoad: Promise<void>;
 
     private path: string;
-    
+
     // Used for the write buffering
     private modifyTimeoutActive: (() => void)[] | null = null;
     private modifyTimeoutReject: ((err: any) => void)[] | null = null;
-    
+
     constructor(name: string, immediate: boolean, ram: boolean) {
         this.path = 'dynamic-data/' + name;
         this.immediate = immediate;
         this.ram = ram;
         this.initialLoad = this.reload();
     }
-    
+
     /**
      * Used on save.
      */
@@ -50,7 +50,7 @@ export abstract class DynamicTextFile {
      * Used on load. Can throw errors.
      */
     protected abstract deserialize(text: string): void;
-    
+
     /**
      * Performs an immediate save.
      */
@@ -85,7 +85,7 @@ export abstract class DynamicTextFile {
             });
         });
     }
-    
+
     /**
      * Indicates that the data should be saved eventually (unless this is an immediate object)
      */
@@ -123,7 +123,7 @@ export abstract class DynamicTextFile {
             });
         }
     }
-    
+
     /**
      * Reloads the object.
      */
@@ -143,7 +143,7 @@ export abstract class DynamicTextFile {
             });
         });
     }
-    
+
     /**
      * Destroys the DynamicTextFile, severing the link to the filesystem (if there is one).
      * Before doing so, saves any modified data, leaving things in a consistent state.
@@ -162,7 +162,7 @@ export class DynamicData<T> extends DynamicTextFile {
     public data: T;
 
     private modifyActions: (() => void)[] = [];
-    
+
     constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
         super(name + '.json', immediate, ram);
         this.data = defaultContent;
@@ -188,11 +188,11 @@ export class DynamicData<T> extends DynamicTextFile {
         this.callOnModify();
         return this.updated();
     }
-    
+
     protected serialize(): string {
         return JSON.stringify(this.data);
     }
-    
+
     protected deserialize(data: string): void {
         this.data = JSON.parse(data);
         this.callOnModify();
@@ -207,7 +207,7 @@ export class DynamicData<T> extends DynamicTextFile {
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
     settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});
-    
+
     async destroy(): Promise<void> {
         await Promise.all([
             this.commands.destroy(),

@@ -36,14 +36,14 @@ export interface RandomActivityData extends EntityData {
 class RandomActivityEntity extends CCBotEntity {
     public readonly activities: Activity[];
     public readonly interMessageTime: number;
-    
+
     public constructor(c: CCBot, data: RandomActivityData) {
         super(c, 'activity-manager', data);
         this.activities = data.activities;
         this.interMessageTime = data.intervalMs;
         this.updateText();
     }
-    
+
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
             silence(this.client.user.setPresence({
@@ -51,7 +51,7 @@ class RandomActivityEntity extends CCBotEntity {
                 game: null
             }));
     }
-    
+
     public updateText(): void {
         if (this.killed)
             return;
@@ -67,7 +67,7 @@ class RandomActivityEntity extends CCBotEntity {
             this.updateText();
         }, this.interMessageTime);
     }
-    
+
     public toSaveData(): RandomActivityData {
         return Object.assign(super.toSaveData(), {
             activities: this.activities,

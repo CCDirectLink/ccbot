@@ -30,7 +30,7 @@ export default class PingCommand extends CCBotCommand {
         };
         super(client, opt);
     }
-    
+
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         // This is semi-ported from the old bot's code! Credit to whoever wrote that.
         // Please don't sue me.

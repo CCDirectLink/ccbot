@@ -63,7 +63,7 @@ const gameId = '491243';
  */
 export class TwitchStreamProviderEntity extends StreamProviderEntity {
     private requestMaker: (endpoint: string) => Promise<object>;
-    
+
     public constructor(c: CCBot, data: StreamProviderEntityData, clientId: string) {
         super(c, 'twitch', data);
         this.requestMaker = async (endpoint: string): Promise<object> => {
@@ -74,10 +74,10 @@ export class TwitchStreamProviderEntity extends StreamProviderEntity {
             });
         };
     }
-    
+
     public async watcherTick(): Promise<void> {
         const streams = (await this.requestMaker('helix/streams?game_id=' + gameId)) as TwitchPaginated<TwitchStream>;
-        
+
         // Twitch requires we have a user's "login" (username) for their stream URL.
         // So we need to grab those.
         // Additional note: Each index here corresponds with a streams.data index.
