@@ -88,7 +88,7 @@ export default class HelpCommand extends CCBotCommand {
         } else {
             try {
                 for (const str of text)
-                    await message.author.send({description: str}) as discord.Message;
+                    await message.author.send('', {embed: {description: str}}) as discord.Message;
                 return await message.say('The help page has been sent to your DMs.');
             } catch (e) {
                 return await message.say('Tried to send help information to DMs, but... are your DMs blocked?');
