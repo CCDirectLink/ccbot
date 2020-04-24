@@ -18,8 +18,8 @@ import * as commando from 'discord.js-commando';
 import {CCBot} from './ccbot';
 import CCBotImpl from './ccbot-impl';
 import {Secrets} from './data/structures'
-import fs from 'fs';
-import net from 'net';
+import * as fs from 'fs';
+import * as net from 'net';
 
 /**
  * The one and only main class, that initializes everything.
