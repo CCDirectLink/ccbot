@@ -74,12 +74,9 @@ export interface Modlike {
     name: string;
     version: string;
     description?: string;
-    license?: string;
     page: ModlikePage[];
 }
-export interface ModlikeIndex {
-    [name: string]: Modlike;
-}
+export interface ModlikeIndex {[name: string]: Modlike}
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
 export interface DiscordAPIUser {

@@ -52,7 +52,6 @@ export class ModsToolsGetCommand extends CCBotCommand {
                     const mod: Modlike = modIndex[id];
                     const components: string[] = [`**${mod.name} (${mod.version})**`];
                     if (mod.description) components.push(mod.description);
-                    if (mod.license) components.push(`License: ${mod.license}`);
                     for (const page of mod.page) components.push(`[View on ${page.name}](${page.url})`);
                     components.push('');
                     mods.push(components.join('\n'));

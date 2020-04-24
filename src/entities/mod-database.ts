@@ -87,7 +87,6 @@ export class ModDatabaseEntity extends ModlikeDatabaseEntity {
                 name: metadata.ccmodHumanName || metadata.name,
                 version: metadata.version,
                 description: metadata.description,
-                license: metadata.license,
                 page: getModHomepageWebsiteName(metadata.homepage),
             } as Modlike;
         }
