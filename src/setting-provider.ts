@@ -19,10 +19,8 @@ import * as structures from './data/structures';
 import JSONCommand from './commands/json';
 import {DynamicData} from './dynamic-data';
 
-/**
- * The setting bindings are *in the provider* for some reason.
- * This fixes SettingProvider to handle this properly.
- */
+/// The setting bindings are *in the provider* for some reason.
+/// This fixes SettingProvider to handle this properly.
 class SaneSettingProvider extends commando.SettingProvider {
     public client!: commando.CommandoClient;
 
@@ -47,9 +45,7 @@ class SaneSettingProvider extends commando.SettingProvider {
         };
     }
 
-    /**
-     * Pokes the awful internals because setEnabledIn fails for reasons
-     */
+    /// Pokes the awful internals because setEnabledIn fails for reasons
     private reloadSettings(): void {
         // -- Prefixes
         this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
@@ -106,10 +102,7 @@ class SaneSettingProvider extends commando.SettingProvider {
     }
 }
 
-/**
- *
- * A modified version of the CommandDispatcher.
- */
+/// A modified version of the CommandDispatcher.
 class CCBotSettingProvider extends SaneSettingProvider {
     public readonly data: DynamicData<structures.GuildIndex>;
 

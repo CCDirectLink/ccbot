@@ -20,9 +20,7 @@ import {naturalComparison, localAdminCheck, emoteSafe, mdEsc} from '../utils';
 import {outputElements, PageSwitcherOutputElement} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
-/**
- * A command to list the accessible emotes.
- */
+/// A command to list the accessible emotes.
 export class ListEmotesCommand extends CCBotCommand {
     private sfw: boolean;
 
@@ -84,9 +82,7 @@ export class ListEmotesCommand extends CCBotCommand {
     }
 }
 
-/**
- * A command to say a set of emotes.
- */
+/// A command to say a set of emotes.
 export class EmoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
@@ -128,9 +124,7 @@ export class EmoteCommand extends CCBotCommand {
     }
 }
 
-/**
- * A command to react with a set of emotes.
- */
+/// A command to react with a set of emotes.
 export class ReactCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

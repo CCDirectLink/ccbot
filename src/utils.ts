@@ -19,14 +19,10 @@ import * as https from 'https';
 import * as http from 'http';
 import * as url from 'url';
 
-/**
- * Alias that's simpler to access
- */
+/// Alias that's simpler to access
 export const mdEsc = discord.Util.escapeMarkdown;
 
-/**
- * Returns if a given channel is appropriate for NSFW information.
- */
+/// Returns if a given channel is appropriate for NSFW information.
 export function nsfw(channel: discord.Channel): boolean {
     if (channel.type == 'text') {
         const c2: discord.TextChannel = channel as discord.TextChannel;
@@ -39,9 +35,7 @@ export function nsfw(channel: discord.Channel): boolean {
     return false;
 }
 
-/**
- * Returns if a given guild is considered a liability SFW-wise.
- */
+/// Returns if a given guild is considered a liability SFW-wise.
 export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild): boolean {
     if (client.provider.get('global', 'nsfw-' + guild.id, false))
         return true;
@@ -49,9 +43,7 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
     return (val || false) && true;
 }
 
-/**
- * Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
- */
+/// Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
 export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: boolean): boolean {
     sfw = sfw || false;
     // if channel is NSFW, it's always safe to use it here
@@ -96,23 +88,17 @@ export function getGuildTextChannel(client: commando.CommandoClient, guild: disc
     return channelAsTBF(result) as (discord.TextChannel | undefined);
 }
 
-/**
- * Use if you think a failed promise really doesn't matter.
- */
+/// Use if you think a failed promise really doesn't matter.
 export function silence(n: Promise<unknown>): void {
     n.catch((): void => {});
 }
 
-/**
- * A random array element picker.
- */
+/// A random array element picker.
 export function randomArrayElement<T>(array: T[]): T {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-/**
- * Sorts in a natural (?) manner.
- */
+/// Sorts in a natural (?) manner.
 export function naturalComparison(a: string, b: string): number {
     a = a.toLowerCase();
     b = b.toLowerCase();
@@ -131,9 +117,7 @@ export function naturalComparison(a: string, b: string): number {
     return 0;
 }
 
-/**
- * Checks if a user is at the local guild's bot-administrative level.
- */
+/// Checks if a user is at the local guild's bot-administrative level.
 export function localAdminCheck(t: commando.CommandMessage): boolean {
     if (t.client.owners.includes(t.author))
         return true;
@@ -184,10 +168,8 @@ export function guildOf(a: object): commando.GuildExtension | undefined {
     return (a as {guild?: commando.GuildExtension}).guild;
 }
 
-/**
- * Retrieves a JSON file from the 'web
- * NOTE: headers is modified for added spice.
- */
+/// Retrieves a JSON file from the 'web
+/// NOTE: headers is modified for added spice.
 export function getJSON(endpoint: string, headers: Record<string, string>): Promise<object> {
     // Older versions of Node don't do the "automatic parsing of URLs" thing if an object is passed
     // Rest of the bot works fine so might as well put this here
@@ -226,10 +208,8 @@ export function getJSON(endpoint: string, headers: Record<string, string>): Prom
     });
 }
 
-/**
- * Puts anti-stupidity limits on anything that looks remotely like an HTTP request-related number.
- * This is meant for numbers *below* the setTimeout ceiling and *will throw* if a number above that is given.
- */
+/// Puts anti-stupidity limits on anything that looks remotely like an HTTP request-related number.
+/// This is meant for numbers *below* the setTimeout ceiling and *will throw* if a number above that is given.
 export function boundRequestTimeout(n: number | undefined): number {
     n = n || 60000;
     if (n >= 0x40000000)
@@ -237,9 +217,7 @@ export function boundRequestTimeout(n: number | undefined): number {
     return Math.min(Math.max(n, 60000), 0x40000000);
 }
 
-/**
- * Reports a random "Done!"-like response to make the spam less boring.
- */
+/// Reports a random "Done!"-like response to make the spam less boring.
 export function doneResponse(): string {
     return randomArrayElement([
         'Ah, yes. I\'ve done it.',

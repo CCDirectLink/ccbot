@@ -19,12 +19,10 @@ import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
 
-/**
- * The modified CommandoClient used by this bot.
- * This contains all of the fields and methods for the extension,
- *  but not the full constructor, and must not be constructed.
- * See ccbot-impl.ts for why this is.
- */
+/// The modified CommandoClient used by this bot.
+/// This contains all of the fields and methods for the extension,
+/// but not the full constructor, and must not be constructed.
+/// See ccbot-impl.ts for why this is.
 export abstract class CCBot extends commando.CommandoClient {
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
@@ -58,9 +56,7 @@ export abstract class CCBot extends commando.CommandoClient {
         this.on('guildDelete', callbackUpdateGER);
     }
 
-    /**
-     * Ensures data is loaded before anything is done. Important to prevent any potential corruption.
-     */
+    /// Ensures data is loaded before anything is done. Important to prevent any potential corruption.
     public async loadData(): Promise<void> {
         await Promise.all([
             this.dynamicData.commands.initialLoad,
@@ -69,20 +65,16 @@ export abstract class CCBot extends commando.CommandoClient {
         ]);
     }
 
-    /**
-     * Overrides destroy to ensure all data is saved.
-     */
+    /// Overrides destroy to ensure all data is saved.
     public async destroy(): Promise<void> {
         await super.destroy();
         await this.dynamicData.destroy();
         await this.entities.destroy();
     }
 
-    /**
-     * You really, really shouldn't have to add something here.
-     * As far as I know the only kinds of events that need this kind of thing are reaction events,
-     *  and I have already solved those... well enough.
-     */
+    /// You really, really shouldn't have to add something here.
+    /// As far as I know the only kinds of events that need this kind of thing are reaction events,
+    /// and I have already solved those... well enough.
     private handleRawEvent(event: {t: string; d: any}): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
@@ -127,10 +119,8 @@ export abstract class CCBot extends commando.CommandoClient {
     }
 }
 
-/**
- * *All commands in the project should be based off of this class, directly or indirectly.*
- * A version of commando.Command with CCBot taking the place of the client field.
- */
+/// *All commands in the project should be based off of this class, directly or indirectly.*
+/// A version of commando.Command with CCBot taking the place of the client field.
 export class CCBotCommand extends commando.Command {
     public client!: CCBot;
     public constructor(client: CCBot, options: commando.CommandInfo) {
@@ -147,10 +137,8 @@ export class CCBotCommand extends commando.Command {
     }
 }
 
-/**
- * *All entities in the project should be based off of this class, directly or indirectly.*
- * A version of Entity with fixed generics and the relevant callbacks.
- */
+/// *All entities in the project should be based off of this class, directly or indirectly.*
+/// A version of Entity with fixed generics and the relevant callbacks.
 export class CCBotEntity extends Entity<CCBot> {
     public constructor(c: CCBot, id: string, data: EntityData) {
         super(c, id, data);
@@ -167,11 +155,9 @@ export class CCBotEntity extends Entity<CCBot> {
             this.client.entities.updated();
     }
 
-    /**
-     * For those entities with ID 'message-{id}' (such as 'message-597047171090743308'),
-     *  this callback receives emote add/remove events.
-     * This thus basically turns entities with those IDs into 'message managers'.
-     */
+    /// For those entities with ID 'message-{id}' (such as 'message-597047171090743308'),
+    /// this callback receives emote add/remove events.
+    /// This thus basically turns entities with those IDs into 'message managers'.
     public emoteReactionTouched(emote: discord.Emoji, user: discord.User, add: boolean): void {
         // All 3 arguments are not used on purpose.
     }

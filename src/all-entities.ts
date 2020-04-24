@@ -28,9 +28,7 @@ import {newTwitchStreamProviderLoader} from './entities/twitch-stream-provider';
 import {newYouTubeStreamProviderLoader} from './entities/youtube-stream-provider';
 import {CCBot} from './ccbot';
 
-/**
- * Registers all the entities. (More or less.)
- */
+/// Registers all the entities. (More or less.)
 export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined): void {
     cr.entities.entityTypes['date-activity'] = loadDateActivity;
     cr.entities.entityTypes['page-switcher'] = loadPageSwitcher;

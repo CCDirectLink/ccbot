@@ -19,9 +19,7 @@ import {EntityData} from '../entity-registry';
 import {getGuildTextChannel, silence, guildOf} from '../utils';
 import {DiscordAPIUser} from '../data/structures';
 
-/**
- * Implements greetings and automatic role assignment.
- */
+/// Implements greetings and automatic role assignment.
 class AuditorEntity extends CCBotEntity {
     private banListener: (g: discord.Guild, u: DiscordAPIUser, arm: boolean) => void;
     private updateListener: (c: discord.Channel & discord.TextBasedChannelFields, id: string) => void;

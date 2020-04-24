@@ -17,13 +17,11 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {naturalComparison, nsfwGuild} from './utils';
 
-/**
- * Determine if a bit of text looks like an emoji.
- * Notably, it doesn't actually have to *be* an emoji,
- *  it just has to not look too much like one to stop people complaining over 'bugs' that don't exist.
- * We're not embedding a dictionary of every possible emoji combination just so that
- *  emote doesn't accept a few invalid combinations.
- */
+/// Determine if a bit of text looks like an emoji.
+/// Notably, it doesn't actually have to *be* an emoji,
+/// it just has to not look too much like one to stop people complaining over 'bugs' that don't exist.
+/// We're not embedding a dictionary of every possible emoji combination just so that
+/// emote doesn't accept a few invalid combinations.
 function looksLikeAnEmoji(text: string): boolean {
     for (let i = 0; i < text.length; i++) {
         const code = text.charCodeAt(i);
@@ -33,11 +31,9 @@ function looksLikeAnEmoji(text: string): boolean {
     return true;
 }
 
-/**
- * A registry of emotes.
- * Not enough of a separatable process to qualify for Entity status,
- *  but it would be messy for this to remain in the main CCBot class.
- */
+/// A registry of emotes.
+/// Not enough of a separatable process to qualify for Entity status,
+/// but it would be messy for this to remain in the main CCBot class.
 export default class CCBotEmoteRegistry {
     client: commando.CommandoClient;
 
@@ -49,11 +45,9 @@ export default class CCBotEmoteRegistry {
         this.client = c;
     }
 
-    /**
-     * Updates the global emote registry.
-     * This is where all the emotes go.
-     * In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
-     */
+    /// Updates the global emote registry.
+    /// This is where all the emotes go.
+    /// In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
     updateGlobalEmoteRegistry(): void {
         const localRegistryCollation: Map<string, discord.Emoji[]> = new Map();
         for (const emote of this.client.emojis.values()) {
@@ -67,7 +61,7 @@ export default class CCBotEmoteRegistry {
         const localRegistry: Map<string, discord.Emoji> = new Map();
         // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
         // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
-        const safetyList: Array<any> | undefined = this.client.provider.get('global', 'emotePath', []);
+        const safetyList: any[] | undefined = this.client.provider.get('global', 'emotePath', []);
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {
@@ -114,9 +108,7 @@ export default class CCBotEmoteRegistry {
         this.globalEmoteRegistry = localRegistry;
     }
 
-    /**
-     * Checks if an emote is overridden at guild or global level.
-     */
+    /// Checks if an emote is overridden at guild or global level.
     isOverride(guild: discord.Guild | null, name: string): string | null {
         // Local emote overrides
         if (guild) {
@@ -131,14 +123,12 @@ export default class CCBotEmoteRegistry {
         return null;
     }
 
-    /**
-     * Gets an emote as a discord.Emoji
-     * This is a bit weird because the stable discord.js API is messy regarding non-custom emoji.
-     * It both does and does not support it.
-     * NOTE! Use userAwareGetEmote whenever possible.
-     * Emote grabbing should operate from the Writer's perspective,
-     *  which means hug emote can be overridden by user, etc.
-     */
+    /// Gets an emote as a discord.Emoji
+    /// This is a bit weird because the stable discord.js API is messy regarding non-custom emoji.
+    /// It both does and does not support it.
+    /// NOTE! Use userAwareGetEmote whenever possible.
+    /// Emote grabbing should operate from the Writer's perspective,
+    /// which means hug emote can be overridden by user, etc.
     getEmote(guild: discord.Guild | null, name: string): discord.Emoji {
         // Local emote overrides
         if (guild) {
@@ -158,11 +148,9 @@ export default class CCBotEmoteRegistry {
         return this.emojiResolverNina(name);
     }
 
-    /**
-     * Don't ask about the name.
-     * This defines the syntax of the "emote-".
-     * It is very horrifying.
-     */
+    /// Don't ask about the name.
+    /// This defines the syntax of the "emote-".
+    /// It is very horrifying.
     emojiResolverNina(text: string): discord.Emoji {
         // Is it just an emote ID?
         const direct = this.client.emojis.get(text);
@@ -190,9 +178,7 @@ export default class CCBotEmoteRegistry {
         return transmuted;
     }
 
-    /**
-     * Lists all emote refs.
-     */
+    /// Lists all emote refs.
     getEmoteRefs(guild: discord.Guild | null): string[] {
         const a: string[] = [];
         for (const k of this.globalEmoteRegistry.keys())

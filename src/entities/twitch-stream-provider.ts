@@ -51,16 +51,12 @@ interface TwitchUser {
     view_count: number;
 }
 
-/**
- * The Game ID of CrossCode.
- * Hardcoded because this is the kind of thing where a change just doesn't happen,
- *  and if it does happen the bot can be updated...
- */
+/// The Game ID of CrossCode.
+/// Hardcoded because this is the kind of thing where a change just doesn't happen,
+/// and if it does happen the bot can be updated...
 const gameId = '491243';
 
-/**
- * Scans for CrossCode Twitch streams.
- */
+/// Scans for CrossCode Twitch streams.
 export class TwitchStreamProviderEntity extends StreamProviderEntity {
     private requestMaker: (endpoint: string) => Promise<object>;
 

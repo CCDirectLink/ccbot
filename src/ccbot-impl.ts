@@ -21,11 +21,9 @@ import {CCBot} from './ccbot';
 import registerAllCommands from './all-commands';
 import registerAllEntities from './all-entities';
 
-/**
- * This separate class prevents a dependency loop that would otherwise occur.
- * Theoretically, it's just type definitions, but unfortunately the imports still happen.
- * Only the constructor should be here - the rest is API for the commands and so should be in CCBot.
- */
+/// This separate class prevents a dependency loop that would otherwise occur.
+/// Theoretically, it's just type definitions, but unfortunately the imports still happen.
+/// Only the constructor should be here - the rest is API for the commands and so should be in CCBot.
 export default class CCBotImpl extends CCBot {
     public constructor(co: commando.CommandoClientOptions, twitchClientId: string | undefined, ytClientId: string | undefined) {
         super(co);

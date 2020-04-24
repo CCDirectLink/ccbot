@@ -17,10 +17,8 @@ import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {silence} from '../utils';
 
-/**
- * Updates a visible date every 10 seconds.
- * Additional fields: None.
- */
+/// Updates a visible date every 10 seconds.
+/// Additional fields: None.
 class DateActivityEntity extends CCBotEntity {
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'activity-manager', data);

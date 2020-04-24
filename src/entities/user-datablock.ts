@@ -27,9 +27,7 @@ const userDatablockTTL = 30 * (24 * 60 * 60 * 1000);
 // This should leave a few extra characters in the embed window for show-user-settings.
 const userDatablockMaxLength = 2000;
 
-/**
- * Dumb storage with a deathclock on it.
- */
+/// Dumb storage with a deathclock on it.
 export class UserDatablockEntity extends CCBotEntity {
     public who: string;
     public content: string;

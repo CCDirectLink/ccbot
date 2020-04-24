@@ -20,9 +20,7 @@ import {convertRoles, convertRoleGroup, getUserDeniedRoles} from '../role-utils'
 import {doneResponse} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 
-/**
- * Gets inclusivity/exclusivity group involvement given a target and a role ID list.
- */
+/// Gets inclusivity/exclusivity group involvement given a target and a role ID list.
 function getInvolvement(client: commando.CommandoClient, guild: discord.Guild, groupType: string, involvedIDs: string[]): string[] {
     const involvement: string[] = [];
     const groups: string[] = client.provider.get(guild, 'roles-' + groupType, []);
@@ -47,11 +45,9 @@ function getWhitelist(client: CCBot, guild: discord.Guild): string[] {
     return whitelist;
 }
 
-/**
- * There's a lot of common stuff this combines into one function.
- * Notably, this assumes that whoever causes this to be run, they are authorized to do so.
- * If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
- */
+/// There's a lot of common stuff this combines into one function.
+/// Notably, this assumes that whoever causes this to be run, they are authorized to do so.
+/// If this may not be the case, add the checks in the calling function; this function focuses on the logic of the effects.
 export async function runRoleCommand(client: CCBot, member: discord.GuildMember, roles: string[], add: boolean): Promise<string> {
 
     const userRoles = member.roles.keyArray();
@@ -132,9 +128,7 @@ async function genericARRunner(message: commando.CommandMessage, args: {roles: s
     return message.say(await runRoleCommand(message.client as CCBot, message.member, args.roles, add));
 }
 
-/**
- * A command for someone to add roles to themselves using the bot.
- */
+/// A command for someone to add roles to themselves using the bot.
 export class RolesAddCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
@@ -159,9 +153,7 @@ export class RolesAddCommand extends CCBotCommand {
     }
 }
 
-/**
- * A command for someone to remove roles from themselves using the bot.
- */
+/// A command for someone to remove roles from themselves using the bot.
 export class RolesRmCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
@@ -187,9 +179,7 @@ export class RolesRmCommand extends CCBotCommand {
 }
 
 
-/**
- * A command for someone to remove roles from themselves using the bot.
- */
+/// A command for someone to remove roles from themselves using the bot.
 export class RolesListCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

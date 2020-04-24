@@ -17,9 +17,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
-/**
- * Reloads the JSON commands.
- */
+/// Reloads the JSON commands.
 export default class ReloadCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

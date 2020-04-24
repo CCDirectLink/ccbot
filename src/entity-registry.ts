@@ -16,9 +16,7 @@
 import {DynamicTextFile} from './dynamic-data';
 import {EntitySet} from './data/structures';
 
-/**
- * Entity's base data
- */
+/// Entity's base data
 export interface EntityData {
     type: string;
     createTime?: number;
@@ -28,14 +26,12 @@ export interface EntityData {
     killTimeout?: number;
 }
 
-/**
- * Entities are persistent mutable objects within the bot's system.
- * They are used to provide configurable behaviors that aren't tied to any specific invocation like a command is.
- * (This isn't to say commands can't affect entities, though.)
- * Note that this particular version is the base version,
- *  which doesn't have the callbacks.
- * Check ccbot.ts CCBotEntity for that one.
- */
+/// Entities are persistent mutable objects within the bot's system.
+/// They are used to provide configurable behaviors that aren't tied to any specific invocation like a command is.
+/// (This isn't to say commands can't affect entities, though.)
+/// Note that this particular version is the base version,
+///  which doesn't have the callbacks.
+/// Check ccbot.ts CCBotEntity for that one.
 export abstract class Entity<C> {
     // Used to alert callbacks to the entity's death.
     public killed: boolean = false;
@@ -95,17 +91,13 @@ export abstract class Entity<C> {
         }
     }
 
-    /**
-     * Grants immunity to killTime.
-     */
+    /// Grants immunity to killTime.
     public becomeImmortalAndUpdate() {
         this.killTime = 0;
         this.updated();
     }
 
-    /**
-     * Postpones killTime relative to now by the timeout value.
-     */
+    /// Postpones killTime relative to now by the timeout value.
     public postponeDeathAndUpdate() {
         if (this.killTime) {
             const ntk = Date.now() + this.killTimeout;
@@ -115,10 +107,8 @@ export abstract class Entity<C> {
         this.updated();
     }
 
-    /**
-     * Checks if the entity should be killed, and if not, waits until it should.
-     * This is only run if killTime was set in the first place.
-     */
+    /// Checks if the entity should be killed, and if not, waits until it should.
+    /// This is only run if killTime was set in the first place.
     private entityCheckIfShouldKill(): void {
         if (this.killed)
             return;
@@ -136,35 +126,27 @@ export abstract class Entity<C> {
         }
     }
 
-    /**
-     * Used in the subclass to connect to killEntity.
-     * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
-     */
+    /// Used in the subclass to connect to killEntity.
+    /// Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
     public kill(transferOwnership: boolean): void {
         throw new Error('Subclass did not implement kill()');
     }
 
-    /**
-     * Used in the subclass to connect to the registry updated().
-     * Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
-     */
+    /// Used in the subclass to connect to the registry updated().
+    /// Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
     public updated(): void {
         this.entitySerializedOutOfDate = true;
     }
 
-    /**
-     * Called just after the entity was killed.
-     * If the entity is maintaining a state, like an activity, this is where it would be reset.
-     * If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
-     */
+    /// Called just after the entity was killed.
+    /// If the entity is maintaining a state, like an activity, this is where it would be reset.
+    /// If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
     public onKill(transferOwnership: boolean): void {
 
     }
 
-    /**
-     * Called to save the entity.
-     * Must provide an object that can be passed to newEntity to get the same(ish) entity.
-     */
+    /// Called to save the entity.
+    /// Must provide an object that can be passed to newEntity to get the same(ish) entity.
     public toSaveData(): EntityData {
         const sd: EntityData = {
             type: this.type,
@@ -183,11 +165,9 @@ export abstract class Entity<C> {
 const stardate = Date.now();
 let logEntryNumber = 0;
 
-/**
- * The EntityRegistry is the registry and processor for all Entity objects.
- * Entities are derived from the Entity class,
- *  and are expected to be initialized with a json object like them.
- */
+/// The EntityRegistry is the registry and processor for all Entity objects.
+/// Entities are derived from the Entity class,
+/// and are expected to be initialized with a json object like them.
 export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public readonly client: C;
     public readonly entityTypes: {[type: string]: (c: C, data: any) => Promise<T>} = {};
@@ -236,12 +216,10 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         return '[\n ' + entities.join(',\n ') + '\n]';
     }
 
-    /**
-     * Starts entities (i.e. creates them & such).
-     * Before this point, entity-related operations do nothing.
-     * This allows the entity system to be present (so commands run at the 'right' time fail gracefully),
-     *  without entities having to account for the bot not being ready.
-     */
+    /// Starts entities (i.e. creates them & such).
+    /// Before this point, entity-related operations do nothing.
+    /// This allows the entity system to be present (so commands run at the 'right' time fail gracefully),
+    /// without entities having to account for the bot not being ready.
     public start(): void {
         if (this.started)
             return;
@@ -263,20 +241,16 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         return nid;
     }
 
-    /**
-     * Creates an entity synchronously.
-     * Useful when circumstances should guarantee atomicity for safety reasons between entities which know each other.
-     */
+    /// Creates an entity synchronously.
+    /// Useful when circumstances should guarantee atomicity for safety reasons between entities which know each other.
     public newEntitySync(newEnt: T): void {
         this.killEntity(newEnt.id, true);
         this.entities[newEnt.id] = newEnt;
         this.updated();
     }
 
-    /**
-     * Creates a new entity from the JSON data for that entity.
-     * Must report errors to console.
-     */
+    /// Creates a new entity from the JSON data for that entity.
+    /// Must report errors to console.
     public newEntity(data: any): Promise<T> {
         return new Promise((resolve: (a: T) => void, reject: () => void) => {
             if (!this.started) {
@@ -304,9 +278,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         });
     }
 
-    /**
-     * Kills the entity with the given ID.
-     */
+    /// Kills the entity with the given ID.
     public killEntity(id: string, transferOwnership: boolean): void {
         if (id in this.entities) {
             const v = this.entities[id];
@@ -317,9 +289,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         }
     }
 
-    /**
-     * Kills absolutely all entities (perhaps in preparation for a load)
-     */
+    /// Kills absolutely all entities (perhaps in preparation for a load)
     public killAllEntities(): void {
         for (const k in this.entities) {
             const v = this.entities[k];

@@ -68,10 +68,8 @@ export interface PageSwitcherOutputElementWithCategory {
 }
 export type PageSwitcherOutputElement = string | PageSwitcherOutputElementWithCategory;
 
-/**
- * Outputs *either* a page switcher or a single post depending on what's appropriate.
- * Very customizable.
- */
+/// Outputs *either* a page switcher or a single post depending on what's appropriate.
+/// Very customizable.
 export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: PageSwitcherOutputElement[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
     options = options || {};
 
@@ -169,11 +167,9 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     return output;
 }
 
-/**
- * Used for a paged interactive UI.
- * Additional fields: See PageSwitcherInit, but:
- * 'channel' is replaced with 'message' after activation.
- */
+/// Used for a paged interactive UI.
+/// Additional fields: See PageSwitcherInit, but:
+/// 'channel' is replaced with 'message' after activation.
 class PageSwitcherEntity extends CCBotEntity {
     private channel: discord.Channel & discord.TextBasedChannelFields;
     private message: discord.Message;
@@ -257,9 +253,7 @@ class PageSwitcherEntity extends CCBotEntity {
     }
 }
 
-/**
- * Creates a page switcher.
- */
+/// Creates a page switcher.
 export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
     // This makes a possible DM channel with the user 'important enough' to start existing
     // Blame discord.js

@@ -62,9 +62,7 @@ export function wrapFunc(name: string, argCount: number, fun: (args: Value[], sc
     };
 }
 
-/**
- * Scoping. Not actually used but kept in for safety purposes...
- */
+/// Scoping. Not actually used but kept in for safety purposes...
 export class VMScope {
     public readonly vm: VM;
     public readonly parent: VMScope | null;
@@ -94,15 +92,13 @@ export class VMScope {
     }
 }
 
-/**
- * Creates the VM for the formatted parts.
- * The VM is essentially LISPy, but keep in mind:
- * The only valid types are strings and lists.
- *
- * WARNING! The VM handles arbitrary input from any user.
- * If it didn't, there'd be no point having this layer in the first place.
- * Don't trust it with too much information, don't let it do unbounded-time operations, try to make costly operations costly.
- */
+/// Creates the VM for the formatted parts.
+/// The VM is essentially LISPy, but keep in mind:
+/// The only valid types are strings and lists.
+///
+/// WARNING! The VM handles arbitrary input from any user.
+/// If it didn't, there'd be no point having this layer in the first place.
+/// Don't trust it with too much information, don't let it do unbounded-time operations, try to make costly operations costly.
 export class VM {
     public time: number = 0;
     // The input to this is the *amount of consumeTime calls*,
@@ -265,9 +261,7 @@ export async function runFormatInternal(text: string, runner: (a: Value) => Prom
     return workspace;
 }
 
-/**
- * See the "public" formatter.ts for more details.
- */
+/// See the "public" formatter.ts for more details.
 export async function runFormat(text: string, runner: VM): Promise<string> {
     const res = await runFormatInternal(text, async (v: Value): Promise<string> => {
         return (await runner.run(v, runner.globalScope)).toString();

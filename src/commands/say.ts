@@ -56,9 +56,7 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
     return null;
 }
 
-/**
- * For ventriloquism.
- */
+/// For ventriloquism.
 export default class SayCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

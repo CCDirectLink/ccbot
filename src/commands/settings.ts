@@ -140,9 +140,7 @@ function isAuthorized(message: commando.CommandMessage, operation: SettingsOpera
 }
 // </editor-fold>
 
-/**
- * A command to configure bot systems.
- */
+/// A command to configure bot systems.
 export class SettingsCommand extends CCBotCommand {
     public readonly operation: SettingsOperation;
     public readonly context: SettingsContext;
@@ -242,9 +240,7 @@ export class SettingsCommand extends CCBotCommand {
     }
 }
 
-/**
- * A command to configure bot systems.
- */
+/// A command to configure bot systems.
 export class ShowUserSettingsCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

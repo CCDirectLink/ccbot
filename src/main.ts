@@ -21,9 +21,7 @@ import {Secrets} from './data/structures'
 import * as fs from 'fs';
 import * as net from 'net';
 
-/**
- * The one and only main class, that initializes everything.
- */
+/// The one and only main class, that initializes everything.
 class CCBotMain {
     client: CCBot;
     dataCollector: net.Server | null;
@@ -81,7 +79,7 @@ class CCBotMain {
             this.dataCollector = new net.Server();
             this.dataCollector.on('connection', (socket: net.Socket): void => {
                 socket.on('error', (): void => {});
-                let entitiesBreakdown: {[str: string]: number} = {};
+                const entitiesBreakdown: {[str: string]: number} = {};
                 for (const entID in this.client.entities.entities) {
                     const type = this.client.entities.entities[entID].type;
                     entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;

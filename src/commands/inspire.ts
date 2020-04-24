@@ -17,9 +17,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
-/**
- * Inspires you with a quote.
- */
+/// Inspires you with a quote.
 export class InspireCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
@@ -51,9 +49,7 @@ export class InspireCommand extends CCBotCommand {
     }
 }
 
-/**
- * Adds a quote.
- */
+/// Adds a quote.
 export class AddQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
@@ -82,9 +78,7 @@ export class AddQuoteCommand extends CCBotCommand {
     }
 }
 
-/**
- * Removes a quote.
- */
+/// Removes a quote.
 export class RmQuoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

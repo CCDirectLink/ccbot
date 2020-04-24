@@ -56,9 +56,7 @@ interface YouTubeSearchListResponse {
 // What we search for. (Change to something memey like 'Baldi's Basics' if you aren't getting results)
 const searchTerm = 'CrossCode';
 
-/**
- * Scans for CrossCode Twitch streams.
- */
+/// Scans for CrossCode Twitch streams.
 export class YouTubeStreamProviderEntity extends StreamProviderEntity {
     private requestMaker: () => Promise<object>;
 

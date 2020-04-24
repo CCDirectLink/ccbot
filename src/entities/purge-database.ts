@@ -26,10 +26,8 @@ export interface PurgeDatabaseChannelEntityData extends EntityData {
     messages: string[];
 }
 
-/**
- * Stores the IDs of sent messages.
- * Dumb storage; won't be updated by itself
- */
+/// Stores the IDs of sent messages.
+/// Dumb storage; won't be updated by itself
 export class PurgeDatabaseChannelEntity extends CCBotEntity {
     public channelID: string;
     public messages: string[];
@@ -48,9 +46,7 @@ export class PurgeDatabaseChannelEntity extends CCBotEntity {
     }
 }
 
-/**
- * Maintains the PurgeDatabaseChannelEntity instances.
- */
+/// Maintains the PurgeDatabaseChannelEntity instances.
 export class PurgeDatabaseEntity extends CCBotEntity {
     public timeMs: number;
     private messageCallback: (msg: discord.Message) => void;

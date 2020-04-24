@@ -41,19 +41,13 @@ export abstract class DynamicTextFile {
         this.initialLoad = this.reload();
     }
 
-    /**
-     * Used on save.
-     */
+    /// Used on save.
     protected abstract serialize(): string;
 
-    /**
-     * Used on load. Can throw errors.
-     */
+    /// Used on load. Can throw errors.
     protected abstract deserialize(text: string): void;
 
-    /**
-     * Performs an immediate save.
-     */
+    /// Performs an immediate save.
     public saveImmediate(): Promise<void> {
         if (this.ram)
             return Promise.resolve();
@@ -86,9 +80,7 @@ export abstract class DynamicTextFile {
         });
     }
 
-    /**
-     * Indicates that the data should be saved eventually (unless this is an immediate object)
-     */
+    /// Indicates that the data should be saved eventually (unless this is an immediate object)
     public updated(): Promise<void> {
         if (this.immediate) {
             return this.saveImmediate();
@@ -124,9 +116,7 @@ export abstract class DynamicTextFile {
         }
     }
 
-    /**
-     * Reloads the object.
-     */
+    /// Reloads the object.
     public reload(): Promise<void> {
         return new Promise((resolve: () => void, reject: (err: any) => void) => {
             fs.readFile(this.path, 'utf8', (err: any, data: string) => {
@@ -144,19 +134,15 @@ export abstract class DynamicTextFile {
         });
     }
 
-    /**
-     * Destroys the DynamicTextFile, severing the link to the filesystem (if there is one).
-     * Before doing so, saves any modified data, leaving things in a consistent state.
-     */
+    /// Destroys the DynamicTextFile, severing the link to the filesystem (if there is one).
+    /// Before doing so, saves any modified data, leaving things in a consistent state.
     public async destroy(): Promise<void> {
         await this.saveImmediate();
         this.ram = true;
     }
 }
 
-/**
- * The sub-manager for a given object of 'dynamic data', i.e. that stuff we ideally would want to save/load.
- */
+/// The sub-manager for a given object of 'dynamic data', i.e. that stuff we ideally would want to save/load.
 export class DynamicData<T> extends DynamicTextFile {
     // The data. Please treat as read-only - use modify to modify it.
     public data: T;
@@ -197,13 +183,11 @@ export class DynamicData<T> extends DynamicTextFile {
         this.data = JSON.parse(data);
         this.callOnModify();
     }
-};
+}
 
-/**
- * The place where all dynamic data goes.
- * Useful for eval access.
- * There should only be one of these at a time right now, since it's always based on the same folder.
- */
+/// The place where all dynamic data goes.
+/// Useful for eval access.
+/// There should only be one of these at a time right now, since it's always based on the same folder.
 export default class DynamicDataManager {
     commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
     settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});

@@ -33,9 +33,7 @@ async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting
         await channel.send(result.text, result.opts);
 }
 
-/**
- * Implements greetings and automatic role assignment.
- */
+/// Implements greetings and automatic role assignment.
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;
     private memberUpdateListener: (a: discord.GuildMember, b: discord.GuildMember) => void;

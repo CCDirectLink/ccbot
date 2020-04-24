@@ -19,9 +19,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {localRPCheck} from '../role-utils';
 import {PurgeDatabaseChannelEntity} from '../entities/purge-database';
 
-/**
- * Purges the bot's messages.
- */
+/// Purges the bot's messages.
 export default class PurgeCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

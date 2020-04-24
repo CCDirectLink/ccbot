@@ -19,9 +19,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {findMemberByRef, emoteSafe} from '../utils';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
-/**
- * For hugging.
- */
+/// For hugging.
 export default class HugCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {

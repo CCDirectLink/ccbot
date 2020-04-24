@@ -30,16 +30,14 @@ async function cleanupMessage(client: CCBot, message: discord.Message) {
             await r.remove();
 }
 
-/**
- * A modified version of CommandMessage that performs better cleanup.
- */
+/// A modified version of CommandMessage that performs better cleanup.
 class CCBotCommandMessage extends (commando.CommandMessage as any) {
     constructor(message: discord.Message, command: commando.Command | null, text: string) {
         super(message, command, text);
     }
 
     reply(content: any, options: any) {
-        if (typeof content === "string") {
+        if (typeof content === 'string') {
             // check for error message and block it
             // don't let it "spam" a channel
             const regexp = /You may not use the/;
@@ -50,10 +48,8 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
         return super.reply(content, options);
     }
 
-    /**
-     * Prepares to edit a response.
-     * This modified version cleans up after whatever was happening before.
-     */
+    /// Prepares to edit a response.
+    /// This modified version cleans up after whatever was happening before.
     async editResponse(a: (discord.Message | discord.Message[]), b: any): Promise<discord.Message | discord.Message[]> {
         // Kill involved entities
         if (a.constructor === Array) {
@@ -75,9 +71,7 @@ class CCBotCommandMessage extends (commando.CommandMessage as any) {
     }
 }
 
-/**
- * A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandMessage.
- */
+/// A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandMessage.
 class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
 

@@ -28,9 +28,7 @@ export interface StreamWatcherData extends WatcherEntityData {
     message?: string;
 }
 
-/**
- * Watches the streams go by.
- */
+/// Watches the streams go by.
 class StreamWatcherEntity extends WatcherEntity {
     private channel: discord.Channel & discord.TextBasedChannelFields;
     private message: discord.Message;
@@ -107,9 +105,7 @@ class StreamWatcherEntity extends WatcherEntity {
     }
 }
 
-/**
- * Creates a stream watcher.
- */
+/// Creates a stream watcher.
 export default async function load(c: CCBot, data: StreamWatcherData): Promise<CCBotEntity> {
     const channel = channelAsTBF(c.channels.get(data.channel));
     if (!channel)

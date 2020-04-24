@@ -27,9 +27,7 @@ import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import {CCBot} from './ccbot';
 
-/**
- * Registers all the commands. (More or less.)
- */
+/// Registers all the commands. (More or less.)
 export default function registerAllCommands(cr: CCBot): void {
     cr.registry.registerDefaultTypes();
     cr.registry.registerDefaultGroups();

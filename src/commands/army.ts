@@ -39,10 +39,8 @@ const tooHighFailReasons = [
     ' prefer low ceilings as it reminds them of home'
 ];
 
-/**
- * Generalized army manufacturing plant for the Lea [NOD]
- * Not to be confused with the other NOD
- */
+/// Generalized army manufacturing plant for the Lea [NOD]
+/// Not to be confused with the other NOD
 export default class ArmyCommand extends CCBotCommand {
     public readonly emote: string;
     public constructor(client: CCBot, group: string, name: string, emote: string) {

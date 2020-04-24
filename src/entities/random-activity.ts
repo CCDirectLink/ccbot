@@ -31,8 +31,6 @@ export interface RandomActivityData extends EntityData {
     intervalMs: number;
 }
 
-/**
- */
 class RandomActivityEntity extends CCBotEntity {
     public readonly activities: Activity[];
     public readonly interMessageTime: number;

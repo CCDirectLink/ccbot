@@ -17,9 +17,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
 
-/**
- * Help command in -general that's friendlier to the new dispatcher.
- */
+/// Help command in -general that's friendlier to the new dispatcher.
 export default class HelpCommand extends CCBotCommand {
     public constructor(client: CCBot, group: string) {
         const opt = {

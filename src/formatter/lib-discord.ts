@@ -44,11 +44,9 @@ export interface VMContext {
 
 const discordMessageLinkURL = /([0-9]+)\/([0-9]+)$/;
 
-/**
- * @param where The channel this is being sent to.
- * @param source The channel the message is being sourced from.
- * @param user A security principal like writer; null is guild-level access (@'where')
- */
+/// @param where The channel this is being sent to.
+/// @param source The channel the message is being sourced from.
+/// @param user A security principal like writer; null is guild-level access (@'where')
 function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user: discord.User | null): boolean {
     const quoteGuild = guildOf(source);
     if (!user) {

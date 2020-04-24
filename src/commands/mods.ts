@@ -20,9 +20,7 @@ import {ModlikeDatabaseEntity} from '../entities/mod-database';
 import {Mod, ModsIndex, ToolsIndex} from '../data/structures';
 import {outputElements} from '../entities/page-switcher';
 
-/**
- * Gets a list of mods.
- */
+/// Gets a list of mods.
 export class ModsToolsGetCommand extends CCBotCommand {
     public readonly tools: boolean;
     public constructor(client: CCBot, group: string, name: string, tools: boolean) {

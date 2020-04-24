@@ -27,12 +27,10 @@ export interface ReactRolesData extends EntityData {
     reactions: {[react: string]: string[]};
 }
 
-/**
- * Given a message that is setup by the administration (thus killing != deleting)
- *  for controlling user roles based on reactions.
- * Not perfect; performs the roles add/rm logic, but doesn't apply it to the reactions the user has.
- * That would be impossible in some cases anyway.
- */
+/// Given a message that is setup by the administration (thus killing != deleting)
+/// for controlling user roles based on reactions.
+/// Not perfect; performs the roles add/rm logic, but doesn't apply it to the reactions the user has.
+/// That would be impossible in some cases anyway.
 class ReactRolesEntity extends CCBotEntity {
     private guild: discord.Guild;
     private messageId: string;

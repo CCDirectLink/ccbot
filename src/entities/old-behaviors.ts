@@ -18,9 +18,7 @@ import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {silence} from '../utils';
 
-/**
- * Implements old behaviors into the bot.
- */
+/// Implements old behaviors into the bot.
 class OldBehaviorsEntity extends CCBotEntity {
     private messageListener: (m: discord.Message) => void;
 

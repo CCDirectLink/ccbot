@@ -22,9 +22,7 @@ export interface ModlikeDatabaseEntityData extends WatcherEntityData {
     endpoint: string;
 }
 
-/**
- * The base 'retrieve a JSON file of type X periodically' type.
- */
+/// The base 'retrieve a JSON file of type X periodically' type.
 export class ModlikeDatabaseEntity<X extends {}> extends WatcherEntity {
     public database: X | null;
     public endpoint: string;
@@ -48,18 +46,14 @@ export class ModlikeDatabaseEntity<X extends {}> extends WatcherEntity {
     }
 }
 
-/**
- * Acts as the source for mod list information.
- */
+/// Acts as the source for mod list information.
 export class ModDatabaseEntity extends ModlikeDatabaseEntity<ModsIndex> {
     public constructor(c: CCBot, db: ModsIndex | null, err: Error | null, data: ModlikeDatabaseEntityData) {
         super(c, 'mod-database-manager', db, err, data);
     }
 }
 
-/**
- * Acts as the source for mod list information.
- */
+/// Acts as the source for mod list information.
 export class ToolDatabaseEntity extends ModlikeDatabaseEntity<ToolsIndex> {
     public constructor(c: CCBot, db: ToolsIndex | null, err: Error | null, data: ModlikeDatabaseEntityData) {
         super(c, 'tool-database-manager', db, err, data);

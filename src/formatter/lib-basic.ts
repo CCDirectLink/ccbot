@@ -46,13 +46,11 @@ export function setFunc(targetRaw: Value, sourceRaw: Value, scope: VMScope): voi
 }
 
 export function installBasic(vm: VM): void {
-    /**
-     * As of the latest iteration, I'm no longer trying to make it like LISP,
-     *  but more like it's own thing only roughly based on LISP ideas.
-     * I'm also trying to avoid it going too computationally far -
-     *  'if' exists as a concession to the need to display errors or special-case outputs.
-     * Those who disagree with this policy can go see the Overpowered Command Set.
-     */
+    /// As of the latest iteration, I'm no longer trying to make it like LISP,
+    /// but more like it's own thing only roughly based on LISP ideas.
+    /// I'm also trying to avoid it going too computationally far -
+    /// 'if' exists as a concession to the need to display errors or special-case outputs.
+    /// Those who disagree with this policy can go see the Overpowered Command Set.
     vm.install({
         // Meta
         '\'': async (args: Value[]): Promise<Value> => {

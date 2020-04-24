@@ -21,11 +21,9 @@ import {CCBot, CCBotCommand} from '../ccbot';
 import {VM, VMContext, runFormat} from '../formatter';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
-/**
- * Copies an object while also formatting it.
- * Don't ask me how the type conversions are supposed to make sense.
- * They don't.
- */
+/// Copies an object while also formatting it.
+/// Don't ask me how the type conversions are supposed to make sense.
+/// They don't.
 async function copyAndFormat(vm: VM, embed: string | {[k: string]: string | object | number | undefined}): Promise<string | object> {
     if (embed.constructor == String)
         return await runFormat(embed as string, vm);
@@ -39,10 +37,8 @@ async function copyAndFormat(vm: VM, embed: string | {[k: string]: string | obje
     return embed;
 }
 
-/**
- * A JSON-run "command", but really more like a responder.
- * For format details, please see the structures file.
- */
+/// A JSON-run "command", but really more like a responder.
+/// For format details, please see the structures file.
 export default class JSONCommand extends CCBotCommand {
     // The JSON command structure.
     private readonly command: structures.Command;
