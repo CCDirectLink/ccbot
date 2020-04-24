@@ -8,7 +8,7 @@
     {
         "type": "mod-database",
         "refreshMs": 3600000,
-        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/mods.json"
+        "endpoint": "https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/npDatabase.json"
     },
     {
         "type": "tool-database",

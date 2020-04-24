@@ -64,25 +64,21 @@ export interface GuildData {[setting: string]: object}
 
 export interface GuildIndex {[guildID: string]: GuildData}
 
-// CCModsDB ( https://raw.githubusercontent.com/CCDirectLink/CCModDB/master/mods.json )
-export interface ModPage {
+// see https://github.com/CCDirectLink/CCModDB
+// can someone come up with a better name than "modlike" which encompasses both mods and tools?
+export interface ModlikePage {
     name: string;
     url: string;
 }
-export interface Mod {
+export interface Modlike {
     name: string;
     version: string;
-    description?: string | null;
-    license?: string | null;
-    page: ModPage[];
-    archive_link: string;
-    hash: { sha256?: string };
+    description?: string;
+    license?: string;
+    page: ModlikePage[];
 }
-export interface ModsIndex {
-    mods: {[name: string]: Mod};
-}
-export interface ToolsIndex {
-    tools: {[name: string]: Mod};
+export interface ModlikeIndex {
+    [name: string]: Modlike;
 }
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
