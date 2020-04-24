@@ -20,7 +20,7 @@ import {VMContext, installDiscord} from './formatter/lib-discord';
 // This file serves as a wrapper to minimize the used API of the formatter.
 // The formatter itself is customizable for code structure reasons.
 
-export type VMContext = VMContext;
+export { VMContext };
 
 export class VM extends formatterCore.VM {
     public readonly context: VMContext;
