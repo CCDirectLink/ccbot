@@ -185,17 +185,56 @@ export class DynamicData<T> extends DynamicTextFile {
     }
 }
 
+export class DynamicDataDump<T> extends DynamicTextFile {
+    public data: T | null = null;
+
+    constructor(name: string) {
+        super(name + '.json', true, false);
+    }
+
+    public dump(data: T): Promise<void> {
+        this.data = data;
+        return this.updated();
+    }
+
+    public reload(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    public async destroy(): Promise<void> {
+        this.ram = true;
+    }
+
+    protected serialize(): string {
+        const text = JSON.stringify(this.data);
+        this.data = null;
+        return text;
+    }
+
+    protected deserialize(text: string): void {
+        throw new Error('deserialization disabled, this is a dump file');
+    }
+}
+
 /// The place where all dynamic data goes.
 /// Useful for eval access.
 /// There should only be one of these at a time right now, since it's always based on the same folder.
 export default class DynamicDataManager {
-    commands: DynamicData<structures.CommandSet> = new DynamicData('commands', false, true, {});
-    settings: DynamicData<structures.GuildIndex> = new DynamicData('settings', true, false, {});
+    commands = new DynamicData<structures.CommandSet>('commands', false, true, {});
+    settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
+    emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('emote-registry');
+
+    initialLoad: Promise<void> = Promise.all<void>([
+        this.commands.initialLoad,
+        this.settings.initialLoad,
+        this.emoteRegistryDump.initialLoad
+    ]).then(() => {});
 
     async destroy(): Promise<void> {
         await Promise.all([
             this.commands.destroy(),
-            this.settings.destroy()
+            this.settings.destroy(),
+            this.emoteRegistryDump.destroy()
         ]);
     }
 }

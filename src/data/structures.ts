@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {RichEmbedOptions} from 'discord.js';
+import {Snowflake, RichEmbedOptions} from 'discord.js';
 // commands.json
 export interface Command {
     // The description. Defaults to 'No Description'.
@@ -80,7 +80,7 @@ export interface ModlikeIndex {[name: string]: Modlike}
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
 export interface DiscordAPIUser {
-    id: string;
+    id: Snowflake;
     username: string;
     discriminator: string;
     avatar?: string;
@@ -91,4 +91,21 @@ export interface DiscordAPIUser {
     email?: string;
     flags?: number;
     premium_type?: number;
+}
+
+export interface EmoteRegistryDumpEntry {
+    ref: string;
+    id: Snowflake;
+    name: string;
+    requires_colons: boolean;
+    animated: boolean;
+    url: string;
+    safe: boolean;
+    guild_id: Snowflake;
+    guild_name: string;
+}
+
+export interface EmoteRegistryDump {
+    version: number;
+    list: EmoteRegistryDumpEntry[];
 }

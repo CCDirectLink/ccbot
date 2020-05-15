@@ -44,15 +44,14 @@ export function nsfwGuild(client: commando.CommandoClient, guild: discord.Guild)
 }
 
 /// Ensures an emote is safe to use. If 'sfw' is set to true, ignores channel NSFWness.
-export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: boolean): boolean {
+export function emoteSafe(emote: discord.Emoji, channel: discord.Channel | null, sfw?: boolean): boolean {
     sfw = sfw || false;
     // if channel is NSFW, it's always safe to use it here
-    if (!sfw)
-        if (nsfw(channel))
-            return true;
+    if (!sfw && channel != null && nsfw(channel))
+        return true;
     // otherwise, let's reason this out:
-    const client: commando.CommandoClient = channel.client as commando.CommandoClient;
-    const guild = emote.guild;
+    const client: commando.CommandoClient = emote.client as commando.CommandoClient;
+    const { guild } = emote;
     if (!guild)
         return true; // No guild? Discord built-in, can't be lewd
     // *global* NSFW flag means WE DO NOT TRUST THIS GUILD (i.e. they've not properly documented their NSFW stuff)
@@ -60,12 +59,9 @@ export function emoteSafe(emote: discord.Emoji, channel: discord.Channel, sfw?: 
         return false;
     // We trust the guild, so first check the specific emote
     if (emote.id) {
-        const sfw: string[] = client.provider.get(guild, 'emotes-sfw', [])
-        if (sfw !== null)
-            if (sfw !== undefined)
-                if (sfw.constructor === Array)
-                    if (sfw.indexOf(emote.id) != -1)
-                        return true;
+        const sfwList: string[] = client.provider.get(guild, 'emotes-sfw', [])
+        if (Array.isArray(sfwList) && sfwList.indexOf(emote.id) >= 0)
+            return true;
     }
     // Failing this, *local* NSFW flag means guild emotes should be considered NSFW by default
     if (client.provider.get(guild, 'nsfw', true))

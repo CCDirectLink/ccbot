@@ -14,8 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import * as commando from 'discord.js-commando';
-import {naturalComparison, nsfwGuild} from './utils';
+import {CCBot} from './ccbot';
+import {naturalComparison, nsfwGuild, emoteSafe, silence} from './utils';
+import {EmoteRegistryDump} from './data/structures';
 
 /// Determine if a bit of text looks like an emoji.
 /// Notably, it doesn't actually have to *be* an emoji,
@@ -35,13 +36,13 @@ function looksLikeAnEmoji(text: string): boolean {
 /// Not enough of a separatable process to qualify for Entity status,
 /// but it would be messy for this to remain in the main CCBot class.
 export default class CCBotEmoteRegistry {
-    client: commando.CommandoClient;
+    client: CCBot;
 
     // NOTE: This does *not* include per-guild settings or global settings.
     globalEmoteRegistry: Map<string, discord.Emoji> = new Map();
-    globalConflicts: number = 0;
+    globalConflicts = 0;
 
-    constructor(c: commando.CommandoClient) {
+    constructor(c: CCBot) {
         this.client = c;
     }
 
@@ -106,6 +107,8 @@ export default class CCBotEmoteRegistry {
                 localRegistry.set(pair[0] + '#' + pair[1][i].guild.id, pair[1][i]);
         }
         this.globalEmoteRegistry = localRegistry;
+
+        this.dumpToFile();
     }
 
     /// Checks if an emote is overridden at guild or global level.
@@ -191,5 +194,26 @@ export default class CCBotEmoteRegistry {
                 if (!a.includes(v))
                     a.push(v.toString());
         return a;
+    }
+
+    dumpToFile(): void {
+        const data: EmoteRegistryDump = { version: 1, list: [] };
+        for (const ref of this.getEmoteRefs(null)) {
+            const emote = this.getEmote(null, ref);
+            data.list.push({
+                /* eslint-disable @typescript-eslint/camelcase */
+                ref,
+                id: emote.id,
+                name: emote.name,
+                requires_colons: emote.requiresColons,
+                animated: emote.animated,
+                url: emote.url,
+                safe: emoteSafe(emote, null, true),
+                guild_id: emote.guild.id,
+                guild_name: emote.guild.name,
+                /* eslint-enable @typescript-eslint/camelcase */
+            });
+        }
+        silence(this.client.dynamicData.emoteRegistryDump.dump(data));
     }
 }

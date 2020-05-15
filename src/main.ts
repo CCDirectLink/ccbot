@@ -134,7 +134,7 @@ class CCBotMain {
 const ccbot = new CCBotMain();
 let shuttingDown = false;
 
-async function shutdown() {
+async function shutdown(): Promise<void> {
     if (shuttingDown)
         return;
     console.log('Goodbye.');

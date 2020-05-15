@@ -59,8 +59,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /// Ensures data is loaded before anything is done. Important to prevent any potential corruption.
     public async loadData(): Promise<void> {
         await Promise.all([
-            this.dynamicData.commands.initialLoad,
-            this.dynamicData.settings.initialLoad,
+            this.dynamicData.initialLoad,
             this.entities.initialLoad
         ]);
     }
