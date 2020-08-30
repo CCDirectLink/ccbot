@@ -56,7 +56,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else if ((name === 'greeting') || (name === 'dm-greeting')) {
         if ((value === undefined) || (value.constructor === String))
             maxLength = limitLocalCommand;
-    } else if (name === 'emotes-sfw') {
+    } else if ((name === 'emotes-sfw') || (name === 'emotes-registry-allowList') || (name === 'emotes-registry-blockList')) {
         if ((value === undefined) || (value.constructor === Array))
             maxLength = limitLocalEmotesArray;
     } else if (name.startsWith('emote-') || startsWithRG) {

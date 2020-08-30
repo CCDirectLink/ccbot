@@ -50,19 +50,29 @@ export default class CCBotEmoteRegistry {
     /// This is where all the emotes go.
     /// In case of conflict, it uses 'trust prioritization' to try and avoid any incidents.
     updateGlobalEmoteRegistry(): void {
-        const localRegistryCollation: Map<string, discord.Emoji[]> = new Map();
-        for (const emote of this.client.emojis.values()) {
-            let emotes: discord.Emoji[] | undefined = localRegistryCollation.get(emote.name);
-            if (!emotes) {
-                emotes = [];
-                localRegistryCollation.set(emote.name, emotes);
-            }
-            emotes.push(emote);
-        }
-        const localRegistry: Map<string, discord.Emoji> = new Map();
         // NOTE! The type here isn't totally right, but the constructor-checking condition prevents any issues.
         // It is possible for some truly evil JSON to set constructor, but it can't be set to Array legitimately.
-        const safetyList: any[] | undefined = this.client.provider.get('global', 'emotePath', []);
+        const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
+        const globalAllowList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-allowList');
+        const globalBlockList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-blockList');
+        const localRegistryCollation: Map<string, discord.Emoji[]> = new Map();
+        for (const guild of this.client.guilds.values()) {
+            const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
+            const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
+            for (const emote of guild.emojis.values()) {
+                if ((globalBlockList && globalBlockList.includes(emote.id)) || (blockList && blockList.includes(emote.id)))
+                    continue;
+                if ((globalAllowList && !globalAllowList.includes(emote.id)) || (allowList && !allowList.includes(emote.id)))
+                    continue;
+                let emotes: discord.Emoji[] | undefined = localRegistryCollation.get(emote.name);
+                if (!emotes) {
+                    emotes = [];
+                    localRegistryCollation.set(emote.name, emotes);
+                }
+                emotes.push(emote);
+            }
+        }
+        const localRegistry: Map<string, discord.Emoji> = new Map();
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {

@@ -44,8 +44,12 @@ They can be controlled globally only by bot owners.
 ## Both (local, global)
 
 `prefix`: Part of Commando
+
 `emotes`: See EMOTES.md (Automatically maintained for per-guild settings)
+
 `emote-<EMOTE REF>`: See EMOTES.md. Values are emoteResolverNina inputs because otherwise it would be recursive.
+
+`emotes-registry-allowList` and `emotes-registry-blockList`: Used for filtering emotes when building the bot's emote registry. The block list takes priority over the allow list. Setting allow list to an empty array will effectively stop the bot from loading any emotes from a given guild. NOTE: This setting shouldn't be used for censoring emotes as emojiResolverNina allows sending emotes by ID! Also local administrators can still use the `emotes` array to expose emotes globally, which is a feature: in conjunction with allow/block lists it can be used for using different names (renaming) of guild emotes in emojiResolverNina.
 
 `headerless-say`: Removes the "who did it" header from the `say` command.
  Does *not* do "if not per-guild, fallover to global setting", but instead is useful to make DMs nicer.
