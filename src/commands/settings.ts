@@ -202,7 +202,7 @@ export class SettingsCommand extends CCBotCommand {
             }
             if (value === undefined)
                 return message.say('That value does not exist.');
-            return message.say('Done: `' + JSON.stringify(value) + '`');
+            return message.say('Done:\n```json\n' + JSON.stringify(value) + '\n```');
         } else {
             // Writing
             if (this.operation == SettingsOperation.Set) {
