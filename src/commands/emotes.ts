@@ -87,7 +87,7 @@ export class EmoteCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
             name: '-general emote',
-            description: 'Writes out a series of emotes.',
+            description: 'Writes out a series of emotes. You can use two special characters for aligning multi-emote pictures: put ` - ` between two emotes to remove the space between them, use ` \\ ` to add a newline.',
             group: 'general',
             memberName: 'emote',
             args: [
@@ -111,16 +111,31 @@ export class EmoteCommand extends CCBotCommand {
                 return message.say('Not allowed...');
             }
         }
-        const texts = [];
+        let text = '';
+        let separator = ' ';
         for (let i = 0; i < args.emotes.length; i++) {
-            const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
-            if (!emoteSafe(emote, message.channel))
-                continue;
-            texts.push(emote.toString());
+            const emoteArg = args.emotes[i];
+            switch (emoteArg) {
+                case '-': {
+                    separator = '';
+                    break;
+                }
+                case '\\': {
+                    separator = '\n';
+                    break;
+                }
+                default: {
+                    const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, emoteArg);
+                    if (!emoteSafe(emote, message.channel))
+                        continue;
+                    if (text.length > 0)
+                        text += separator;
+                    text += emote.toString();
+                    separator = ' ';
+                }
+            }
         }
-        if (texts.length == 0)
-            texts.push('No emotes, or they were all nsfw');
-        return message.say(texts.join(' '));
+        return message.say(text || 'No emotes or they were all nsfw');
     }
 }
 
