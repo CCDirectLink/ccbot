@@ -89,20 +89,22 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         text = text.replace(/^\s+|\s+$/g, '');
 
         //  Get & remove the prefix
-        let commandPrefix1: string | undefined;
-        let commandPrefix2: string | undefined;
+        let commandPrefix: string | undefined;
         if (message.guild) {
-            commandPrefix1 = (message.guild as any).commandPrefix;
-            commandPrefix2 = undefined;
+            commandPrefix = (message.guild as any).commandPrefix;
         } else {
-            commandPrefix1 = this.client.commandPrefix;
-            commandPrefix2 = this.client.user.toString();
+            commandPrefix = this.client.commandPrefix;
         }
 
-        if (commandPrefix1 && text.startsWith(commandPrefix1)) {
-            text = text.substring(commandPrefix1.length);
-        } else if (commandPrefix2 && text.startsWith(commandPrefix2)) {
-            text = text.substring(commandPrefix2.length);
+        const commandPrefixMention1 = `<@!${this.client.user.id}>`;
+        const commandPrefixMention2 = `<@${this.client.user.id}>`;
+
+        if (commandPrefix && text.startsWith(commandPrefix)) {
+            text = text.substring(commandPrefix.length);
+        } else if (text.startsWith(commandPrefixMention1)) {
+            text = text.substring(commandPrefixMention1.length);
+        } else if (text.startsWith(commandPrefixMention2)) {
+            text = text.substring(commandPrefixMention2.length);
         } else if (!message.guild) {
             text = text;
         } else {
