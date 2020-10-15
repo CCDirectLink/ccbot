@@ -1,12 +1,12 @@
 {
-  "include": ["src"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "outDir": "dist",
-    "sourceMap": true,
-    "module": "commonjs",
-    "target": "ES2018",
-    "strict": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "include": ["src"],
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "outDir": "dist",
+        "sourceMap": true,
+        "module": "commonjs",
+        "target": "ES2018",
+        "strict": true,
+        "forceConsistentCasingInFileNames": true
+    }
 }
