@@ -31,21 +31,21 @@ import {CCBot} from './ccbot';
 /// Registers all the entities. (More or less.)
 export default function registerAllEntities(cr: CCBot, twitchClientId: string | undefined, ytClientId: string | undefined): void {
     cr.entities
-        .registerType('date-activity', loadDateActivity)
-        .registerType('page-switcher', loadPageSwitcher)
-        .registerType('old-behaviors', loadOldBehaviors)
-        .registerType('greeter', loadGreeter)
-        .registerType('auditor', loadAuditor)
-        .registerType('react-roles', loadReactRoles)
-        .registerType('random-activity', loadRandomActivity)
-        .registerType('mod-database', loadModDatabase)
-        .registerType('tool-database', loadToolDatabase)
-        .registerType('purge-database', loadPurgeDatabase)
-        .registerType('purge-database-channel', loadPurgeDatabaseChannel)
-        .registerType('user-datablock', loadUserDatablock);
+        .registerEntityType('date-activity', loadDateActivity)
+        .registerEntityType('page-switcher', loadPageSwitcher)
+        .registerEntityType('old-behaviors', loadOldBehaviors)
+        .registerEntityType('greeter', loadGreeter)
+        .registerEntityType('auditor', loadAuditor)
+        .registerEntityType('react-roles', loadReactRoles)
+        .registerEntityType('random-activity', loadRandomActivity)
+        .registerEntityType('mod-database', loadModDatabase)
+        .registerEntityType('tool-database', loadToolDatabase)
+        .registerEntityType('purge-database', loadPurgeDatabase)
+        .registerEntityType('purge-database-channel', loadPurgeDatabaseChannel)
+        .registerEntityType('user-datablock', loadUserDatablock);
     if (twitchClientId)
-        cr.entities.registerType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
+        cr.entities.registerEntityType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
     if (ytClientId)
-        cr.entities.registerType('youtube-stream-provider', newYouTubeStreamProviderLoader(ytClientId));
-    cr.entities.registerType('stream-watcher', loadStreamWatcher);
+        cr.entities.registerEntityType('youtube-stream-provider', newYouTubeStreamProviderLoader(ytClientId));
+    cr.entities.registerEntityType('stream-watcher', loadStreamWatcher);
 }

@@ -59,8 +59,7 @@ export class PurgeDatabaseEntity extends CCBotEntity {
             if (this.killed)
                 return;
             const deleteBefore = Date.now() - this.timeMs;
-            for (const entityID in this.client.entities.entities) {
-                const entity = this.client.entities.entities[entityID];
+            for (const entity of this.client.entities.entities.values()) {
                 if (entity instanceof PurgeDatabaseChannelEntity) {
                     const array = entity.messages;
                     let changed = false;
@@ -80,7 +79,7 @@ export class PurgeDatabaseEntity extends CCBotEntity {
         loopCallback();
         this.messageCallback = (message: discord.Message): void => {
             if (message.author == this.client.user) {
-                const entity: PurgeDatabaseChannelEntity | undefined = this.client.entities.entities['purge-channel-' + message.channel.id] as (PurgeDatabaseChannelEntity | undefined);
+                const entity = this.client.entities.getEntity<PurgeDatabaseChannelEntity>('purge-channel-' + message.channel.id);
                 if (!entity) {
                     const data: PurgeDatabaseChannelEntityData = {
                         type: 'purge-database-channel',

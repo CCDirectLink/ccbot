@@ -185,9 +185,8 @@ let logEntryNumber = 0;
 /// and are expected to be initialized with a json object like them.
 export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public readonly client: C;
-    // TODO: use a Map here and in other similar cases
-    public readonly entityTypes: {[type: string]: EntityLoader<C, T>} = {};
-    public readonly entities: Record<string, T> = {};
+    public readonly entityTypes = new Map<string, EntityLoader<C, T>>();
+    public readonly entities = new Map<string, T>();
 
     // Until this is true, the EntityRegistry does nothing.
     // This is important because until the bot is ready,
@@ -200,8 +199,8 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         this.client = c;
     }
 
-    public registerType<D extends EntityData = EntityData>(type: string, loader: EntityLoader<C, T, D>): this {
-        this.entityTypes[type] = loader as EntityLoader<C, T>;
+    public registerEntityType<D extends EntityData = EntityData>(type: string, loader: EntityLoader<C, T, D>): this {
+        this.entityTypes.set(type, loader as EntityLoader<C, T>);
         return this;
     }
 
@@ -225,12 +224,11 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         // Each entity has a serialization shadow string.
         // Being a string, it's quite efficient to handle compared to JSON.stringify on the whole block.
         // Entities only get *any* form of serialization if and when it is needed.
-        const entities: string[] = [];
-        for (const k in this.entities) {
-            const entity = this.entities[k];
-            entities.push(entity.entityGetSerializedData());
+        const serializedEntities: string[] = [];
+        for (const entity of this.entities.values()) {
+            serializedEntities.push(entity.entityGetSerializedData());
         }
-        return '[\n ' + entities.join(',\n ') + '\n]';
+        return '[\n ' + serializedEntities.join(',\n ') + '\n]';
     }
 
     /// Starts entities (i.e. creates them & such).
@@ -251,7 +249,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         logEntryNumber++;
         let nid = prefix + '0';
         let idn = 0;
-        while (nid in this.entities) {
+        while (this.entities.has(nid)) {
             idn++;
             nid = prefix + idn.toString();
         }
@@ -262,7 +260,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     /// Useful when circumstances should guarantee atomicity for safety reasons between entities which know each other.
     public newEntitySync(newEnt: T): void {
         this.killEntity(newEnt.id, true);
-        this.entities[newEnt.id] = newEnt;
+        this.entities.set(newEnt.id, newEnt);
         this.updated();
     }
 
@@ -274,11 +272,12 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
             throw new Error();
         }
         // Then create the entity by type.
-        if (this.entityTypes[data.type]) {
+        const entityLoader = this.entityTypes.get(data.type);
+        if (entityLoader) {
             // Begins entity startup.
             // Notably, the entity doesn't get put in the registry until after activation.
             try {
-                const newEnt = await this.entityTypes[data.type](this.client, data);
+                const newEnt = await entityLoader(this.client, data);
                 // Entity finished, let's go
                 this.newEntitySync(newEnt);
                 return newEnt;
@@ -292,12 +291,16 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         }
     }
 
+    public getEntity<U extends T = T>(id: string): U | undefined {
+        return this.entities.get(id) as U | undefined;
+    }
+
     /// Kills the entity with the given ID.
     public killEntity(id: string, transferOwnership: boolean): void {
-        if (id in this.entities) {
-            const v = this.entities[id];
+        const v = this.entities.get(id);
+        if (v) {
             v.killed = true;
-            delete this.entities[id];
+            this.entities.delete(id);
             v.onKill(transferOwnership);
             this.updated();
         }
@@ -305,11 +308,15 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
 
     /// Kills absolutely all entities (perhaps in preparation for a load)
     public killAllEntities(): void {
-        for (const k in this.entities) {
-            const v = this.entities[k];
+        // I'd avoid modifying a Map in-place while iterating it
+        const entitiesCopy = Array.from(this.entities);
+        for (const entry of entitiesCopy) {
+            const [k, v] = entry;
             v.killed = true;
-            delete this.entities[k];
+            this.entities.delete(k);
             v.onKill(false);
+            // This should trigger GC on this entity earlier (I hope)
+            (entry as unknown[]).length = 0;
         }
         this.updated();
     }

@@ -46,12 +46,11 @@ class StreamWatcherEntity extends WatcherEntity {
         }[] = [];
         const guild = guildOf(this.channel);
         for (const providerType of streamProviders) {
-            const id = 'stream-provider-' + providerType;
-            if (id in this.client.entities.entities) {
-                const provider = this.client.entities.entities[id] as StreamProviderEntity;
+            const provider = this.client.entities.getEntity<StreamProviderEntity>('stream-provider-' + providerType);
+            if (provider) {
                 if (provider.lastError !== null)
                     streams.push({
-                        name: '<error from ' + id + '>',
+                        name: '<error from ' + provider.id + '>',
                         value: provider.lastError.toString()
                     });
                 for (const stream of provider.streams) {

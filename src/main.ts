@@ -80,8 +80,7 @@ class CCBotMain {
             this.dataCollector.on('connection', (socket: net.Socket): void => {
                 socket.on('error', (): void => {});
                 const entitiesBreakdown: {[str: string]: number} = {};
-                for (const entID in this.client.entities.entities) {
-                    const type = this.client.entities.entities[entID].type;
+                for (const { type } of this.client.entities.entities.values()) {
                     entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;
                 }
                 const guildsBreakdownYes = this.client.guilds.filter((_guild) => {
@@ -103,7 +102,7 @@ class CCBotMain {
                     emotesGlobalRegistry: this.client.emoteRegistry.globalEmoteRegistry.size,
                     emoteConflicts: this.client.emoteRegistry.globalConflicts,
                     // hdd
-                    entities: Object.keys(this.client.entities.entities).length,
+                    entities: this.client.entities.entities.size,
                     entitiesBreakdown: entitiesBreakdown,
                     settingsLenChars: Buffer.byteLength(JSON.stringify(this.client.dynamicData.settings.data)),
                     // old stuff

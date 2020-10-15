@@ -86,7 +86,7 @@ export abstract class CCBot extends commando.CommandoClient {
             const user = this.users.get(event.d.user_id);
             if (!user)
                 return;
-            const entity = this.entities.entities['message-' + event.d.message_id];
+            const entity = this.entities.getEntity('message-' + event.d.message_id);
             if (!entity)
                 return;
             const emojiDetails: {id?: string; name: string} = event.d.emoji;

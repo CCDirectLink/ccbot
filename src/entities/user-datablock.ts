@@ -73,9 +73,9 @@ export async function getUserDatablock(c: CCBot, user: discord.User | string): P
     } else {
         user = (user as discord.User).id;
     }
-    const id = 'user-datablock-' + user;
-    if (id in c.entities.entities) {
-        return c.entities.entities[id] as UserDatablockEntity;
+    const entity = c.entities.getEntity<UserDatablockEntity>('user-datablock-' + user);
+    if (entity) {
+        return entity;
     } else {
         const res = new UserDatablockEntity(c, {
             type: 'user-datablock',

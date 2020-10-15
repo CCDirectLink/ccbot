@@ -26,7 +26,7 @@ import {mentionRegex} from './utils';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
 
-// NOTE: Here's you make the TS compiler shut up about overriding and calling private methods:
+// NOTE: Here's how you make the TS compiler shut up about overriding and calling private methods:
 //
 // class A {
 //     private f1(): void {

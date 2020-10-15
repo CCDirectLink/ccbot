@@ -41,7 +41,7 @@ export default class PurgeCommand extends CCBotCommand {
 
     public async run(message: commando.CommandMessage, args: {seconds: number}): Promise<discord.Message|discord.Message[]> {
         // Get the database
-        const database: PurgeDatabaseChannelEntity | undefined = this.client.entities.entities['purge-channel-' + message.channel.id] as (PurgeDatabaseChannelEntity | undefined);
+        const database = this.client.entities.getEntity<PurgeDatabaseChannelEntity>('purge-channel-' + message.channel.id);
         if (!database)
             return await message.say('The purge database doesn\'t exist.');
         if (args.seconds <= 1)
