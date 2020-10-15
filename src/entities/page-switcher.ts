@@ -25,12 +25,12 @@ const ui3 = '▶';
 const ui4 = '⏭';
 const uiDelete = '🚫';
 const uiEmotes: string[] = [ui1, ui2, ui3, ui4, uiDelete];
-const uiOffsets: {[a: string]: number | undefined} = {
-    [ui1]: -10,
-    [ui2]: -1,
-    [ui3]: 1,
-    [ui4]: 10
-};
+const uiOffsets = new Map<string, number>([
+    [ui1, -10],
+    [ui2, -1],
+    [ui3, 1],
+    [ui4, 10],
+]);
 
 export interface PageSwitcherData extends EntityData {
     // Channel ID.
@@ -218,7 +218,7 @@ class PageSwitcherEntity extends CCBotEntity {
         if (this.ignoreRemovals && !add)
             return;
 
-        const offset = uiOffsets[target.name];
+        const offset = uiOffsets.get(target.name);
         if (offset !== undefined) {
             this.page += offset;
             if (this.pages.length != 0) {

@@ -114,6 +114,7 @@ class SaneSettingProvider extends commando.SettingProvider {
 
 /// A modified version of the CommandDispatcher.
 class CCBotSettingProvider extends SaneSettingProvider {
+    // TODO: use maps here?
     public readonly data: DynamicData<structures.GuildIndex>;
 
     constructor(d: DynamicData<structures.GuildIndex>) {

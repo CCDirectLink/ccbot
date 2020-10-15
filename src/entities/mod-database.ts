@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import {CCBotEntity, CCBot} from '../ccbot';
-import {CCModDBPackageIndex, CCModDBPackage, CCModDBPackagePage} from '../data/structures';
+import {CCModDBPackage, CCModDBPackagePage} from '../data/structures';
 import {getJSON} from '../utils';
 import {WatcherEntity, WatcherEntityData} from '../watchers';
 
@@ -46,25 +46,23 @@ interface NPDatabasePackageInstallation {
 }
 
 interface ToolsDatabase {
-    tools: CCModDBPackageIndex;
+    tools: { [id: string]: CCModDBPackage };
 }
 
 /// The base 'retrieve a JSON file of type T periodically' type.
-export abstract class CCModDBViewerEntity<T> extends WatcherEntity {
-    public data: CCModDBPackageIndex | null;
+abstract class CCModDBViewerEntity<T> extends WatcherEntity {
     public endpoint: string;
 
     public constructor(c: CCBot, id: string, data: CCModDBViewerEntityData) {
         super(c, id, data);
-        this.data = null;
         this.endpoint = data.endpoint;
     }
 
     public async watcherTick(): Promise<void> {
-        this.data = this.parseEndpointResponse(await getJSON<T>(this.endpoint, {}));
+        this.parseEndpointResponse(await getJSON<T>(this.endpoint, {}));
     }
 
-    public abstract parseEndpointResponse(data: T): CCModDBPackageIndex;
+    public abstract parseEndpointResponse(data: T): void;
 
     public toSaveData(): CCModDBViewerEntityData {
         return Object.assign(super.toSaveData(), {
@@ -95,12 +93,14 @@ function getModHomepageWebsiteName(url?: string): CCModDBPackagePage[] {
 
 /// Acts as the source for mod list information.
 export class ModDatabaseEntity extends CCModDBViewerEntity<NPDatabase> {
+    public packages: CCModDBPackage[] = [];
+
     public constructor(c: CCBot, data: CCModDBViewerEntityData) {
         super(c, 'mod-database-manager', data);
     }
 
-    public parseEndpointResponse(dbData: NPDatabase): CCModDBPackageIndex {
-        const mods: CCModDBPackageIndex = {}
+    public parseEndpointResponse(dbData: NPDatabase): void {
+        this.packages.length = 0;
         for (const id in dbData) {
             const pkg = dbData[id];
             const { metadata } = pkg;
@@ -110,25 +110,28 @@ export class ModDatabaseEntity extends CCModDBViewerEntity<NPDatabase> {
             const isInstallable = pkg.installation.some((i) => i.type === 'ccmod' || i.type === 'modZip');
             if (!isInstallable) continue;
 
-            mods[id] = {
+            const pkg2: CCModDBPackage = {
                 name: metadata.ccmodHumanName || metadata.name,
                 version: metadata.version,
                 description: metadata.description,
                 page: getModHomepageWebsiteName(metadata.homepage),
-            } as CCModDBPackage;
+            };
+            this.packages.push(pkg2);
         }
-        return mods;
     }
 }
 
 /// Acts as the source for mod list information.
 export class ToolDatabaseEntity extends CCModDBViewerEntity<ToolsDatabase> {
+    public packages: CCModDBPackage[] = [];
+
     public constructor(c: CCBot, data: CCModDBViewerEntityData) {
         super(c, 'tool-database-manager', data);
     }
 
-    public parseEndpointResponse(data: ToolsDatabase): CCModDBPackageIndex {
-        return data.tools;
+    public parseEndpointResponse(data: ToolsDatabase): void {
+        this.packages.length = 0;
+        this.packages.push(...Object.values(data.tools));
     }
 }
 

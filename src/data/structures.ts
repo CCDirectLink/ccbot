@@ -72,7 +72,6 @@ export interface CCModDBPackage {
     description?: string;
     page: CCModDBPackagePage[];
 }
-export interface CCModDBPackageIndex {[name: string]: CCModDBPackage}
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
 export interface DiscordAPIUser {

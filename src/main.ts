@@ -61,7 +61,8 @@ class CCBotMain {
             let tallyRaw = 0;
             let tallyCreatedMessages = 0;
             let tallyCommandsExecuted = 0;
-            let tallyCommandsBreakdown: {[str: string]: number} = {};
+            const tallyCommandsBreakdown = new Map<string, number>();
+            const entitiesBreakdown = new Map<string, number>();
             // Data incoming
             this.client.on('raw', (): void => {
                 tallyRaw++;
@@ -72,16 +73,16 @@ class CCBotMain {
             });
             this.client.on('commandRun', (command: commando.Command): void => {
                 tallyCommandsExecuted++;
-                tallyCommandsBreakdown[command.name] = (tallyCommandsBreakdown[command.name] || 0) + 1;
+                tallyCommandsBreakdown.set(command.name, (tallyCommandsBreakdown.get(command.name) || 0) + 1);
             });
             // commandsExecuted
             // Main collector
             this.dataCollector = new net.Server();
             this.dataCollector.on('connection', (socket: net.Socket): void => {
                 socket.on('error', (): void => {});
-                const entitiesBreakdown: {[str: string]: number} = {};
+                entitiesBreakdown.clear();
                 for (const { type } of this.client.entities.entities.values()) {
-                    entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;
+                    entitiesBreakdown.set(type, (entitiesBreakdown.get(type) || 0) + 1);
                 }
                 const guildsBreakdownYes = this.client.guilds.filter((_guild) => {
                     return true;
@@ -97,13 +98,13 @@ class CCBotMain {
                         sbs: guildsBreakdownSBS,
                         no: guildsBreakdownNo
                     },
-                    commandsExecutedBreakdown: tallyCommandsBreakdown,
+                    commandsExecutedBreakdown: Object.fromEntries(tallyCommandsBreakdown),
                     // esd
                     emotesGlobalRegistry: this.client.emoteRegistry.globalEmoteRegistry.size,
                     emoteConflicts: this.client.emoteRegistry.globalConflicts,
                     // hdd
                     entities: this.client.entities.entities.size,
-                    entitiesBreakdown: entitiesBreakdown,
+                    entitiesBreakdown: Object.fromEntries(entitiesBreakdown),
                     settingsLenChars: Buffer.byteLength(JSON.stringify(this.client.dynamicData.settings.data)),
                     // old stuff
                     guilds: this.client.guilds.size,
@@ -118,7 +119,7 @@ class CCBotMain {
                 tallyRaw = 0;
                 tallyCreatedMessages = 0;
                 tallyCommandsExecuted = 0;
-                tallyCommandsBreakdown = {};
+                tallyCommandsBreakdown.clear();
             });
             this.dataCollector.listen(this.secrets.dataCollectionPort, this.secrets.dataCollectionHost);
         }

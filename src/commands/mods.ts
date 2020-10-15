@@ -16,8 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {CCModDBViewerEntity} from '../entities/mod-database';
-import {CCModDBPackage, CCModDBPackageIndex} from '../data/structures';
+import {ModDatabaseEntity, ToolDatabaseEntity} from '../entities/mod-database';
 import {outputElements} from '../entities/page-switcher';
 
 /// Gets a list of mods.
@@ -36,32 +35,29 @@ export class ModsToolsGetCommand extends CCBotCommand {
 
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         const entityName = !this.tools ? 'mod-database-manager' : 'tool-database-manager';
-        const modDB = this.client.entities.getEntity<CCModDBViewerEntity<unknown>>(entityName);
+        const modDB = this.client.entities.getEntity<ModDatabaseEntity | ToolDatabaseEntity>(entityName);
         if (modDB) {
-            if (modDB.data === null) {
-                let possibleError = '';
-                if (modDB.lastError)
-                    possibleError += `\n${modDB.lastError.name}: ${modDB.lastError.message}\n${modDB.lastError.stack || 'no stack'}`;
-                return await message.embed({
-                    'description': `Mod information isn't available (has the bot just started up? is the modlist updater dead?).\nPlease see the CCDirectLink website for more information: https://c2dl.info/cc/mods${  possibleError}`
-                });
-            } else {
-                const mods: string[] = [];
-                const modIndex: CCModDBPackageIndex = modDB.data;
-                for (const id in modIndex) {
-                    const mod: CCModDBPackage = modIndex[id];
-                    const components: string[] = [`**${mod.name} (${mod.version})**`];
-                    if (mod.description) components.push(mod.description);
-                    for (const page of mod.page) components.push(`[View on ${page.name}](${page.url})`);
+            if (modDB.packages.length > 0) {
+                const mods: string[] = modDB.packages.map(pkg => {
+                    const components: string[] = [`**${pkg.name} (${pkg.version})**`];
+                    if (pkg.description) components.push(pkg.description);
+                    for (const page of pkg.page) components.push(`[View on ${page.name}](${page.url})`);
                     components.push('');
-                    mods.push(components.join('\n'));
-                }
+                    return components.join('\n');
+                });
                 const footer = !this.tools ? '\nNote: All mods require a mod loader to work. (See `.cc installing-mods` for details.)' : '\nNote: Tools require their own installation procedures. Check their pages for details.';
                 return outputElements(this.client, message, mods, 25, 2000, {
                     textFooter: footer,
                     footer: {
                         text: 'From CCModDB'
                     }
+                });
+            } else {
+                let possibleError = '';
+                if (modDB.lastError)
+                    possibleError += `\n${modDB.lastError.name}: ${modDB.lastError.message}\n${modDB.lastError.stack || 'no stack'}`;
+                return await message.embed({
+                    'description': `Mod information isn't available (has the bot just started up? is the modlist updater dead?).\nPlease see the CCDirectLink website for more information: https://c2dl.info/cc/mods${  possibleError}`
                 });
             }
         }
