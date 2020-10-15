@@ -22,8 +22,35 @@ export interface ModlikeDatabaseEntityData extends WatcherEntityData {
     endpoint: string;
 }
 
-/// The base 'retrieve a JSON file of type X periodically' type.
-export abstract class ModlikeDatabaseEntity extends WatcherEntity {
+interface NPDatabase {
+    [id: string]: NPDatabasePackage;
+}
+
+interface NPDatabasePackage {
+    metadata: NPDatabasePackageMetadata;
+    installation: NPDatabasePackageInstallation[];
+}
+
+interface NPDatabasePackageMetadata {
+    ccmodType?: 'base' | 'tool';
+    ccmodHumanName: string;
+    name: string;
+    version: string;
+    description?: string;
+    homepage?: string;
+}
+
+interface NPDatabasePackageInstallation {
+    type: 'modZip' | 'ccmod';
+    url: string;
+}
+
+interface ToolsDatabase {
+    tools: ModlikeIndex;
+}
+
+/// The base 'retrieve a JSON file of type T periodically' type.
+export abstract class ModlikeDatabaseEntity<T> extends WatcherEntity {
     public database: ModlikeIndex | null;
     public endpoint: string;
 
@@ -34,10 +61,10 @@ export abstract class ModlikeDatabaseEntity extends WatcherEntity {
     }
 
     public async watcherTick(): Promise<void> {
-        this.database = this.parseEndpointResponse(await getJSON(this.endpoint, {}) as ModlikeIndex);
+        this.database = this.parseEndpointResponse(await getJSON<T>(this.endpoint, {}));
     }
 
-    public abstract parseEndpointResponse(data: any): ModlikeIndex;
+    public abstract parseEndpointResponse(data: T): ModlikeIndex;
 
     public toSaveData(): ModlikeDatabaseEntityData {
         return Object.assign(super.toSaveData(), {
@@ -67,12 +94,12 @@ function getModHomepageWebsiteName(url?: string): ModlikePage[] {
 }
 
 /// Acts as the source for mod list information.
-export class ModDatabaseEntity extends ModlikeDatabaseEntity {
+export class ModDatabaseEntity extends ModlikeDatabaseEntity<NPDatabase> {
     public constructor(c: CCBot, data: ModlikeDatabaseEntityData) {
         super(c, 'mod-database-manager', data);
     }
 
-    public parseEndpointResponse(dbData: any): ModlikeIndex {
+    public parseEndpointResponse(dbData: NPDatabase): ModlikeIndex {
         const mods: ModlikeIndex = {}
         for (const id in dbData) {
             const pkg = dbData[id];
@@ -80,7 +107,7 @@ export class ModDatabaseEntity extends ModlikeDatabaseEntity {
 
             if (metadata.ccmodType === 'base' || metadata.ccmodType === 'tool') continue;
 
-            const isInstallable = pkg.installation.findIndex((i: any) => i.type === 'ccmod' || i.type === 'modZip') >= 0;
+            const isInstallable = pkg.installation.some((i) => i.type === 'ccmod' || i.type === 'modZip');
             if (!isInstallable) continue;
 
             mods[id] = {
@@ -95,12 +122,12 @@ export class ModDatabaseEntity extends ModlikeDatabaseEntity {
 }
 
 /// Acts as the source for mod list information.
-export class ToolDatabaseEntity extends ModlikeDatabaseEntity {
+export class ToolDatabaseEntity extends ModlikeDatabaseEntity<ToolsDatabase> {
     public constructor(c: CCBot, data: ModlikeDatabaseEntityData) {
         super(c, 'tool-database-manager', data);
     }
 
-    public parseEndpointResponse(data: any): ModlikeIndex {
+    public parseEndpointResponse(data: ToolsDatabase): ModlikeIndex {
         return data.tools;
     }
 }

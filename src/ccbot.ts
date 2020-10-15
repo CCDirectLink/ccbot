@@ -19,6 +19,10 @@ import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
 
+// TODO: is this worth defining properly?
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RawEvent = { t: string; d: any };
+
 /// The modified CommandoClient used by this bot.
 /// This contains all of the fields and methods for the extension,
 /// but not the full constructor, and must not be constructed.
@@ -43,8 +47,8 @@ export abstract class CCBot extends commando.CommandoClient {
             this.entities.start();
             this.emoteRegistry.updateGlobalEmoteRegistry();
         });
-        this.on('raw', (event: unknown): void => {
-            this.handleRawEvent(event as {t: string; d: any});
+        this.on('raw', (event: RawEvent): void => {
+            this.handleRawEvent(event);
         });
         const callbackUpdateGER = (): void => {
             this.emoteRegistry.updateGlobalEmoteRegistry();
@@ -74,7 +78,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /// You really, really shouldn't have to add something here.
     /// As far as I know the only kinds of events that need this kind of thing are reaction events,
     /// and I have already solved those... well enough.
-    private handleRawEvent(event: {t: string; d: any}): void {
+    private handleRawEvent(event: RawEvent): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages

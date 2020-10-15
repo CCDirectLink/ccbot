@@ -54,7 +54,7 @@ class CCBotMain {
         }
         kickstart();
     }
-    startDataCollector() {
+    startDataCollector(): void {
         // The data collector is "outside the system".
         if (this.secrets.dataCollectionPort) {
             // Data tallys
@@ -84,10 +84,10 @@ class CCBotMain {
                     const type = this.client.entities.entities[entID].type;
                     entitiesBreakdown[type] = (entitiesBreakdown[type] || 0) + 1;
                 }
-                const guildsBreakdownYes = this.client.guilds.filter((g: discord.Guild): boolean => {
+                const guildsBreakdownYes = this.client.guilds.filter((_guild) => {
                     return true;
                 }).size;
-                const guildsBreakdownSBS = this.client.guilds.filter((g: discord.Guild): boolean => {
+                const guildsBreakdownSBS = this.client.guilds.filter((_guild) => {
                     return false;
                 }).size;
                 const guildsBreakdownNo = this.client.guilds.size - (guildsBreakdownYes + guildsBreakdownSBS);

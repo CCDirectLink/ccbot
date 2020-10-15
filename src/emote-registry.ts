@@ -179,7 +179,7 @@ export default class CCBotEmoteRegistry {
         }
         // This next bit needs to burn in some place very warm.
         // It exists because it has to for a nicer API overall.
-        const transmuted = new discord.Emoji({client: this} as any as discord.Guild, {
+        const transmuted = new discord.Emoji({client: this} as unknown as discord.Guild, {
             //id: null,
             name: looksLikeAnEmoji(text) ? text : '❓', // Was this really such a problem?
             requiresColons: false,
@@ -187,7 +187,7 @@ export default class CCBotEmoteRegistry {
             animated: false,
             roles: []
         });
-        transmuted.guild = null as any;
+        transmuted.guild = null!;
         return transmuted;
     }
 

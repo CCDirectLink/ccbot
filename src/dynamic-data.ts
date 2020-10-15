@@ -32,7 +32,7 @@ export abstract class DynamicTextFile {
 
     // Used for the write buffering
     private modifyTimeoutActive: (() => void)[] | null = null;
-    private modifyTimeoutReject: ((err: any) => void)[] | null = null;
+    private modifyTimeoutReject: ((err: unknown) => void)[] | null = null;
 
     constructor(name: string, immediate: boolean, ram: boolean) {
         this.path = 'dynamic-data/' + name;
@@ -59,7 +59,7 @@ export abstract class DynamicTextFile {
                 await this.saveImmediate();
             })();
         }
-        return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: any) => void) => {
+        return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: unknown) => void) => {
             console.log('saving ' + this.path);
             const npath = this.path + '.new.' + Date.now() + '.' + Math.random();
             fs.writeFile(npath, this.serialize(), (err) => {
@@ -87,7 +87,7 @@ export abstract class DynamicTextFile {
         } else {
             // This logic ensures only one write is ongoing at a time.
             let mta: (() => void)[] = [];
-            let mtj: ((err: any) => void)[] = [];
+            let mtj: ((err: unknown) => void)[] = [];
             if ((this.modifyTimeoutActive == null) || (this.modifyTimeoutReject == null)) {
                 console.log('opening save window on ' + this.path);
                 this.modifyTimeoutActive = mta;
@@ -98,7 +98,7 @@ export abstract class DynamicTextFile {
                         this.modifyTimeoutReject = null;
                         for (const f of mta)
                             f();
-                    }, (err: any) => {
+                    }, (err: unknown) => {
                         this.modifyTimeoutActive = null;
                         this.modifyTimeoutReject = null;
                         for (const f of mtj)
@@ -109,7 +109,7 @@ export abstract class DynamicTextFile {
                 mta = this.modifyTimeoutActive;
                 mtj = this.modifyTimeoutReject;
             }
-            return new Promise((resolve: () => void, reject: (err: any) => void) => {
+            return new Promise((resolve: () => void, reject: (err: unknown) => void) => {
                 mta.push(resolve);
                 mtj.push(reject);
             });
@@ -118,8 +118,8 @@ export abstract class DynamicTextFile {
 
     /// Reloads the object.
     public reload(): Promise<void> {
-        return new Promise((resolve: () => void, reject: (err: any) => void) => {
-            fs.readFile(this.path, 'utf8', (err: any, data: string) => {
+        return new Promise((resolve: () => void, reject: (err: unknown) => void) => {
+            fs.readFile(this.path, 'utf8', (err: unknown, data: string) => {
                 if (!err) {
                     try {
                         this.deserialize(data);
@@ -155,12 +155,12 @@ export class DynamicData<T> extends DynamicTextFile {
     }
 
     // Adds a modification callback.
-    public onModify(action: () => void) {
+    public onModify(action: () => void): void {
         this.modifyActions.push(action);
     }
 
     // Calls the various modifyActions.
-    private callOnModify() {
+    private callOnModify(): void {
         for (const v of this.modifyActions)
             v();
     }
@@ -211,7 +211,7 @@ export class DynamicDataDump<T> extends DynamicTextFile {
         return text;
     }
 
-    protected deserialize(text: string): void {
+    protected deserialize(_text: string): void {
         throw new Error('deserialization disabled, this is a dump file');
     }
 }

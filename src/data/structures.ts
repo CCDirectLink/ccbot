@@ -57,12 +57,13 @@ export interface Secrets {
 }
 
 // Implements the persistence backend.
-export interface GuildData {[setting: string]: object}
+export interface GuildData {[setting: string]: unknown}
 
 export interface GuildIndex {[guildID: string]: GuildData}
 
-// see https://github.com/CCDirectLink/CCModDB
+/// see https://github.com/CCDirectLink/CCModDB
 // can someone come up with a better name than "modlike" which encompasses both mods and tools?
+// TODO: rename to PackagePage etc
 export interface ModlikePage {
     name: string;
     url: string;

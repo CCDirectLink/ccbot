@@ -166,10 +166,10 @@ export function guildOf(a: object): commando.GuildExtension | undefined {
 
 /// Retrieves a JSON file from the 'web
 /// NOTE: headers is modified for added spice.
-export function getJSON(endpoint: string, headers: Record<string, string>): Promise<object> {
+export function getJSON<T>(endpoint: string, headers: Record<string, string>): Promise<T> {
     // Older versions of Node don't do the "automatic parsing of URLs" thing if an object is passed
     // Rest of the bot works fine so might as well put this here
-    const endpointURL: url.URL = new url.URL(endpoint);
+    const endpointURL = new url.URL(endpoint);
     const builtObj: http.ClientRequestArgs = {
         protocol: endpointURL.protocol,
         hostname: endpointURL.hostname,
