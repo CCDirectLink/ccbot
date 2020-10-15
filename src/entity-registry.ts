@@ -58,8 +58,6 @@ export abstract class Entity<C> {
     private killTimeout: number;
 
     // This is a JSON serialized copy of the entity used for saving.
-    // This is marked private and then accessed via any,
-    //  as it's internal to the entity system and shouldn't be touched.
     private entitySerializedShadow = 'XXXOUTOFDATEXXX';
     private entitySerializedOutOfDate = true;
 
@@ -91,13 +89,13 @@ export abstract class Entity<C> {
     }
 
     /// Grants immunity to killTime.
-    public becomeImmortalAndUpdate() {
+    public becomeImmortalAndUpdate(): void {
         this.killTime = 0;
         this.updated();
     }
 
     /// Postpones killTime relative to now by the timeout value.
-    public postponeDeathAndUpdate() {
+    public postponeDeathAndUpdate(): void {
         if (this.killTime) {
             const ntk = Date.now() + this.killTimeout;
             if (this.killTime < ntk)
@@ -137,6 +135,17 @@ export abstract class Entity<C> {
         this.entitySerializedOutOfDate = true;
     }
 
+    /// Returns serialized entity data as a JSON string, updates the internal serialization shadow
+    /// string if it is outdated. Is safe to be called by external code, but this isn't advised as
+    /// this function is always called in registry's updated().
+    public entityGetSerializedData(): string {
+        if (this.entitySerializedOutOfDate) {
+            this.entitySerializedShadow = JSON.stringify(this.toSaveData());
+            this.entitySerializedOutOfDate = false;
+        }
+        return this.entitySerializedShadow;
+    }
+
     /// Called just after the entity was killed.
     /// If the entity is maintaining a state, like an activity, this is where it would be reset.
     /// If 'transferOwnership' is true, the entity is being replaced, so it shouldn't do anything liable to cause race conditions.
@@ -157,6 +166,13 @@ export abstract class Entity<C> {
     }
 }
 
+/// A function responsible for fetching resources need for creation of an entity, actually creating
+/// and "activating" it (performing any additional setup after calling the constructor). This function
+/// **has** to completely setup the state of the entity, so that entities with invalid or incomplete
+/// state don't end up in the registry where they can be freely referenced from other entities.
+export type EntityLoader<C, T extends Entity<C>, D extends EntityData = EntityData> =
+    (client: C, data: D) => Promise<T>;
+
 // Used as part of unique-ish-ID-generation.
 // The idea here is that if the log-entry-number and time aren't unique (due to some multi-instancing in future),
 //  'stardate' probably will disambiguate.
@@ -169,7 +185,8 @@ let logEntryNumber = 0;
 /// and are expected to be initialized with a json object like them.
 export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public readonly client: C;
-    public readonly entityTypes: {[type: string]: (c: C, data: any) => Promise<T>} = {};
+    // TODO: use a Map here and in other similar cases
+    public readonly entityTypes: {[type: string]: EntityLoader<C, T>} = {};
     public readonly entities: Record<string, T> = {};
 
     // Until this is true, the EntityRegistry does nothing.
@@ -181,6 +198,11 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     public constructor(c: C, path: string) {
         super(path, false, false);
         this.client = c;
+    }
+
+    public registerType<D extends EntityData = EntityData>(type: string, loader: EntityLoader<C, T, D>): this {
+        this.entityTypes[type] = loader as EntityLoader<C, T>;
+        return this;
     }
 
     protected deserialize(json: string): void {
@@ -206,11 +228,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         const entities: string[] = [];
         for (const k in this.entities) {
             const entity = this.entities[k];
-            if ((entity as any).entitySerializedOutOfDate) {
-                (entity as any).entitySerializedShadow = JSON.stringify(entity.toSaveData());
-                (entity as any).entitySerializedOutOfDate = false;
-            }
-            entities.push((this.entities[k] as any).entitySerializedShadow);
+            entities.push(entity.entityGetSerializedData());
         }
         return '[\n ' + entities.join(',\n ') + '\n]';
     }
@@ -250,31 +268,28 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
 
     /// Creates a new entity from the JSON data for that entity.
     /// Must report errors to console.
-    public newEntity(data: any): Promise<T> {
-        return new Promise((resolve: (a: T) => void, reject: () => void) => {
-            if (!this.started) {
-                console.log('entity was being created before entities existed');
-                reject();
-                return;
+    public async newEntity<D extends EntityData = EntityData>(data: D): Promise<T> {
+        if (!this.started) {
+            console.log('entity was being created before entities existed');
+            throw new Error();
+        }
+        // Then create the entity by type.
+        if (this.entityTypes[data.type]) {
+            // Begins entity startup.
+            // Notably, the entity doesn't get put in the registry until after activation.
+            try {
+                const newEnt = await this.entityTypes[data.type](this.client, data);
+                // Entity finished, let's go
+                this.newEntitySync(newEnt);
+                return newEnt;
+            } catch (err) {
+                console.log('entity failed to load', err);
+                throw new Error();
             }
-            // Then create the entity by type.
-            if (this.entityTypes[data.type]) {
-                // Begins entity startup.
-                // Notably, the entity doesn't get put in the registry until after activation.
-                const newEntP = this.entityTypes[data.type](this.client, data);
-                newEntP.then((newEnt: T) => {
-                    // Entity finished, let's go
-                    this.newEntitySync(newEnt);
-                    resolve(newEnt);
-                }, (err: any) => {
-                    console.log('entity failed to load', err);
-                    reject();
-                });
-            } else {
-                console.log('invalid entity type ' + data.type + ' was in registry');
-                reject();
-            }
-        });
+        } else {
+            console.log('invalid entity type ' + data.type + ' was in registry');
+            throw new Error();
+        }
     }
 
     /// Kills the entity with the given ID.
