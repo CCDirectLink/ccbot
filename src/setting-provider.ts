@@ -18,6 +18,12 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import {DynamicData} from './dynamic-data';
 
+declare module 'discord.js' {
+    interface Guild {
+        commandPrefix: string;
+    }
+}
+
 /// The setting bindings are *in the provider* for some reason.
 /// This fixes SettingProvider to handle this properly.
 class SaneSettingProvider extends commando.SettingProvider {

@@ -19,6 +19,9 @@ import HelpCommand from './commands/help';
 import {CCBot} from './ccbot';
 
 // Not nice.
+// dmitmel: First of all, how is it possible that "nice" is written here with no signs of Emi around,
+// and secondly, see the note about injecting CommandDispatcher in command-dispatcher.ts.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (commando as any).CommandRegistry = require('discord.js-commando/src/registry');
 
 /// A modified version of the CommandRegistry.
