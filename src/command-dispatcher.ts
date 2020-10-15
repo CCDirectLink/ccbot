@@ -33,7 +33,7 @@ async function cleanupMessage(client: CCBot, message: discord.Message) {
 /// A modified version of CommandMessage that performs better cleanup.
 class CCBotCommandMessage extends (commando.CommandMessage as any) {
     constructor(message: discord.Message, command: commando.Command | null, text: string) {
-        super(message, command, text);
+        super(message, command, text); // eslint-disable-line constructor-super
     }
 
     reply(content: any, options: any) {
@@ -76,7 +76,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
     client!: CCBot;
 
     constructor(c: CCBot, r: commando.CommandRegistry) {
-        super(c, r);
+        super(c, r); // eslint-disable-line constructor-super
     }
 
     parseMessage(message: discord.Message): commando.CommandMessage | null {
@@ -96,6 +96,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
             commandPrefix = this.client.commandPrefix;
         }
 
+        // TODO: rewrite this to use an array of prefixes
         const commandPrefixMention1 = `<@!${this.client.user.id}>`;
         const commandPrefixMention2 = `<@${this.client.user.id}>`;
 
@@ -106,7 +107,7 @@ class CCBotCommandDispatcher extends (commando.CommandDispatcher as any) {
         } else if (text.startsWith(commandPrefixMention2)) {
             text = text.substring(commandPrefixMention2.length);
         } else if (!message.guild) {
-            text = text;
+            text = text; // eslint-disable-line no-self-assign
         } else {
             return null;
         }

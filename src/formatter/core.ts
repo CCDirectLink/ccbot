@@ -100,10 +100,10 @@ export class VMScope {
 /// If it didn't, there'd be no point having this layer in the first place.
 /// Don't trust it with too much information, don't let it do unbounded-time operations, try to make costly operations costly.
 export class VM {
-    public time: number = 0;
+    public time = 0;
     // The input to this is the *amount of consumeTime calls*,
     //  so there is no possible way for a glitch to "grant" time on this clock
-    public backupTime: number = 0;
+    public backupTime = 0;
     public globalScope: VMScope;
 
     public constructor() {

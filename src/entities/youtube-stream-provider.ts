@@ -70,6 +70,7 @@ export class YouTubeStreamProviderEntity extends StreamProviderEntity {
     public async watcherTick(): Promise<void> {
         const streams = (await this.requestMaker()) as YouTubeSearchListResponse;
         this.streams = [];
+        // eslint-disable-next-line no-useless-catch
         try {
             for (const stream of streams.items)
                 this.streams.push({

@@ -19,6 +19,7 @@ import {localAdminCheck} from './utils';
 
 /// Retrieves and converts a role group to role IDs.
 export function convertRoleGroup(client: commando.CommandoClient, guild: discord.Guild, text: string): string[] {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return convertRoles(client, guild, client.provider.get(guild, 'roles-group-' + text, []), true) as string[];
 }
 

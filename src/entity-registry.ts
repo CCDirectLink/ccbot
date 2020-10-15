@@ -34,7 +34,7 @@ export interface EntityData {
 /// Check ccbot.ts CCBotEntity for that one.
 export abstract class Entity<C> {
     // Used to alert callbacks to the entity's death.
-    public killed: boolean = false;
+    public killed = false;
 
     // This is more complicated than just a unique ID,
     //  because various entities have various fixed names as part of the event
@@ -61,8 +61,8 @@ export abstract class Entity<C> {
     // This is a JSON serialized copy of the entity used for saving.
     // This is marked private and then accessed via any,
     //  as it's internal to the entity system and shouldn't be touched.
-    private entitySerializedShadow: string = 'XXXOUTOFDATEXXX';
-    private entitySerializedOutOfDate: boolean = true;
+    private entitySerializedShadow = 'XXXOUTOFDATEXXX';
+    private entitySerializedOutOfDate = true;
 
     public constructor(c: C, id: string, data: EntityData) {
         this.client = c;
@@ -176,8 +176,8 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
     // Until this is true, the EntityRegistry does nothing.
     // This is important because until the bot is ready,
     //  certain things might not exist that entities might want to access.
-    private started: boolean = false;
-    private cachedJSON: string = 'XXX_DID_NOT_LOAD_DATA_XXX';
+    private started = false;
+    private cachedJSON = 'XXX_DID_NOT_LOAD_DATA_XXX';
 
     public constructor(c: C, path: string) {
         super(path, false, false);
