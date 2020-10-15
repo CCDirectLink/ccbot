@@ -16,8 +16,8 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {ModlikeDatabaseEntity} from '../entities/mod-database';
-import {Modlike, ModlikeIndex} from '../data/structures';
+import {CCModDBViewerEntity} from '../entities/mod-database';
+import {CCModDBPackage, CCModDBPackageIndex} from '../data/structures';
 import {outputElements} from '../entities/page-switcher';
 
 /// Gets a list of mods.
@@ -37,8 +37,8 @@ export class ModsToolsGetCommand extends CCBotCommand {
     public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
         const entityName = !this.tools ? 'mod-database-manager' : 'tool-database-manager';
         if (entityName in this.client.entities.entities) {
-            const modDB = this.client.entities.entities[entityName] as ModlikeDatabaseEntity<unknown>;
-            if (modDB.database === null) {
+            const modDB = this.client.entities.entities[entityName] as CCModDBViewerEntity<unknown>;
+            if (modDB.data === null) {
                 let possibleError = '';
                 if (modDB.lastError)
                     possibleError += `\n${modDB.lastError.name}: ${modDB.lastError.message}\n${modDB.lastError.stack || 'no stack'}`;
@@ -47,9 +47,9 @@ export class ModsToolsGetCommand extends CCBotCommand {
                 });
             } else {
                 const mods: string[] = [];
-                const modIndex: ModlikeIndex = modDB.database;
+                const modIndex: CCModDBPackageIndex = modDB.data;
                 for (const id in modIndex) {
-                    const mod: Modlike = modIndex[id];
+                    const mod: CCModDBPackage = modIndex[id];
                     const components: string[] = [`**${mod.name} (${mod.version})**`];
                     if (mod.description) components.push(mod.description);
                     for (const page of mod.page) components.push(`[View on ${page.name}](${page.url})`);

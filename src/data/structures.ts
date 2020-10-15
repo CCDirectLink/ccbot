@@ -57,24 +57,22 @@ export interface Secrets {
 }
 
 // Implements the persistence backend.
-export interface GuildData {[setting: string]: unknown}
+export interface GuildData {[setting: string]: object}
 
 export interface GuildIndex {[guildID: string]: GuildData}
 
 /// see https://github.com/CCDirectLink/CCModDB
-// can someone come up with a better name than "modlike" which encompasses both mods and tools?
-// TODO: rename to PackagePage etc
-export interface ModlikePage {
+export interface CCModDBPackagePage {
     name: string;
     url: string;
 }
-export interface Modlike {
+export interface CCModDBPackage {
     name: string;
     version: string;
     description?: string;
-    page: ModlikePage[];
+    page: CCModDBPackagePage[];
 }
-export interface ModlikeIndex {[name: string]: Modlike}
+export interface CCModDBPackageIndex {[name: string]: CCModDBPackage}
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
 export interface DiscordAPIUser {
