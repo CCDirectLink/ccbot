@@ -16,7 +16,6 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
-import JSONCommand from './commands/json';
 import {DynamicData} from './dynamic-data';
 
 /// The setting bindings are *in the provider* for some reason.

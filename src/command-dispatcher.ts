@@ -15,8 +15,6 @@
 
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
-import * as structures from './data/structures';
-import JSONCommand from './commands/json';
 import {CCBot} from './ccbot';
 import {mentionRegex} from './utils';
 

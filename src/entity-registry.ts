@@ -14,7 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import {DynamicTextFile} from './dynamic-data';
-import {EntitySet} from './data/structures';
 
 /// Entity's base data
 export interface EntityData {
@@ -189,7 +188,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
             this.cachedJSON = json;
             return;
         }
-        const jsonData = JSON.parse(json);
+        const jsonData: EntityData[] = JSON.parse(json);
         this.killAllEntities();
         for (const entity of jsonData)
             this.newEntity(entity).catch((e) => {

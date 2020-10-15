@@ -56,9 +56,6 @@ export interface Secrets {
     youtubeData3Key?: string;
 }
 
-// entities.json - array of newEntity data objects
-export type EntitySet = object[];
-
 // Implements the persistence backend.
 export interface GuildData {[setting: string]: object}
 

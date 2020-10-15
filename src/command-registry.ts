@@ -14,8 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as commando from 'discord.js-commando';
-import * as structures from './data/structures';
-import DynamicDataManager from './dynamic-data';
 import JSONCommand from './commands/json';
 import HelpCommand from './commands/help';
 import {CCBot} from './ccbot';
