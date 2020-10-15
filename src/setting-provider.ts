@@ -24,6 +24,13 @@ declare module 'discord.js' {
     }
 }
 
+declare module 'discord.js-commando' {
+    interface CommandGroup {
+        // Why is every other private field and method defined, but this one isn't???
+        _globalEnabled: boolean;
+    }
+}
+
 /// The setting bindings are *in the provider* for some reason.
 /// This fixes SettingProvider to handle this properly.
 class SaneSettingProvider extends commando.SettingProvider {
@@ -36,16 +43,16 @@ class SaneSettingProvider extends commando.SettingProvider {
 
     constructor() {
         super();
-        this.listenerCommandPrefixChange = (guild: discord.Guild | string, value: string) => {
+        this.listenerCommandPrefixChange = (guild: discord.Guild | string, value: string): void => {
             this.set(guild, 'prefix', value);
         };
-        this.listenerCommandStatusChange = (guild: discord.Guild | string, group: commando.Command, enabled: boolean) => {
+        this.listenerCommandStatusChange = (guild: discord.Guild | string, group: commando.Command, enabled: boolean): void => {
             this.set(guild, 'cmd-' + group.groupID + '-' + group.memberName, enabled);
         };
-        this.listenerGroupStatusChange = (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean) => {
+        this.listenerGroupStatusChange = (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean): void => {
             this.set(guild, 'grp-' + group.id, enabled);
         };
-        this.listenerReloadSettings = () => {
+        this.listenerReloadSettings = (): void => {
             this.reloadSettings();
         };
     }
@@ -54,34 +61,32 @@ class SaneSettingProvider extends commando.SettingProvider {
     private reloadSettings(): void {
         // -- Prefixes
         this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
-        for (const vb of this.client.guilds.values())
-            (vb as any).commandPrefix = this.get(vb, 'prefix', null);
+        for (const guild of this.client.guilds.values())
+            guild.commandPrefix = this.get(guild, 'prefix', null);
         // -- Groups
-        for (const v of this.client.registry.groups.values()) {
-            const settingName = 'grp-' + v.id;
-            const vd: any = v;
-            vd._globalEnabled = this.get('global', settingName, true);
-            for (const vb of this.client.guilds.values()) {
-                const vc: any = vb;
+        for (const group of this.client.registry.groups.values()) {
+            const settingName = 'grp-' + group.id;
+            group._globalEnabled = this.get('global', settingName, true);
+            for (const guild of this.client.guilds.values()) {
+                const guildE = guild as unknown as { _groupsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
-                vc._groupsEnabled = vc._groupsEnabled || {};
-                const int = this.get(vb, settingName, undefined);
+                guildE._groupsEnabled = guildE._groupsEnabled || {};
+                const int = this.get(guild, settingName, undefined);
                 if (int !== undefined)
-                    vc._groupsEnabled[v.name] = Boolean(int);
+                    guildE._groupsEnabled[group.name] = Boolean(int);
             }
         }
         // -- Commands
-        for (const v of this.client.registry.commands.values()) {
-            const settingName = 'cmd-' + v.groupID + '-' + v.memberName;
-            const vd: any = v;
-            vd._globalEnabled = this.get('global', settingName, true);
-            for (const vb of this.client.guilds.values()) {
-                const vc: any = vb;
+        for (const command of this.client.registry.commands.values()) {
+            const settingName = 'cmd-' + command.groupID + '-' + command.memberName;
+            command['_globalEnabled'] = this.get('global', settingName, true);
+            for (const guild of this.client.guilds.values()) {
+                const guildE = guild as unknown as { _commandsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
-                vc._commandsEnabled = vc._commandsEnabled || {};
-                const int = this.get(vb, settingName, undefined);
+                guildE._commandsEnabled = guildE._commandsEnabled || {};
+                const int = this.get(guild, settingName, undefined);
                 if (int !== undefined)
-                    vc._commandsEnabled[v.name] = Boolean(int);
+                    guildE._commandsEnabled[command.name] = Boolean(int);
             }
         }
     }
@@ -125,6 +130,7 @@ class CCBotSettingProvider extends SaneSettingProvider {
         await super.destroy();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(guild: discord.Guild | string, key: string, def: any): any {
         const id: string = commando.SettingProvider.getGuildID(guild);
         const guildObj = this.data.data[id];
@@ -135,6 +141,7 @@ class CCBotSettingProvider extends SaneSettingProvider {
         return guildObj[key];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async set(guild: discord.Guild | string, key: string, val: any): Promise<any> {
         const id: string = commando.SettingProvider.getGuildID(guild);
         await this.data.modify((t: structures.GuildIndex) => {
@@ -144,6 +151,7 @@ class CCBotSettingProvider extends SaneSettingProvider {
         return val;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async remove(guild: discord.Guild | string, key: string): Promise<any> {
         const value = this.get(guild, key, undefined);
         const id: string = commando.SettingProvider.getGuildID(guild);
@@ -162,4 +170,4 @@ class CCBotSettingProvider extends SaneSettingProvider {
     }
 }
 
-export default CCBotSettingProvider as any;
+export default CCBotSettingProvider;
