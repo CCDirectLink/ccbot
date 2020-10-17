@@ -42,37 +42,45 @@ const tooHighFailReasons = [
 /// Generalized army manufacturing plant for the Lea [NOD]
 /// Not to be confused with the other NOD
 export default class ArmyCommand extends CCBotCommand {
-    public readonly emote: string;
-    public constructor(client: CCBot, group: string, name: string, emote: string) {
-        const opt = {
+    public readonly emote: string | undefined;
+    public constructor(client: CCBot, group: string, name: string, emote?: string) {
+        const args = [
+            {
+                key: 'width',
+                prompt: 'The breadth of the army? (A number.)',
+                type: 'integer'
+            },
+            {
+                key: 'height',
+                prompt: 'The height of the army? (A number; or not present, in which case width is put here to create a square)',
+                type: 'integer',
+                default: 0
+            }
+        ];
+        if (!emote) {
+            args.unshift({
+                key: 'emote',
+                prompt: 'The soldiers of the army? (An emote.)',
+                type: 'string'
+            })
+        }
+        const opt: commando.CommandInfo = {
             name: '-' + group + ' ' + name,
-            description: 'summons the ' + emote + ' army',
+            description: 'summons ' + (emote ? 'the ' + emote : 'an') + ' army',
             group: group,
             memberName: name,
-            args: [
-                {
-                    key: 'width',
-                    prompt: 'The breadth of the army? (A number.)',
-                    type: 'integer'
-                },
-                {
-                    key: 'height',
-                    prompt: 'The height of the army? (A number; or not present, in which case width is put here to create a square)',
-                    type: 'integer',
-                    default: 0
-                }
-            ]
+            args
         };
         super(client, opt);
         this.emote = emote;
     }
 
-    public async run(message: commando.CommandMessage, args: {width: number; height: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandMessage, args: {width: number; height: number; emote?: string}): Promise<discord.Message|discord.Message[]> {
         // Awkward, but solves the issue.
-        if (args.height == 0)
+        if (args.height === 0)
             args.height = args.width;
 
-        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, this.emote);
+        const emoteUse = await userAwareGetEmote(this.client, message.author, message.guild || null, (this.emote || args.emote)!);
         if (!emoteSafe(emoteUse, message.channel))
             return message.say('they appear to have been transformed into something unsuitable for this channel');
 

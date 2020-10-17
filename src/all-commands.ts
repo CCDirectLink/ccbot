@@ -57,6 +57,7 @@ export default function registerAllCommands(cr: CCBot): void {
     cr.registry.registerCommand(new RmQuoteCommand(cr));
 
     cr.registry.registerGroup('general');
+    cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'cheesearmy'));
     cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
     cr.registry.registerCommand(new PingCommand(cr));
     cr.registry.registerCommand(new ListEmotesCommand(cr, false));
