@@ -31,10 +31,10 @@ export abstract class DynamicTextFile {
     private path: string;
 
     // Used for the write buffering
-    private modifyTimeoutActive: (() => void)[] | null = null;
-    private modifyTimeoutReject: ((err: unknown) => void)[] | null = null;
+    private modifyTimeoutActive: Array<() => void> | null = null;
+    private modifyTimeoutReject: Array<(err: unknown) => void> | null = null;
 
-    constructor(name: string, immediate: boolean, ram: boolean) {
+    public constructor(name: string, immediate: boolean, ram: boolean) {
         this.path = `dynamic-data/${name}`;
         this.immediate = immediate;
         this.ram = ram;
@@ -86,8 +86,8 @@ export abstract class DynamicTextFile {
             return this.saveImmediate();
         } else {
             // This logic ensures only one write is ongoing at a time.
-            let mta: (() => void)[] = [];
-            let mtj: ((err: unknown) => void)[] = [];
+            let mta: Array<() => void> = [];
+            let mtj: Array<(err: unknown) => void> = [];
             if ((this.modifyTimeoutActive == null) || (this.modifyTimeoutReject == null)) {
                 console.log(`opening save window on ${this.path}`);
                 this.modifyTimeoutActive = mta;
@@ -147,9 +147,9 @@ export class DynamicData<T> extends DynamicTextFile {
     // The data. Please treat as read-only - use modify to modify it.
     public data: T;
 
-    private modifyActions: (() => void)[] = [];
+    private modifyActions: Array<() => void> = [];
 
-    constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
+    public constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
         super(`${name}.json`, immediate, ram);
         this.data = defaultContent;
     }
@@ -188,7 +188,7 @@ export class DynamicData<T> extends DynamicTextFile {
 export class DynamicDataDump<T> extends DynamicTextFile {
     public data: T | null = null;
 
-    constructor(name: string) {
+    public constructor(name: string) {
         super(`${name}.json`, true, false);
     }
 
@@ -220,17 +220,17 @@ export class DynamicDataDump<T> extends DynamicTextFile {
 /// Useful for eval access.
 /// There should only be one of these at a time right now, since it's always based on the same folder.
 export default class DynamicDataManager {
-    commands = new DynamicData<structures.CommandSet>('commands', false, true, {});
-    settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
-    emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('emote-registry');
+    public commands = new DynamicData<structures.CommandSet>('commands', false, true, {});
+    public settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
+    public emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('emote-registry');
 
-    initialLoad: Promise<void> = Promise.all<void>([
+    public initialLoad: Promise<void> = Promise.all<void>([
         this.commands.initialLoad,
         this.settings.initialLoad,
         this.emoteRegistryDump.initialLoad
     ]).then(() => {});
 
-    async destroy(): Promise<void> {
+    public async destroy(): Promise<void> {
         await Promise.all([
             this.commands.destroy(),
             this.settings.destroy(),

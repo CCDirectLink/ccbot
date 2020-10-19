@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {Snowflake, MessageEmbedOptions} from 'discord.js';
+import {MessageEmbedOptions, Snowflake} from 'discord.js';
 // commands.json
 export interface Command {
     // The description. Defaults to 'No Description'.

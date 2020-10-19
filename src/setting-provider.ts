@@ -41,7 +41,7 @@ class SaneSettingProvider extends commando.SettingProvider {
     private listenerGroupStatusChange: (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean) => void;
     private listenerReloadSettings: () => void;
 
-    constructor() {
+    public constructor() {
         super();
         this.listenerCommandPrefixChange = (guild: discord.Guild | string, value: string): void => {
             this.set(guild, 'prefix', value);
@@ -71,7 +71,7 @@ class SaneSettingProvider extends commando.SettingProvider {
                 const guildE = guild as unknown as { _groupsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
                 guildE._groupsEnabled = guildE._groupsEnabled || {};
-                const int = this.get(guild, settingName, undefined);
+                const int = this.get(guild, settingName);
                 if (int !== undefined)
                     guildE._groupsEnabled[group.name] = Boolean(int);
             }
@@ -79,19 +79,20 @@ class SaneSettingProvider extends commando.SettingProvider {
         // -- Commands
         for (const command of this.client.registry.commands.values()) {
             const settingName = `cmd-${command.groupID}-${command.memberName}`;
+            // eslint-disable-next-line dot-notation
             command['_globalEnabled'] = this.get('global', settingName, true);
             for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _commandsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
                 guildE._commandsEnabled = guildE._commandsEnabled || {};
-                const int = this.get(guild, settingName, undefined);
+                const int = this.get(guild, settingName);
                 if (int !== undefined)
                     guildE._commandsEnabled[command.name] = Boolean(int);
             }
         }
     }
 
-    async init(client: commando.CommandoClient): Promise<void> {
+    public async init(client: commando.CommandoClient): Promise<void> {
         this.client = client;
         this.listenerReloadSettings();
         client.on('commandPrefixChange', this.listenerCommandPrefixChange);
@@ -102,7 +103,7 @@ class SaneSettingProvider extends commando.SettingProvider {
         client.on('groupRegister', this.listenerReloadSettings);
     }
 
-    async destroy(): Promise<void> {
+    public async destroy(): Promise<void> {
         this.client.removeListener('commandPrefixChange', this.listenerCommandPrefixChange);
         this.client.removeListener('commandStatusChange', this.listenerCommandStatusChange);
         this.client.removeListener('groupStatusChange', this.listenerGroupStatusChange);
@@ -117,22 +118,22 @@ class CCBotSettingProvider extends SaneSettingProvider {
     // TODO: use maps here?
     public readonly data: DynamicData<structures.GuildIndex>;
 
-    constructor(d: DynamicData<structures.GuildIndex>) {
+    public constructor(d: DynamicData<structures.GuildIndex>) {
         super();
         this.data = d;
     }
 
-    async init(client: commando.CommandoClient): Promise<void> {
+    public async init(client: commando.CommandoClient): Promise<void> {
         await this.data.initialLoad;
         await super.init(client);
     }
 
-    async destroy(): Promise<void> {
+    public async destroy(): Promise<void> {
         await super.destroy();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get(guild: discord.Guild | string, key: string, def: any): any {
+    public get(guild: discord.Guild | string, key: string, def?: any): any {
         const id: string = commando.SettingProvider.getGuildID(guild);
         const guildObj = this.data.data[id];
         if (!guildObj)
@@ -143,7 +144,7 @@ class CCBotSettingProvider extends SaneSettingProvider {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async set(guild: discord.Guild | string, key: string, val: any): Promise<any> {
+    public async set(guild: discord.Guild | string, key: string, val: any): Promise<any> {
         const id: string = commando.SettingProvider.getGuildID(guild);
         await this.data.modify((t: structures.GuildIndex) => {
             t[id] = t[id] || {};
@@ -153,8 +154,8 @@ class CCBotSettingProvider extends SaneSettingProvider {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async remove(guild: discord.Guild | string, key: string): Promise<any> {
-        const value = this.get(guild, key, undefined);
+    public async remove(guild: discord.Guild | string, key: string): Promise<any> {
+        const value = this.get(guild, key);
         const id: string = commando.SettingProvider.getGuildID(guild);
         await this.data.modify((t: structures.GuildIndex) => {
             if (t[id])
@@ -163,7 +164,7 @@ class CCBotSettingProvider extends SaneSettingProvider {
         return value;
     }
 
-    clear(guild: discord.Guild | string): Promise<void> {
+    public clear(guild: discord.Guild | string): Promise<void> {
         const id: string = commando.SettingProvider.getGuildID(guild);
         return this.data.modify((t: structures.GuildIndex) => {
             delete t[id];

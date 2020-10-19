@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {CCBotEntity, CCBot} from '../ccbot';
-import {silence, isChannelTextBased, TextBasedChannel} from '../utils';
-import {WatcherEntityData, WatcherEntity, StreamProviderEntity} from '../watchers';
+import {CCBot, CCBotEntity} from '../ccbot';
+import {TextBasedChannel, isChannelTextBased, silence} from '../utils';
+import {StreamProviderEntity, WatcherEntity, WatcherEntityData} from '../watchers';
 
 // All the kinds of stream provider we care about
 const streamProviders: string[] = ['twitch', 'youtube'];
@@ -40,10 +40,7 @@ class StreamWatcherEntity extends WatcherEntity {
     }
 
     public async watcherTick(): Promise<void> {
-        const streams: {
-            name: string;
-            value: string;
-        }[] = [];
+        const streams: Array<{ name: string; value: string; }> = [];
         const guild = this.channel instanceof discord.GuildChannel ? this.channel.guild : undefined;
         for (const providerType of streamProviders) {
             const provider = this.client.entities.getEntity<StreamProviderEntity>(`stream-provider-${providerType}`);

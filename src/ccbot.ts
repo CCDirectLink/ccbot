@@ -21,7 +21,7 @@ import {Entity, EntityData, EntityRegistry} from './entity-registry';
 
 // TODO: is this worth defining properly?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RawEvent = { t: string; d: any };
+interface RawEvent { t: string; d: any }
 
 /// The modified CommandoClient used by this bot.
 /// This contains all of the fields and methods for the extension,
@@ -141,7 +141,10 @@ export class CCBotCommand extends commando.Command {
     }
 
     public async onBlock(
-        message: commando.CommandoMessage, reason: string, data?: object
+        message: commando.CommandoMessage,
+        reason: string,
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        data?: Object
     ): Promise<discord.Message | discord.Message[]> {
         if (reason === 'throttling')
             return [];
@@ -170,7 +173,7 @@ export class CCBotEntity extends Entity<CCBot> {
     /// For those entities with ID 'message-{id}' (such as 'message-597047171090743308'),
     /// this callback receives emote add/remove events.
     /// This thus basically turns entities with those IDs into 'message managers'.
-    public emoteReactionTouched(emote: discord.Emoji, user: discord.User, add: boolean): void {
+    public emoteReactionTouched(_emote: discord.Emoji, _user: discord.User, _add: boolean): void {
         // All 3 arguments are not used on purpose.
     }
 }

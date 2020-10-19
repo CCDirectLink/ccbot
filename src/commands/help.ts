@@ -23,7 +23,7 @@ export default class HelpCommand extends CCBotCommand {
         const opt = {
             name: `-${group} help`,
             description: 'provides the text you\'re reading!',
-            group: group,
+            group,
             memberName: 'help'
         };
         super(client, opt);
@@ -88,7 +88,7 @@ export default class HelpCommand extends CCBotCommand {
                 for (const str of text)
                     await message.author.send('', {embed: {description: str}});
                 return await message.say('The help page has been sent to your DMs.');
-            } catch (e) {
+            } catch (_e) {
                 return await message.say('Tried to send help information to DMs, but... are your DMs blocked?');
             }
         }

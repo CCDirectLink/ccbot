@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {localAdminCheck, doneResponse} from '../utils';
+import {doneResponse, localAdminCheck} from '../utils';
 import {getUserDatablock} from '../entities/user-datablock';
 
 // Important (i.e. non-obvious) limits
@@ -187,7 +187,7 @@ export class SettingsCommand extends CCBotCommand {
         if (!isAuthorized(message, this.operation, this.context, instance))
             return message.say('You aren\'t authorized to do that.');
 
-        let value = undefined;
+        let value;
         if (this.operation == SettingsOperation.Get) {
             // Reading
             if ((this.context == SettingsContext.Global) || (this.context == SettingsContext.Local)) {

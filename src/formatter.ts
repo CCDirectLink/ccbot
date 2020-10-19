@@ -53,4 +53,4 @@ export class VM extends formatterCore.VM {
 ///  Also, " is pretty much a togglable escape.
 /// /leaCheese/: Shows the leaCheese emote. For compatibility with old .cc say
 /// //: Repeated verbatim, escapes text until next space. Used to keep URLs happy
-export const runFormat = formatterCore.runFormat;
+export const {runFormat} = formatterCore;

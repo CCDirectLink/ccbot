@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {outputElements, PageSwitcherOutputElementWithCategory} from '../entities/page-switcher';
+import {PageSwitcherOutputElementWithCategory, outputElements} from '../entities/page-switcher';
 
 /// A counter.
 export default class CounterCommand extends CCBotCommand {

@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {convertRoles, convertRoleGroup, getUserDeniedRoles} from '../role-utils';
+import {convertRoleGroup, convertRoles, getUserDeniedRoles} from '../role-utils';
 import {doneResponse} from '../utils';
 import {outputElements} from '../entities/page-switcher';
 

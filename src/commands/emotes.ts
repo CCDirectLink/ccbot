@@ -16,8 +16,8 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {naturalComparison, localAdminCheck, emoteSafe, mdEsc, TextBasedChannel} from '../utils';
-import {outputElements, PageSwitcherOutputElement} from '../entities/page-switcher';
+import {TextBasedChannel, emoteSafe, localAdminCheck, mdEsc, naturalComparison} from '../utils';
+import {PageSwitcherOutputElement, outputElements} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 /// A command to list the accessible emotes.
@@ -180,7 +180,7 @@ export class ReactCommand extends CCBotCommand {
         if (args.emotes[start].startsWith('id=')) {
             try {
                 targetMessage = await targetChannel.messages.fetch(args.emotes[start].substring(3));
-            } catch (e) {
+            } catch (_e) {
                 return await message.say('The message doesn\'t seem to exist.');
             }
             start++;

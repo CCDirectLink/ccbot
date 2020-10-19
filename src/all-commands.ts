@@ -16,13 +16,13 @@
 import ReloadCommand from './commands/reload';
 import CounterCommand from './commands/counter';
 import PingCommand from './commands/ping';
-import {InspireCommand, AddQuoteCommand, RmQuoteCommand} from './commands/inspire';
+import {AddQuoteCommand, InspireCommand, RmQuoteCommand} from './commands/inspire';
 import HugCommand from './commands/hug';
 import PurgeCommand from './commands/purge';
 import ArmyCommand from './commands/army';
-import {RolesAddCommand, RolesRmCommand, RolesListCommand} from './commands/roles';
-import {SettingsCommand, ShowUserSettingsCommand, SettingsOperation, SettingsContext} from './commands/settings';
-import {ListEmotesCommand, EmoteCommand, ReactCommand} from './commands/emotes';
+import {RolesAddCommand, RolesListCommand, RolesRmCommand} from './commands/roles';
+import {SettingsCommand, SettingsContext, SettingsOperation, ShowUserSettingsCommand} from './commands/settings';
+import {EmoteCommand, ListEmotesCommand, ReactCommand} from './commands/emotes';
 import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import {CCBot} from './ccbot';

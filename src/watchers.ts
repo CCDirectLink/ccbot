@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {CCBotEntity, CCBot} from './ccbot';
+import {CCBot, CCBotEntity} from './ccbot';
 import {EntityData} from './entity-registry';
 import {boundRequestTimeout} from './utils';
 

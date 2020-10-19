@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {findMemberByRef, emoteSafe} from '../utils';
+import {emoteSafe, findMemberByRef} from '../utils';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 /// For hugging.
@@ -49,7 +49,7 @@ export default class HugCommand extends CCBotCommand {
         if (args.people.length == 0)
             return [];
         let effectiveLength = args.people.length;
-        let tryTimes = parseInt(args.people[args.people.length - 1]);
+        let tryTimes = parseInt(args.people[args.people.length - 1], 10);
         if ((!Number.isNaN(tryTimes)) && (tryTimes < 50)) {
             effectiveLength--;
         } else {

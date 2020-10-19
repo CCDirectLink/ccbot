@@ -14,16 +14,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {CCBotEntity, CCBot} from '../ccbot';
+import {CCBot, CCBotEntity} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getGuildTextChannel, silence, TextBasedChannel} from '../utils';
+import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
 async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting: string, channel: TextBasedChannel): Promise<void> {
     const result = await say(greeting, {
-        client: client,
-        channel: channel,
+        client,
+        channel,
         cause: member.user,
         writer: null,
         protectedContent: false,

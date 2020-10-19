@@ -20,7 +20,7 @@ const vmEvalTime = 8;
 const vmMaxAnythingLength = 2048;
 
 export interface Value {
-    constructor: Function;
+    constructor: Function; // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export const trueValue = 'true';
@@ -29,7 +29,7 @@ export const falseValue = '';
 export function asBoolean(v: Value): boolean {
     // Value[] is truthy
     // Empty string is not truthy
-    return !!v;
+    return Boolean(v);
 }
 
 export function asString(v: Value): string {

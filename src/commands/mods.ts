@@ -26,7 +26,7 @@ export class ModsToolsGetCommand extends CCBotCommand {
         const opt = {
             name: `-${group} ${name}`,
             description: !tools ? 'Gets a list of the available mods.' : 'Gets a list of the available tools.',
-            group: group,
+            group,
             memberName: name
         };
         super(client, opt);

@@ -23,10 +23,10 @@ import * as net from 'net';
 
 /// The one and only main class, that initializes everything.
 class CCBotMain {
-    client: CCBot;
-    dataCollector: net.Server | null;
-    secrets: Secrets;
-    constructor() {
+    public readonly client: CCBot;
+    public dataCollector: net.Server | null;
+    public readonly secrets: Secrets;
+    public constructor() {
         // This file may not exist in Travis.
         // So apparently the globalThis require thing doesn't work;
         // 1. Webpack *may* be providing the JSON conversion
@@ -49,12 +49,12 @@ class CCBotMain {
                 this.startDataCollector();
             } catch (e) {
                 console.error(e);
-                process.exit(1);
+                process.exit(1); // eslint-disable-line no-process-exit
             }
         }
         kickstart();
     }
-    startDataCollector(): void {
+    private startDataCollector(): void {
         // The data collector is "outside the system".
         if (this.secrets.dataCollectionPort) {
             // Data tallys
@@ -124,7 +124,7 @@ class CCBotMain {
             this.dataCollector.listen(this.secrets.dataCollectionPort, this.secrets.dataCollectionHost);
         }
     }
-    destroy(): Promise<void> {
+    public destroy(): Promise<void> {
         if (this.dataCollector)
             this.dataCollector.close();
         return this.client.destroy();
@@ -144,7 +144,7 @@ async function shutdown(): Promise<void> {
     } catch (e) {
         console.error('During shutdown:', e);
     }
-    process.exit(0);
+    process.exit(0); // eslint-disable-line no-process-exit
 }
 
 process.on('exit', shutdown);

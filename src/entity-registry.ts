@@ -125,7 +125,7 @@ export abstract class Entity<C> {
 
     /// Used in the subclass to connect to killEntity.
     /// Is supposed to do nothing if the entity is dead, so it can be called from callbacks.
-    public kill(transferOwnership: boolean): void {
+    public kill(_transferOwnership: boolean): void {
         throw new Error('Subclass did not implement kill()');
     }
 
@@ -213,7 +213,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         const jsonData: EntityData[] = JSON.parse(json);
         this.killAllEntities();
         for (const entity of jsonData)
-            this.newEntity(entity).catch((e) => {
+            this.newEntity(entity).catch((_e) => {
                 // These will have already been reported.
             });
     }

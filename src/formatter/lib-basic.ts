@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {VM, VMScope, asBoolean, asInteger, asString, asList, wrapFunc, Value, falseValue, trueValue} from './core';
+import {VM, VMScope, Value, asBoolean, asInteger, asList, asString, falseValue, trueValue, wrapFunc} from './core';
 import {checkIntegerResult} from '../utils';
 const vmConcatCharacterTime = 1;
 //const vmLetTime = 1;
@@ -63,7 +63,7 @@ export function installBasic(vm: VM): void {
             try {
                 asInteger(args[0]);
                 return trueValue;
-            } catch (e) {
+            } catch (_e) {
                 return falseValue;
             }
         }),

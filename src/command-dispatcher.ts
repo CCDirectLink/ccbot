@@ -68,6 +68,7 @@ function initCCBotCommandoMessage(
 
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
+    // eslint-disable-next-line dot-notation
     self['editResponse'] = async function editResponse(a: (discord.Message | discord.Message[]), b?: { options: discord.MessageOptions }): Promise<discord.Message | discord.Message[]> {
         // Kill involved entities
         if (Array.isArray(a)) {
@@ -85,6 +86,7 @@ function initCCBotCommandoMessage(
                 b.options = {embed: undefined};
             }
         }
+        // eslint-disable-next-line dot-notation
         return commando.CommandoMessage.prototype['editResponse'].call(this, a, b);
     };
 
@@ -93,9 +95,9 @@ function initCCBotCommandoMessage(
 
 /// A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandoMessage.
 export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
-    client!: CCBot;
+    public readonly client!: CCBot;
 
-    constructor(c: CCBot, r: commando.CommandoRegistry) {
+    public constructor(c: CCBot, r: commando.CommandoRegistry) {
         super(c, r);
     }
 
@@ -185,7 +187,7 @@ export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
     private parseUnknownCommand(message: discord.Message, text: string): commando.CommandoMessage | null {
         // This is imitating the Commando master behavior.
         // But we use it as a method for overriding the unknown-command.
-        let cmd: commando.Command | undefined = undefined;
+        let cmd: commando.Command | undefined;
         const utilGroup: commando.CommandGroup | undefined = this.registry.groups.get('util');
         if (utilGroup)
             cmd = utilGroup.commands.find((cmd: commando.Command): boolean => {

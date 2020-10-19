@@ -15,7 +15,7 @@
 
 import * as discord from 'discord.js';
 import {EntityData} from '../entity-registry';
-import {CCBotEntity, CCBot} from '../ccbot';
+import {CCBot, CCBotEntity} from '../ccbot';
 import {runRoleCommand} from '../commands/roles';
 
 export interface ReactRolesData extends EntityData {

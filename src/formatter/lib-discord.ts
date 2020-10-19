@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {VM, asString, wrapFunc, Value, falseValue} from './core';
-import {findMemberByRef, isChannelTextBased, TextBasedChannel, emoteSafe} from '../utils';
+import {VM, Value, asString, falseValue, wrapFunc} from './core';
+import {TextBasedChannel, emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
 import {CCBot} from '../ccbot';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -106,7 +106,7 @@ export function installDiscord(vm: VM, context: VMContext): void {
             if (additionals.length > 0)
                 text += `(${additionals.join(', ')})`;
             return text;
-        } catch (e) {
+        } catch (_e) {
             return `Quotation failure. Message ${details[2]} unavailable.\n`;
         }
         return url;
@@ -168,9 +168,9 @@ export function installDiscord(vm: VM, context: VMContext): void {
                     const url = asString(embed[2]);
                     context.embed = {
                         title: asString(embed[1]),
-                        url: url,
+                        url,
                         image: {
-                            url: url
+                            url
                         }
                     };
                 } else {

@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {randomArrayElement, emoteSafe} from '../utils';
+import {emoteSafe, randomArrayElement} from '../utils';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 // Scientific reasons for Lea to have to exist.
@@ -67,7 +67,7 @@ export default class ArmyCommand extends CCBotCommand {
         const opt: commando.CommandInfo = {
             name: `-${group} ${name}`,
             description: `summons ${emote ? `the ${emote}` : 'an'} army`,
-            group: group,
+            group,
             memberName: name,
             args
         };

@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {CCBotEntity, CCBot} from '../ccbot';
+import {CCBot, CCBotEntity} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getGuildTextChannel, silence, TextBasedChannel} from '../utils';
+import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
 import {DiscordAPIUser} from '../data/structures';
 
 /// Implements greetings and automatic role assignment.
@@ -41,7 +41,7 @@ class AuditorEntity extends CCBotEntity {
                     try {
                         const info = await g.fetchBan(u.id);
                         reason = discord.Util.escapeMarkdown(info.reason || '');
-                    } catch (e) {
+                    } catch (_e) {
                         // Deilberately left blank
                     }
                 }
@@ -115,10 +115,10 @@ class AuditorEntity extends CCBotEntity {
             } catch (e) {
                 try {
                     await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\n${e.toString()}`);
-                } catch (e2) {
+                } catch (_e2) {
                     try {
                         await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\nUnable to state why either`);
-                    } catch (e3) {
+                    } catch (_e3) {
                         await targetChannel.send('An event happened, but describing it causes an error for some reason. Sorry.');
                     }
                 }
@@ -127,7 +127,7 @@ class AuditorEntity extends CCBotEntity {
                 try {
                     const result = await frm.messages.fetch(id[0]);
                     await targetChannel.send(`Current (after edits) information on ${id[0]}:${this.summarize(result)}`);
-                } catch (e) {
+                } catch (_e) {
                     //await targetChannel.send('Could not get after-edits information on the message.\n' + e.toString());
                 }
             }

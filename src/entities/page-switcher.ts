@@ -16,8 +16,8 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {EntityData} from '../entity-registry';
-import {CCBotEntity, CCBot} from '../ccbot';
-import {silence, isChannelTextBased, TextBasedChannel} from '../utils';
+import {CCBot, CCBotEntity} from '../ccbot';
+import {TextBasedChannel, isChannelTextBased, silence} from '../utils';
 
 const ui1 = '⏮';
 const ui2 = '◀';
@@ -73,14 +73,14 @@ export type PageSwitcherOutputElement = string | PageSwitcherOutputElementWithCa
 export async function outputElements(client: CCBot, msg: commando.CommandoMessage, elements: PageSwitcherOutputElement[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
     options = options || {};
 
-    const footer = options.footer;
+    const {footer} = options;
 
     // The text-footer is subtracted from page length, so it's always safe to append.
     const textFooter = options.textFooter || '';
     pageLength -= textFooter.length;
 
     // The algorithm begins...
-    const pages: (discord.MessageEmbedOptions & {description: string})[] = [];
+    const pages: Array<discord.MessageEmbedOptions & {description: string}> = [];
     let elementsOnPage = 0;
     const finishPage = (): void => {
         pages[pages.length - 1].description += textFooter;
@@ -161,7 +161,7 @@ export async function outputElements(client: CCBot, msg: commando.CommandoMessag
         message: output.id,
         user: msg.author.id,
         page: 0,
-        pages: pages,
+        pages,
         killTimeout: 60000
     });
     return output;

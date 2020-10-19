@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {CCBotEntity, CCBot} from '../ccbot';
-import {StreamProviderEntityData, StreamProviderEntity} from '../watchers';
+import {CCBot, CCBotEntity} from '../ccbot';
+import {StreamProviderEntity, StreamProviderEntityData} from '../watchers';
 import {getJSON} from '../utils';
 
 // These represent external serialized data, be careful.

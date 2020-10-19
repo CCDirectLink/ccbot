@@ -152,7 +152,7 @@ export function findMemberByRef(t: discord.Guild | undefined | null, ref: string
 
 // An integer parser that knows when to abort
 export function safeParseInt(a: string): number {
-    const res = parseInt(a);
+    const res = parseInt(a); // eslint-disable-line radix
     if (!Number.isSafeInteger(res))
         throw new Error(`Number ${a} is not a sane integer`);
     if (res.toString() !== a)
@@ -176,7 +176,7 @@ export function getJSON<T>(endpoint: string, headers: Record<string, string>): P
         hostname: endpointURL.hostname,
         port: endpointURL.port,
         path: endpointURL.pathname + endpointURL.search,
-        headers: headers
+        headers
     };
     const secure = endpointURL.protocol == 'https:';
     headers['user-agent'] = 'ccbot-new (red queen)';

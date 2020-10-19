@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
-import {CCBotEntity, CCBot} from '../ccbot';
+import {CCBot, CCBotEntity} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {silence} from '../utils';
 

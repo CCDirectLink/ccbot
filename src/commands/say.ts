@@ -50,8 +50,8 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
     if ((text != '') || hasMeta)
         return {
             error: false,
-            text: text,
-            opts: opts
+            text,
+            opts
         };
     return null;
 }
@@ -81,7 +81,7 @@ export default class SayCommand extends CCBotCommand {
 
     public async run(message: commando.CommandoMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
         // Bootstrap?
-        const bootstrap = (await getUserDatablock(this.client, message.author)).get()['bootstrap'];
+        const {bootstrap} = (await getUserDatablock(this.client, message.author)).get();
         if (bootstrap && (typeof bootstrap === 'string'))
             args.text = bootstrap + args.text;
         const sayResult = await say(args.text, {
