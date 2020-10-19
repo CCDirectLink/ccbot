@@ -19,12 +19,12 @@ const vmConcatCharacterTime = 1;
 //const vmLetTime = 1;
 
 export function setFunc(targetRaw: Value, sourceRaw: Value, scope: VMScope): void {
-    if (targetRaw.constructor == String) {
+    if (typeof targetRaw === 'string') {
         const target = asString(targetRaw);
         const source = asString(sourceRaw);
         const sourceFn = scope.getFunction(source);
         if (!sourceFn) {
-            throw new Error('Attempted function copy, but ' + source + ' did not exist');
+            throw new Error(`Attempted function copy, but ${source} did not exist`);
         } else {
             scope.addFunction(target, sourceFn, false);
         }
@@ -40,7 +40,7 @@ export function setFunc(targetRaw: Value, sourceRaw: Value, scope: VMScope): voi
     scope.addFunction(name, wrapFunc(name, arg.length, async (runArgs: Value[]): Promise<Value> => {
         const subScope = scope.extend();
         for (let i = 0; i < arg.length; i++)
-            subScope.addFunction(arg[i], wrapFunc('arg ' + arg[i], 0, async (): Promise<Value> => runArgs[i]), true);
+            subScope.addFunction(arg[i], wrapFunc(`arg ${arg[i]}`, 0, async (): Promise<Value> => runArgs[i]), true);
         return scope.vm.run(sourceRaw, subScope);
     }), false);
 }
@@ -71,7 +71,7 @@ export function installBasic(vm: VM): void {
             // String equivalence.
             // Since numbers are strings here, things probably work out.
             // This is a built-in and we don't trust built-ins to handle recursive functions if we can help it
-            if ((args[0].constructor === Array) || (args[1].constructor === Array))
+            if (Array.isArray(args[0]) || Array.isArray(args[1]))
                 throw new Error('Not allowed to check equality of lists with \'=\'');
             return (args[0] === args[1]) ? trueValue : falseValue;
         }),
@@ -101,19 +101,18 @@ export function installBasic(vm: VM): void {
         // Operations
         'length': wrapFunc('length', 1, async (args: Value[]): Promise<Value> => {
             const res = args[0];
-            if ((res.constructor === Array) || res.constructor === String)
-                return (res as unknown as {length: number}).length.toString();
+            if (Array.isArray(res) || typeof res === 'string')
+                return res.length.toString();
             throw new Error('Attempted to get length of non-list');
         }),
         'nth': wrapFunc('nth', 2, async (args: Value[]): Promise<Value> => {
             const index = asInteger(args[0]);
             const res = args[1];
-            if ((res.constructor === Array) || (res.constructor === String)) {
-                const resEffective = res as Value[];
-                if ((index >= 0) && (index < resEffective.length))
-                    return resEffective[index];
+            if (Array.isArray(res) || (typeof res === 'string')) {
+                if ((index >= 0) && (index < res.length))
+                    return res[index];
             }
-            throw new Error('Index out of bounds for nth: ' + res.toString() + '[' + index + ']');
+            throw new Error(`Index out of bounds for nth: ${res.toString()}[${index}]`);
         }),
         'list': wrapFunc('list', -1, async (args: Value[]): Promise<Value> => {
             return args;
@@ -139,7 +138,7 @@ export function installBasic(vm: VM): void {
                 throw new Error('Incorrect form for set');
             const name = asString(await vm.run(args[1], scope));
             const value = await vm.run(args[2], scope);
-            scope.addFunction(name, wrapFunc('set ' + name, 0, async (): Promise<Value> => {
+            scope.addFunction(name, wrapFunc(`set ${name}`, 0, async (): Promise<Value> => {
                 return value;
             }), false);
             return value;

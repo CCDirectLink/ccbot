@@ -21,7 +21,7 @@ import {CCBot, CCBotCommand} from '../ccbot';
 export default class HelpCommand extends CCBotCommand {
     public constructor(client: CCBot, group: string) {
         const opt = {
-            name: '-' + group + ' help',
+            name: `-${group} help`,
             description: 'provides the text you\'re reading!',
             group: group,
             memberName: 'help'
@@ -29,9 +29,9 @@ export default class HelpCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
         const lines = [
-            '__ ** ' + this.group.name + ' Commands ** __',
+            `__ ** ${this.group.name} Commands ** __`,
             ''
         ];
 
@@ -42,12 +42,12 @@ export default class HelpCommand extends CCBotCommand {
         }
 
         for (const cmd of this.group.commands.values()) {
-            const fmt = cmd.format ? ' ' + cmd.format : '';
+            const fmt = cmd.format ? ` ${cmd.format}` : '';
             if (cmd.description != 'UNDOCUMENTED') {
                 if (this.groupID === 'general') {
-                    lines.push('** ' + cmd.memberName + fmt + ' **: ' + cmd.description);
+                    lines.push(`** ${cmd.memberName}${fmt} **: ${cmd.description}`);
                 } else {
-                    lines.push('** -' + this.group.id + ' ' + cmd.memberName + fmt + ' **: ' + cmd.description);
+                    lines.push(`** -${this.group.id} ${cmd.memberName}${fmt} **: ${cmd.description}`);
                 }
             }
 
@@ -56,7 +56,7 @@ export default class HelpCommand extends CCBotCommand {
         // Append some details on other groups
         const allGroups = this.client.registry.groups.keyArray();
         lines.push('');
-        lines.push('Also see: `-' + allGroups.join(' help`, `-') + ' help`');
+        lines.push(`Also see: \`-${allGroups.join(' help`, `-')} help\``);
 
         // The text is set in stone from here on in.
         const text = [lines.join('\n')];
@@ -73,12 +73,12 @@ export default class HelpCommand extends CCBotCommand {
                     text[index + 1] = target.substring(breakp + 1);
                     didSomethingThisRound = true;
                 } else {
-                    text[index + 1] = target.substring(breakp + 1) + '\n' + text[index + 1];
+                    text[index + 1] = `${target.substring(breakp + 1)}\n${text[index + 1]}`;
                 }
             }
             index++;
         }
-        if (message.channel.type == 'dm') {
+        if (message.channel instanceof discord.DMChannel) {
             const array: discord.Message[] = [];
             for (const str of text)
                 array.push(await message.say('', {embed: {description: str}}) as discord.Message);
@@ -86,7 +86,7 @@ export default class HelpCommand extends CCBotCommand {
         } else {
             try {
                 for (const str of text)
-                    await message.author.send('', {embed: {description: str}}) as discord.Message;
+                    await message.author.send('', {embed: {description: str}});
                 return await message.say('The help page has been sent to your DMs.');
             } catch (e) {
                 return await message.say('Tried to send help information to DMs, but... are your DMs blocked?');

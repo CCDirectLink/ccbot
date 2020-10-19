@@ -39,7 +39,7 @@ export default class HugCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {people: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {people: string[]}): Promise<discord.Message|discord.Message[]> {
         /*
          * Design contributions by:
          *  Emileyah: 208763015657553921
@@ -71,13 +71,13 @@ export default class HugCommand extends CCBotCommand {
                 if (alreadyHugged.has(member.user))
                     continue;
                 if (member.user == message.author) {
-                    lines.push('You shouldn\'t have to hug yourself, but ' + this.client.user + ' will hug you! ' + hugEmote);
+                    lines.push(`You shouldn't have to hug yourself, but ${this.client.user} will hug you! ${hugEmote}`);
                 } else {
-                    lines.push(hugEmoteString + ' ' + member.user.toString());
+                    lines.push(`${hugEmoteString} ${member.user.toString()}`);
                 }
                 alreadyHugged.add(member.user);
             } else {
-                lines.push('Couldn\'t find ' + args.people[i] + '!');
+                lines.push(`Couldn't find ${args.people[i]}!`);
             }
         }
 

@@ -15,18 +15,16 @@
 
 import * as discord from 'discord.js';
 import {VM, asString, wrapFunc, Value, falseValue} from './core';
-import {findMemberByRef, guildOf, channelAsTBF, emoteSafe} from '../utils';
+import {findMemberByRef, isChannelTextBased, TextBasedChannel, emoteSafe} from '../utils';
 import {CCBot} from '../ccbot';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
 const vmQuoteTime = 128;
 const vmFindUserTime = 128;
 
-type ChannelTBF = discord.Channel & discord.TextBasedChannelFields;
-
 export interface VMContext {
     client: CCBot;
-    channel: ChannelTBF;
+    channel: TextBasedChannel;
     // The person whose say- code we are running.
     // Null means it comes from guild settings at some level,
     //  which means it has as much permission as the bot within the guild.
@@ -39,19 +37,23 @@ export interface VMContext {
     protectedContent: boolean;
     args: Value[];
     // The current embed.
-    embed?: discord.RichEmbedOptions;
+    embed?: discord.MessageEmbedOptions;
 }
 
 const discordMessageLinkURL = /([0-9]+)\/([0-9]+)$/;
 
+function guildOfChannel(channel: discord.Channel): discord.Guild | undefined {
+    return channel instanceof discord.GuildChannel ? channel.guild : undefined;
+}
+
 /// @param where The channel this is being sent to.
 /// @param source The channel the message is being sourced from.
 /// @param user A security principal like writer; null is guild-level access (@'where')
-function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user: discord.User | null): boolean {
-    const quoteGuild = guildOf(source);
+function userHasReadAccessToChannel(where: TextBasedChannel, source: TextBasedChannel, user: discord.User | null): boolean {
+    const quoteGuild = guildOfChannel(source);
     if (!user) {
         // Guild access
-        const contextGuild = guildOf(where);
+        const contextGuild = guildOfChannel(where);
         if (contextGuild && (contextGuild === quoteGuild))
             return true;
         return false;
@@ -62,9 +64,9 @@ function userHasReadAccessToChannel(where: ChannelTBF, source: ChannelTBF, user:
             return true;
         // Is it something the user has access to?
         if (quoteGuild) {
-            const userAsMember = quoteGuild.members.get(user.id);
+            const userAsMember = quoteGuild.members.cache.get(user.id);
             if (userAsMember)
-                if (userAsMember.permissionsIn(source).has('READ_MESSAGES'))
+                if (userAsMember.permissionsIn(source).has('VIEW_CHANNEL'))
                     return true;
         }
         return false;
@@ -79,9 +81,9 @@ export function installDiscord(vm: VM, context: VMContext): void {
         const details = discordMessageLinkURL.exec(url);
         if (!details)
             return 'Quotation failure. Invalid message link.\n';
-        const channel = channelAsTBF(context.client.channels.get(details[1]));
-        if (!channel)
-            return 'Quotation failure. Channel ' + details[1] + ' does not exist or is not a text channel.\n';
+        const channel = context.client.channels.cache.get(details[1]);
+        if (!channel || !isChannelTextBased(channel))
+            return `Quotation failure. Channel ${details[1]} does not exist or is not a text channel.\n`;
         // Security check...
         if (!userHasReadAccessToChannel(context.channel, channel, context.writer)) {
             return 'Quotation failure. Writer doesn\'t have access to the message.';
@@ -90,22 +92,22 @@ export function installDiscord(vm: VM, context: VMContext): void {
                 return 'Quotation failure; Writer requested that Cause needs access.';
         }
         try {
-            const message = await channel.fetchMessage(details[2]);
+            const message = await channel.messages.fetch(details[2]);
 
             // Frankly, expect the escaping here to fail...
-            const escapedContent = '> ' + (message.cleanContent.replace('\n', '\n> ').replace('<@', '\\<@'));
-            const ref = silent ? message.author.username + '#' + message.author.discriminator : message.author.toString();
-            let text = ref + ' wrote at ' + message.createdAt.toUTCString() + ': \n' + escapedContent + '\n';
+            const escapedContent = `> ${message.cleanContent.replace('\n', '\n> ').replace('<@', '\\<@')}`;
+            const ref = silent ? `${message.author.username}#${message.author.discriminator}` : message.author.toString();
+            let text = `${ref} wrote at ${message.createdAt.toUTCString()}: \n${escapedContent}\n`;
             const additionals: string[] = [];
             if (message.embeds.length > 0)
-                additionals.push(message.embeds.length + ' embeds');
-            if (message.reactions.size > 0)
-                additionals.push(message.reactions.size + ' reactions');
+                additionals.push(`${message.embeds.length} embeds`);
+            if (message.reactions.cache.size > 0)
+                additionals.push(`${message.reactions.cache.size} reactions`);
             if (additionals.length > 0)
-                text += '(' + additionals.join(', ') + ')';
+                text += `(${additionals.join(', ')})`;
             return text;
         } catch (e) {
-            return 'Quotation failure. Message ' + details[2] + ' unavailable.\n';
+            return `Quotation failure. Message ${details[2]} unavailable.\n`;
         }
         return url;
     }
@@ -119,9 +121,9 @@ export function installDiscord(vm: VM, context: VMContext): void {
         'name': wrapFunc('name', 1, async (args: Value[]): Promise<Value> => {
             // Determines the local name of someone, if possible.
             const res = asString(args[0]);
-            const guild = guildOf(context.channel);
+            const guild = guildOfChannel(context.channel);
             if (guild) {
-                const member: discord.GuildMember | undefined = guild.members.get(res);
+                const member: discord.GuildMember | undefined = guild.members.cache.get(res);
                 if (member)
                     return member.nickname || member.user.username || res;
             }
@@ -130,7 +132,7 @@ export function installDiscord(vm: VM, context: VMContext): void {
         'find-user': wrapFunc('find-user', 1, async (args: Value[]): Promise<Value> => {
             vm.consumeTime(vmFindUserTime);
             const res1 = asString(args[0]);
-            const guild = guildOf(context.channel);
+            const guild = guildOfChannel(context.channel);
             const res = findMemberByRef(guild, res1);
             if (res)
                 return res.id;
@@ -139,12 +141,12 @@ export function installDiscord(vm: VM, context: VMContext): void {
         // Context
         'args': wrapFunc('args', 0, async (): Promise<Value> => context.args),
         'prefix': wrapFunc('prefix', 0, async (): Promise<Value> => {
-            const guild = guildOf(context.channel);
-            return (guild && guild.commandPrefix) || context.client.commandPrefix || context.client.user.toString();
+            const guild = guildOfChannel(context.channel);
+            return (guild && guild.commandPrefix) || context.client.commandPrefix || context.client.user!.toString();
         }),
         'cause': wrapFunc('cause', 0, async (): Promise<Value> => context.cause.id),
         'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {
-            const guild = guildOf(context.channel);
+            const guild = guildOfChannel(context.channel);
             const emote = await userAwareGetEmote(context.client, context.writer, guild || null, args[0].toString());
             if (!emoteSafe(emote, context.channel))
                 return '';
@@ -152,14 +154,13 @@ export function installDiscord(vm: VM, context: VMContext): void {
         }),
         // Context Modification ; Embeds
         'embed': wrapFunc('embed', 1, async (args: Value[]): Promise<Value> => {
-            let val = args[0];
+            const val = args[0];
             if (val === '') {
                 delete context.embed;
-            } else if (val.constructor == Array) {
+            } else if (Array.isArray(val)) {
                 const embed = val as Value[];
                 if (embed.length == 0)
                     throw new Error('Embed control list has no type.');
-                val = val as Value[];
                 const tp = asString(embed[0]);
                 if (tp === 'image') {
                     if (embed.length != 3)
@@ -173,7 +174,7 @@ export function installDiscord(vm: VM, context: VMContext): void {
                         }
                     };
                 } else {
-                    throw new Error('Embed control list type not understood: ' + tp);
+                    throw new Error(`Embed control list type not understood: ${tp}`);
                 }
             }
             return falseValue;

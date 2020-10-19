@@ -68,7 +68,7 @@ export abstract class Entity<C> {
         this.id = id;
         // If the creation time isn't in the data, this has just been created.
         if ('createTime' in data) {
-            this.createTime = data.createTime as number;
+            this.createTime = data.createTime!;
         } else {
             this.createTime = Date.now();
         }
@@ -199,6 +199,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         this.client = c;
     }
 
+    // TODO: register classes directly, support spawning by class reference
     public registerEntityType<D extends EntityData = EntityData>(type: string, loader: EntityLoader<C, T, D>): this {
         this.entityTypes.set(type, loader as EntityLoader<C, T>);
         return this;
@@ -228,7 +229,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         for (const entity of this.entities.values()) {
             serializedEntities.push(entity.entityGetSerializedData());
         }
-        return '[\n ' + serializedEntities.join(',\n ') + '\n]';
+        return `[\n ${serializedEntities.join(',\n ')}\n]`;
     }
 
     /// Starts entities (i.e. creates them & such).
@@ -245,9 +246,9 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
 
     // Generates a unique-ish entity ID with a given prefix.
     public generateEntityID(prefix: string): string {
-        prefix = prefix + stardate + '-' + Date.now() + '-' + logEntryNumber + '-';
+        prefix = `${prefix + stardate}-${Date.now()}-${logEntryNumber}-`;
         logEntryNumber++;
-        let nid = prefix + '0';
+        let nid = `${prefix}0`;
         let idn = 0;
         while (this.entities.has(nid)) {
             idn++;
@@ -286,7 +287,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
                 throw new Error();
             }
         } else {
-            console.log('invalid entity type ' + data.type + ' was in registry');
+            console.log(`invalid entity type ${data.type} was in registry`);
             throw new Error();
         }
     }

@@ -35,7 +35,7 @@ export abstract class DynamicTextFile {
     private modifyTimeoutReject: ((err: unknown) => void)[] | null = null;
 
     constructor(name: string, immediate: boolean, ram: boolean) {
-        this.path = 'dynamic-data/' + name;
+        this.path = `dynamic-data/${name}`;
         this.immediate = immediate;
         this.ram = ram;
         this.initialLoad = this.reload();
@@ -60,8 +60,8 @@ export abstract class DynamicTextFile {
             })();
         }
         return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: unknown) => void) => {
-            console.log('saving ' + this.path);
-            const npath = this.path + '.new.' + Date.now() + '.' + Math.random();
+            console.log(`saving ${this.path}`);
+            const npath = `${this.path}.new.${Date.now()}.${Math.random()}`;
             fs.writeFile(npath, this.serialize(), (err) => {
                 if (err) {
                     this.inMiddleOfSI = null;
@@ -89,7 +89,7 @@ export abstract class DynamicTextFile {
             let mta: (() => void)[] = [];
             let mtj: ((err: unknown) => void)[] = [];
             if ((this.modifyTimeoutActive == null) || (this.modifyTimeoutReject == null)) {
-                console.log('opening save window on ' + this.path);
+                console.log(`opening save window on ${this.path}`);
                 this.modifyTimeoutActive = mta;
                 this.modifyTimeoutReject = mtj;
                 setTimeout(() => {
@@ -150,7 +150,7 @@ export class DynamicData<T> extends DynamicTextFile {
     private modifyActions: (() => void)[] = [];
 
     constructor(name: string, immediate: boolean, ram: boolean, defaultContent: T) {
-        super(name + '.json', immediate, ram);
+        super(`${name}.json`, immediate, ram);
         this.data = defaultContent;
     }
 
@@ -189,7 +189,7 @@ export class DynamicDataDump<T> extends DynamicTextFile {
     public data: T | null = null;
 
     constructor(name: string) {
-        super(name + '.json', true, false);
+        super(`${name}.json`, true, false);
     }
 
     public dump(data: T): Promise<void> {

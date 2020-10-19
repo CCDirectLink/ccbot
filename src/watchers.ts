@@ -91,6 +91,6 @@ export abstract class StreamProviderEntity extends WatcherEntity {
     // Updating list of the top X streams.
     public streams: StreamInformation[] = [];
     public constructor(c: CCBot, id: string, data: WatcherEntityData) {
-        super(c, 'stream-provider-' + id, data);
+        super(c, `stream-provider-${id}`, data);
     }
 }

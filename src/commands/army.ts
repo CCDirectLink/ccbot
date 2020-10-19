@@ -65,8 +65,8 @@ export default class ArmyCommand extends CCBotCommand {
             })
         }
         const opt: commando.CommandInfo = {
-            name: '-' + group + ' ' + name,
-            description: 'summons ' + (emote ? 'the ' + emote : 'an') + ' army',
+            name: `-${group} ${name}`,
+            description: `summons ${emote ? `the ${emote}` : 'an'} army`,
             group: group,
             memberName: name,
             args
@@ -75,7 +75,7 @@ export default class ArmyCommand extends CCBotCommand {
         this.emote = emote;
     }
 
-    public async run(message: commando.CommandMessage, args: {width: number; height: number; emote?: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {width: number; height: number; emote?: string}): Promise<discord.Message|discord.Message[]> {
         // Awkward, but solves the issue.
         if (args.height === 0)
             args.height = args.width;
@@ -86,11 +86,11 @@ export default class ArmyCommand extends CCBotCommand {
 
         // Initial safety checks
         if ((args.width < 1) || (args.height < 1))
-            return message.say('the ' + emoteUse + randomArrayElement(tooTinyFailReasons) + '.');
+            return message.say(`the ${emoteUse}${randomArrayElement(tooTinyFailReasons)}.`);
         if (args.width > 20)
-            return message.say('the ' + emoteUse + randomArrayElement(tooWideFailReasons) + '.');
+            return message.say(`the ${emoteUse}${randomArrayElement(tooWideFailReasons)}.`);
         if (args.height > 10)
-            return message.say('the ' + emoteUse + randomArrayElement(tooHighFailReasons) + '.');
+            return message.say(`the ${emoteUse}${randomArrayElement(tooHighFailReasons)}.`);
 
         // Build the army
         const lines = [

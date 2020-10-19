@@ -27,18 +27,17 @@ class DateActivityEntity extends CCBotEntity {
 
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
-            silence(this.client.user.setPresence({
-                status: 'online',
-                game: null
+            silence(this.client.user!.setPresence({
+                status: 'online'
             }));
     }
 
     private updateDate(): void {
         if (this.killed)
             return;
-        silence(this.client.user.setPresence({
+        silence(this.client.user!.setPresence({
             status: 'online',
-            game: {
+            activity: {
                 type: 'WATCHING',
                 name: new Date().toString()
             }

@@ -17,7 +17,7 @@ import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {EntityData} from '../entity-registry';
 import {CCBotEntity, CCBot} from '../ccbot';
-import {silence, channelAsTBF} from '../utils';
+import {silence, isChannelTextBased, TextBasedChannel} from '../utils';
 
 const ui1 = '⏮';
 const ui2 = '◀';
@@ -42,13 +42,13 @@ export interface PageSwitcherData extends EntityData {
     // Page number (0 to pages.length - 1)
     page: number;
     // Pages, cannot be empty
-    pages: discord.RichEmbedOptions[];
+    pages: discord.MessageEmbedOptions[];
     // Used if the bot appears to have remove-reaction permission.
     ignoreRemovals?: boolean;
 }
 
 function formatHeader(a: number, b: number): string {
-    return 'Page ' + (a + 1) + ' of ' + b;
+    return `Page ${a + 1} of ${b}`;
 }
 
 export interface PageSwitcherOutputElementsAdditionalOptions {
@@ -70,7 +70,7 @@ export type PageSwitcherOutputElement = string | PageSwitcherOutputElementWithCa
 
 /// Outputs *either* a page switcher or a single post depending on what's appropriate.
 /// Very customizable.
-export async function outputElements(client: CCBot, msg: commando.CommandMessage, elements: PageSwitcherOutputElement[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
+export async function outputElements(client: CCBot, msg: commando.CommandoMessage, elements: PageSwitcherOutputElement[], elementsPerPage: number, pageLength: number, options?: PageSwitcherOutputElementsAdditionalOptions): Promise<discord.Message | discord.Message[]> {
     options = options || {};
 
     const footer = options.footer;
@@ -80,7 +80,7 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     pageLength -= textFooter.length;
 
     // The algorithm begins...
-    const pages: (discord.RichEmbedOptions & {description: string})[] = [];
+    const pages: (discord.MessageEmbedOptions & {description: string})[] = [];
     let elementsOnPage = 0;
     const finishPage = (): void => {
         pages[pages.length - 1].description += textFooter;
@@ -102,17 +102,17 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     for (const elementRaw of elements) {
         // Convert element
         let elementFull: PageSwitcherOutputElementWithCategory;
-        if (elementRaw.constructor == String) {
-            elementFull = {category: '', text: elementRaw as string};
+        if (typeof elementRaw === 'string') {
+            elementFull = {category: '', text: elementRaw};
         } else {
-            elementFull = elementRaw as PageSwitcherOutputElementWithCategory;
+            elementFull = elementRaw;
         }
         let element = elementFull.text;
         let elementPrependedCategory = '';
         // Reset category prepended indicator
         const prependCategoryIfNecessary = (): void => {
             if (currentCategory != elementFull.category) {
-                element = elementFull.category + '\n' + elementFull.text;
+                element = `${elementFull.category}\n${elementFull.text}`;
                 currentCategory = elementFull.category;
                 elementPrependedCategory = elementFull.category;
             }
@@ -143,7 +143,7 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
             //  so we won't get \n prefix (good)
         }
         if (elementsOnPage != 0)
-            element = '\n' + element;
+            element = `\n${element}`;
         pages[pages.length - 1].description += element;
         elementsOnPage++;
     }
@@ -151,8 +151,8 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
     finishPage();
     // Actual output
     if (pages.length == 1)
-        return msg.embed(new discord.RichEmbed(pages[0]));
-    const output = await msg.say(formatHeader(0, pages.length), {embed: new discord.RichEmbed(pages[0])}) as discord.Message;
+        return msg.embed(new discord.MessageEmbed(pages[0]));
+    const output = await msg.say(formatHeader(0, pages.length), {embed: new discord.MessageEmbed(pages[0])}) as discord.Message;
     for (const reaction of uiEmotes)
         await output.react(reaction);
     await client.entities.newEntity({
@@ -171,16 +171,16 @@ export async function outputElements(client: CCBot, msg: commando.CommandMessage
 /// Additional fields: See PageSwitcherInit, but:
 /// 'channel' is replaced with 'message' after activation.
 class PageSwitcherEntity extends CCBotEntity {
-    private channel: discord.Channel & discord.TextBasedChannelFields;
+    private channel: TextBasedChannel;
     private message: discord.Message;
     private user: string;
     private page: number;
-    private pages: discord.RichEmbedOptions[];
+    private pages: discord.MessageEmbedOptions[];
     // Starts out true. Changes to false if it can't get rid of the user's reaction.
     private ignoreRemovals: boolean;
 
-    public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: PageSwitcherData) {
-        super(c, 'message-' + message.id, data);
+    public constructor(c: CCBot, channel: TextBasedChannel, message: discord.Message, data: PageSwitcherData) {
+        super(c, `message-${message.id}`, data);
         this.channel = channel;
         this.message = message;
         this.user = data.user;
@@ -230,22 +230,22 @@ class PageSwitcherEntity extends CCBotEntity {
                 }
             }
             // Update display...
-            this.message.edit(formatHeader(this.page, this.pages.length), new discord.RichEmbed(this.pages[this.page])).catch((): void => {
+            this.message.edit(formatHeader(this.page, this.pages.length), new discord.MessageEmbed(this.pages[this.page])).catch((): void => {
                 silence(this.message.react('⚠'));
             });
             this.postponeDeathAndUpdate();
         } else if (target.name == uiDelete) {
             // Alwinfy's Plan: Shut down...
-            for (const r of this.message.reactions.values())
+            for (const r of this.message.reactions.cache.values())
                 if (r.me)
                     silence(r.remove());
             this.kill(true);
         }
 
         // Try to remove reaction (Nnubes256's suggestion)
-        const reaction = this.message.reactions.get(target.id || target.name);
+        const reaction = this.message.reactions.cache.get(target.id || target.name);
         if (this.ignoreRemovals && reaction) {
-            reaction.remove(user).catch((): void => {
+            reaction.users.remove(user).catch((): void => {
                 this.ignoreRemovals = false;
                 this.updated();
             });
@@ -257,20 +257,20 @@ class PageSwitcherEntity extends CCBotEntity {
 export default async function load(c: CCBot, data: PageSwitcherData): Promise<CCBotEntity> {
     // This makes a possible DM channel with the user 'important enough' to start existing
     // Blame discord.js
-    const yesCacheMe = await c.fetchUser(data.user, true);
+    const yesCacheMe = await c.users.fetch(data.user, true);
     await yesCacheMe.createDM();
-    const channel = channelAsTBF(c.channels.get(data.channel));
-    if (!channel)
-        throw Error('involved channel no longer exists');
+    const channel = c.channels.cache.get(data.channel);
+    if (!channel || !isChannelTextBased(channel))
+        throw new Error('involved channel no longer exists');
     let message: discord.Message;
     if (!data.message) {
         // New
-        message = await channel.send(formatHeader(0, data.pages.length), new discord.RichEmbed(data.pages[0])) as discord.Message;
+        message = await channel.send(formatHeader(0, data.pages.length), new discord.MessageEmbed(data.pages[0])) as discord.Message;
         for (const reaction of uiEmotes)
             await message.react(reaction);
     } else {
         // Reused
-        message = await channel.fetchMessage(data.message);
+        message = await channel.messages.fetch(data.message);
     }
     return new PageSwitcherEntity(c, channel, message, data);
 }

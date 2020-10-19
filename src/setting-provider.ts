@@ -47,10 +47,10 @@ class SaneSettingProvider extends commando.SettingProvider {
             this.set(guild, 'prefix', value);
         };
         this.listenerCommandStatusChange = (guild: discord.Guild | string, group: commando.Command, enabled: boolean): void => {
-            this.set(guild, 'cmd-' + group.groupID + '-' + group.memberName, enabled);
+            this.set(guild, `cmd-${group.groupID}-${group.memberName}`, enabled);
         };
         this.listenerGroupStatusChange = (guild: discord.Guild | string, group: commando.CommandGroup, enabled: boolean): void => {
-            this.set(guild, 'grp-' + group.id, enabled);
+            this.set(guild, `grp-${group.id}`, enabled);
         };
         this.listenerReloadSettings = (): void => {
             this.reloadSettings();
@@ -61,13 +61,13 @@ class SaneSettingProvider extends commando.SettingProvider {
     private reloadSettings(): void {
         // -- Prefixes
         this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
-        for (const guild of this.client.guilds.values())
+        for (const guild of this.client.guilds.cache.values())
             guild.commandPrefix = this.get(guild, 'prefix', null);
         // -- Groups
         for (const group of this.client.registry.groups.values()) {
-            const settingName = 'grp-' + group.id;
+            const settingName = `grp-${group.id}`;
             group._globalEnabled = this.get('global', settingName, true);
-            for (const guild of this.client.guilds.values()) {
+            for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _groupsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
                 guildE._groupsEnabled = guildE._groupsEnabled || {};
@@ -78,9 +78,9 @@ class SaneSettingProvider extends commando.SettingProvider {
         }
         // -- Commands
         for (const command of this.client.registry.commands.values()) {
-            const settingName = 'cmd-' + command.groupID + '-' + command.memberName;
+            const settingName = `cmd-${command.groupID}-${command.memberName}`;
             command['_globalEnabled'] = this.get('global', settingName, true);
-            for (const guild of this.client.guilds.values()) {
+            for (const guild of this.client.guilds.cache.values()) {
                 const guildE = guild as unknown as { _commandsEnabled: Record<string, boolean> };
                 // Oh dear goodness.
                 guildE._commandsEnabled = guildE._commandsEnabled || {};

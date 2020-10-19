@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {Snowflake, RichEmbedOptions} from 'discord.js';
+import {Snowflake, MessageEmbedOptions} from 'discord.js';
 // commands.json
 export interface Command {
     // The description. Defaults to 'No Description'.
@@ -28,7 +28,7 @@ export interface Command {
     // See formatter.ts for more details.
     format?: string;
     // Embed (Note, however, that all strings here are valid targets for format directives!)
-    embed?: RichEmbedOptions;
+    embed?: MessageEmbedOptions;
     // Reactions to the command.
     commandReactions?: string[];
 }

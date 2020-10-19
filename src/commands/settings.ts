@@ -45,28 +45,27 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     let doneCallback = async (): Promise<void> => {};
     const startsWithRG = name.startsWith('roles-group-');
     if (name === 'nsfw') {
-        if ((value === undefined) || (value.constructor === Boolean))
+        if ((value === undefined) || (typeof value === 'boolean'))
             maxLength = 16;
     } else if (name === 'headerless-say') {
-        if ((value === undefined) || (value.constructor === Boolean))
+        if ((value === undefined) || (typeof value === 'boolean'))
             maxLength = 16;
     } else if (name === 'optin-roles') {
         if ((value === undefined) || (value === 'yes') || (value === 'both') || (value === 'no'))
             maxLength = 16;
     } else if ((name === 'greeting') || (name === 'dm-greeting')) {
-        if ((value === undefined) || (value.constructor === String))
+        if ((value === undefined) || (typeof value === 'string'))
             maxLength = limitLocalCommand;
     } else if ((name === 'emotes-sfw') || (name === 'emotes-registry-allowList') || (name === 'emotes-registry-blockList')) {
-        if ((value === undefined) || (value.constructor === Array))
+        if ((value === undefined) || (Array.isArray(value)))
             maxLength = limitLocalEmotesArray;
     } else if (name.startsWith('emote-') || startsWithRG) {
         // NOTE: Despite the name of variables here, this gets both emote- and roles-group- items.
         const base = startsWithRG ? 'roles-group-' : 'emote-';
         const arrayName = startsWithRG ? 'roles-groups' : 'emotes';
-        const relevantContent = startsWithRG ? Array : String;
 
         let emotesArrayBase: string[] = await provider.get(context, arrayName, []);
-        if (emotesArrayBase.constructor !== Array)
+        if (!Array.isArray(emotesArrayBase))
             emotesArrayBase = [];
         const emotesArray = emotesArrayBase.concat();
         const emoteName = name.substring(base.length);
@@ -80,7 +79,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
                     await provider.set(context, arrayName, emotesArray);
                 };
             }
-        } else if (value.constructor === relevantContent) {
+        } else if (startsWithRG ? Array.isArray(value) : typeof value === 'string') {
             // Addition requires doing a sanity length check on the emotes array
             maxLength = startsWithRG ? limitLocalRoleGroup : limitLocalEmote;
             const emotesArrayIndex = emotesArray.indexOf(emoteName);
@@ -93,10 +92,10 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
             };
         }
     } else if ((name === 'roles-exclusive') || (name === 'roles-inclusive') || (name === 'roles-whitelist')) {
-        if ((value === undefined) || (value.constructor === Array))
+        if ((value === undefined) || (Array.isArray(value)))
             maxLength = limitLocalRoleGroup;
     } else if ((name === 'channel-greet') || (name === 'channel-info') || (name === 'channel-syslog') || (name === 'channel-editlog')) {
-        if ((value === undefined) || (value.constructor === String))
+        if ((value === undefined) || (typeof value === 'string'))
             maxLength = limitLocalChannelName;
     }
     if (!maxLength)
@@ -112,13 +111,13 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     return null;
 }
 
-function isAuthorized(message: commando.CommandMessage, operation: SettingsOperation, context: SettingsContext, contextInstance: string): boolean {
+function isAuthorized(message: commando.CommandoMessage, operation: SettingsOperation, context: SettingsContext, contextInstance: string): boolean {
     // Validate instance
     if ((context == SettingsContext.Global) && (contextInstance != 'global'))
         return false;
-    if ((context == SettingsContext.Local) && (!message.client.guilds.has(contextInstance)))
+    if ((context == SettingsContext.Local) && (!message.client.guilds.cache.has(contextInstance)))
         return false;
-    if ((context == SettingsContext.User) && (!message.client.users.has(contextInstance)))
+    if ((context == SettingsContext.User) && (!message.client.users.cache.has(contextInstance)))
         return false;
     // Authorized?
     if (message.client.isOwner(message.author))
@@ -145,10 +144,10 @@ export class SettingsCommand extends CCBotCommand {
     public readonly operation: SettingsOperation;
     public readonly context: SettingsContext;
     public constructor(client: CCBot, op: SettingsOperation, target: SettingsContext) {
-        const localName = SettingsOperation[op].toLowerCase() + '-' + SettingsContext[target].toLowerCase();
+        const localName = `${SettingsOperation[op].toLowerCase()}-${SettingsContext[target].toLowerCase()}`;
         const opt = {
-            name: '-util ' + localName,
-            description: SettingsOperation[op] + ' ' + SettingsContext[target].toLowerCase() + ' setting.',
+            name: `-util ${localName}`,
+            description: `${SettingsOperation[op]} ${SettingsContext[target].toLowerCase()} setting.`,
             group: 'util',
             memberName: localName,
             args: [
@@ -171,7 +170,7 @@ export class SettingsCommand extends CCBotCommand {
         this.context = target;
     }
 
-    public async run(message: commando.CommandMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {key: string; value: string}): Promise<discord.Message|discord.Message[]> {
         let instance = '';
         if (this.context === SettingsContext.Global) {
             instance = 'global';
@@ -202,14 +201,14 @@ export class SettingsCommand extends CCBotCommand {
             }
             if (value === undefined)
                 return message.say('That value does not exist.');
-            return message.say('Done:\n```json\n' + JSON.stringify(value) + '\n```');
+            return message.say(`Done:\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``);
         } else {
             // Writing
             if (this.operation == SettingsOperation.Set) {
                 try {
                     value = JSON.parse(args.value);
                 } catch (e) {
-                    return message.say('Your JSON was incorrect:\n' + e);
+                    return message.say(`Your JSON was incorrect:\n${e}`);
                 }
             }
             if (this.context == SettingsContext.Global) {
@@ -220,7 +219,7 @@ export class SettingsCommand extends CCBotCommand {
                 }
                 return message.say(doneResponse());
             } else if (this.context == SettingsContext.Local) {
-                const guild = this.client.guilds.get(instance);
+                const guild = this.client.guilds.cache.get(instance);
                 if (!guild)
                     return message.say('How\'d you get here, then?');
                 return message.say((await runLocalSettingTransaction(this.client.provider, guild, args.key, value)) || doneResponse());
@@ -252,10 +251,10 @@ export class ShowUserSettingsCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
         const res = (await getUserDatablock(this.client, message.author)).content;
-        return message.embed(new discord.RichEmbed({
-            description: '```json\n' + res + '\n```'
+        return message.embed(new discord.MessageEmbed({
+            description: `\`\`\`json\n${res}\n\`\`\``
         }));
     }
 }

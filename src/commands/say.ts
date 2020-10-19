@@ -35,7 +35,7 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
     } catch (ex) {
         return {
             error: true,
-            text: '**Formatting error**: `' + ex.toString() + '` (was the code correct?)',
+            text: `**Formatting error**: \`${ex.toString()}\` (was the code correct?)`,
             opts: {}
         };
     }
@@ -79,10 +79,10 @@ export default class SayCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {text: string}): Promise<discord.Message|discord.Message[]> {
         // Bootstrap?
         const bootstrap = (await getUserDatablock(this.client, message.author)).get()['bootstrap'];
-        if (bootstrap && (bootstrap.constructor === String))
+        if (bootstrap && (typeof bootstrap === 'string'))
             args.text = bootstrap + args.text;
         const sayResult = await say(args.text, {
             client: this.client,
@@ -99,7 +99,7 @@ export default class SayCommand extends CCBotCommand {
             if (!headerless) {
                 if (message.deletable)
                     silence(message.delete());
-                return await message.say('*' + message.author.toString() + ' says:*\n' + sayResult.text, sayResult.opts);
+                return await message.say(`*${message.author.toString()} says:*\n${sayResult.text}`, sayResult.opts);
             }
             return await message.say(sayResult.text, sayResult.opts);
         }

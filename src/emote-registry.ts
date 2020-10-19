@@ -39,7 +39,7 @@ export default class CCBotEmoteRegistry {
     client: CCBot;
 
     // NOTE: This does *not* include per-guild settings or global settings.
-    globalEmoteRegistry: Map<string, discord.Emoji> = new Map();
+    globalEmoteRegistry: Map<string, discord.GuildEmoji> = new Map();
     globalConflicts = 0;
 
     constructor(c: CCBot) {
@@ -55,16 +55,16 @@ export default class CCBotEmoteRegistry {
         const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
         const globalAllowList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-allowList');
         const globalBlockList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-blockList');
-        const localRegistryCollation: Map<string, discord.Emoji[]> = new Map();
-        for (const guild of this.client.guilds.values()) {
+        const localRegistryCollation: Map<string, discord.GuildEmoji[]> = new Map();
+        for (const guild of this.client.guilds.cache.values()) {
             const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
             const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
-            for (const emote of guild.emojis.values()) {
+            for (const emote of guild.emojis.cache.values()) {
                 if ((globalBlockList && globalBlockList.includes(emote.id)) || (blockList && blockList.includes(emote.id)))
                     continue;
                 if ((globalAllowList && !globalAllowList.includes(emote.id)) || (allowList && !allowList.includes(emote.id)))
                     continue;
-                let emotes: discord.Emoji[] | undefined = localRegistryCollation.get(emote.name);
+                let emotes: discord.GuildEmoji[] | undefined = localRegistryCollation.get(emote.name);
                 if (!emotes) {
                     emotes = [];
                     localRegistryCollation.set(emote.name, emotes);
@@ -72,15 +72,15 @@ export default class CCBotEmoteRegistry {
                 emotes.push(emote);
             }
         }
-        const localRegistry: Map<string, discord.Emoji> = new Map();
+        const localRegistry: Map<string, discord.GuildEmoji> = new Map();
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {
             // Conflict resolution
-            pair[1].sort((a: discord.Emoji, b: discord.Emoji): number => {
+            pair[1].sort((a: discord.GuildEmoji, b: discord.GuildEmoji): number => {
                 // Firstly, check position in safety list (if available)
                 // This code is written with safety margins to prevent crashing in case of user error.
-                if (safetyList && (safetyList.constructor === Array)) {
+                if (safetyList && Array.isArray(safetyList)) {
                     let ag = safetyList.indexOf(a.guild.id);
                     if (ag < 0)
                         ag = safetyList.length;
@@ -114,7 +114,7 @@ export default class CCBotEmoteRegistry {
             if (pair[1].length != 1)
                 this.globalConflicts++;
             for (let i = 1; i < pair[1].length; i++)
-                localRegistry.set(pair[0] + '#' + pair[1][i].guild.id, pair[1][i]);
+                localRegistry.set(`${pair[0]}#${pair[1][i].guild.id}`, pair[1][i]);
         }
         this.globalEmoteRegistry = localRegistry;
 
@@ -122,35 +122,33 @@ export default class CCBotEmoteRegistry {
     }
 
     /// Checks if an emote is overridden at guild or global level.
-    isOverride(guild: discord.Guild | null, name: string): string | null {
+    isOverride(guild: discord.Guild | null, name: string): 'guild' | 'global' | null {
         // Local emote overrides
         if (guild) {
-            const value = this.client.provider.get(guild, 'emote-' + name);
+            const value = this.client.provider.get(guild, `emote-${name}`);
             if (value)
                 return 'guild';
         }
         // Global emote overrides
-        const value = this.client.provider.get('global', 'emote-' + name);
+        const value = this.client.provider.get('global', `emote-${name}`);
         if (value)
             return 'global';
         return null;
     }
 
     /// Gets an emote as a discord.Emoji
-    /// This is a bit weird because the stable discord.js API is messy regarding non-custom emoji.
-    /// It both does and does not support it.
     /// NOTE! Use userAwareGetEmote whenever possible.
     /// Emote grabbing should operate from the Writer's perspective,
     /// which means hug emote can be overridden by user, etc.
-    getEmote(guild: discord.Guild | null, name: string): discord.Emoji {
+    getEmote(guild: discord.Guild | null, name: string): discord.GuildEmoji | discord.Emoji {
         // Local emote overrides
         if (guild) {
-            const value = this.client.provider.get(guild, 'emote-' + name);
+            const value = this.client.provider.get(guild, `emote-${name}`);
             if (value)
                 return this.emojiResolverNina(value.toString());
         }
         // Global emote overrides
-        const value = this.client.provider.get('global', 'emote-' + name);
+        const value = this.client.provider.get('global', `emote-${name}`);
         if (value)
             return this.emojiResolverNina(value.toString());
         // Emote registry
@@ -163,32 +161,25 @@ export default class CCBotEmoteRegistry {
 
     /// Don't ask about the name.
     /// This defines the syntax of the "emote-".
-    /// It is very horrifying.
-    emojiResolverNina(text: string): discord.Emoji {
+    emojiResolverNina(text: string): discord.GuildEmoji | discord.Emoji {
         // Is it just an emote ID?
-        const direct = this.client.emojis.get(text);
+        const direct = this.client.emojis.cache.get(text);
         if (direct)
             return direct;
         // Is it a written custom emote?
         if (text.startsWith('<') && text.includes(':')) {
             let text2 = text.substring(1);
             text2 = text2.substring(0, text2.indexOf(':'));
-            const direct = this.client.emojis.get(text2);
+            const direct = this.client.emojis.cache.get(text2);
             if (direct)
                 return direct;
         }
-        // This next bit needs to burn in some place very warm.
-        // It exists because it has to for a nicer API overall.
-        const transmuted = new discord.Emoji({client: this} as unknown as discord.Guild, {
-            //id: null,
-            name: looksLikeAnEmoji(text) ? text : '❓', // Was this really such a problem?
-            requiresColons: false,
-            managed: true,
+        // Is it a unicode emote?
+        return new discord.Emoji(this.client, {
             animated: false,
-            roles: []
+            name: looksLikeAnEmoji(text) ? text : '❓',
+            // id: null,
         });
-        transmuted.guild = null!;
-        return transmuted;
     }
 
     /// Lists all emote refs.
@@ -208,21 +199,24 @@ export default class CCBotEmoteRegistry {
 
     dumpToFile(): void {
         const data: EmoteRegistryDump = { version: 1, list: [] };
+        // TODO: perhaps iterate this.globalEmoteRegistry directly?
         for (const ref of this.getEmoteRefs(null)) {
             const emote = this.getEmote(null, ref);
-            data.list.push({
-                /* eslint-disable @typescript-eslint/camelcase */
-                ref,
-                id: emote.id,
-                name: emote.name,
-                requires_colons: emote.requiresColons,
-                animated: emote.animated,
-                url: emote.url,
-                safe: emoteSafe(emote, null, true),
-                guild_id: emote.guild.id,
-                guild_name: emote.guild.name,
-                /* eslint-enable @typescript-eslint/camelcase */
-            });
+            if (emote instanceof discord.GuildEmoji) {
+                data.list.push({
+                    /* eslint-disable @typescript-eslint/camelcase */
+                    ref,
+                    id: emote.id,
+                    name: emote.name,
+                    requires_colons: emote.requiresColons,
+                    animated: emote.animated,
+                    url: emote.url,
+                    safe: emoteSafe(emote, null, true),
+                    guild_id: emote.guild.id,
+                    guild_name: emote.guild.name,
+                    /* eslint-enable @typescript-eslint/camelcase */
+                });
+            }
         }
         silence(this.client.dynamicData.emoteRegistryDump.dump(data));
     }

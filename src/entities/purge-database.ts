@@ -33,7 +33,7 @@ export class PurgeDatabaseChannelEntity extends CCBotEntity {
     public messages: string[];
 
     public constructor(c: CCBot, data: PurgeDatabaseChannelEntityData) {
-        super(c, 'purge-channel-' + data.channel, data);
+        super(c, `purge-channel-${data.channel}`, data);
         this.channelID = data.channel;
         this.messages = data.messages;
     }
@@ -79,7 +79,7 @@ export class PurgeDatabaseEntity extends CCBotEntity {
         loopCallback();
         this.messageCallback = (message: discord.Message): void => {
             if (message.author == this.client.user) {
-                const entity = this.client.entities.getEntity<PurgeDatabaseChannelEntity>('purge-channel-' + message.channel.id);
+                const entity = this.client.entities.getEntity<PurgeDatabaseChannelEntity>(`purge-channel-${message.channel.id}`);
                 if (!entity) {
                     const data: PurgeDatabaseChannelEntityData = {
                         type: 'purge-database-channel',

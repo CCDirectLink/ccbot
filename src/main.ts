@@ -84,14 +84,14 @@ class CCBotMain {
                 for (const { type } of this.client.entities.entities.values()) {
                     entitiesBreakdown.set(type, (entitiesBreakdown.get(type) || 0) + 1);
                 }
-                const guildsBreakdownYes = this.client.guilds.filter((_guild) => {
+                const guildsBreakdownYes = this.client.guilds.cache.filter((_guild) => {
                     return true;
                 }).size;
-                const guildsBreakdownSBS = this.client.guilds.filter((_guild) => {
+                const guildsBreakdownSBS = this.client.guilds.cache.filter((_guild) => {
                     return false;
                 }).size;
-                const guildsBreakdownNo = this.client.guilds.size - (guildsBreakdownYes + guildsBreakdownSBS);
-                socket.end(JSON.stringify({
+                const guildsBreakdownNo = this.client.guilds.cache.size - (guildsBreakdownYes + guildsBreakdownSBS);
+                socket.end(`${JSON.stringify({
                     // ltp
                     guildsBreakdown: {
                         yes: guildsBreakdownYes,
@@ -107,14 +107,14 @@ class CCBotMain {
                     entitiesBreakdown: Object.fromEntries(entitiesBreakdown),
                     settingsLenChars: Buffer.byteLength(JSON.stringify(this.client.dynamicData.settings.data)),
                     // old stuff
-                    guilds: this.client.guilds.size,
-                    channels: this.client.channels.size,
-                    emotes: this.client.emojis.size,
+                    guilds: this.client.guilds.cache.size,
+                    channels: this.client.channels.cache.size,
+                    emotes: this.client.emojis.cache.size,
                     rawEvents: tallyRaw,
                     // Not necessarily accurate for side-by-side.
                     messagesCreated: tallyCreatedMessages,
                     commandsExecuted: tallyCommandsExecuted
-                }).replace(/\n/g, '') + '\n');
+                }).replace(/\n/g, '')}\n`);
                 // Reset tallys
                 tallyRaw = 0;
                 tallyCreatedMessages = 0;

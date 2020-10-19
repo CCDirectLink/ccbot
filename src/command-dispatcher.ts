@@ -19,12 +19,19 @@ import {CCBot} from './ccbot';
 import {mentionRegex} from './utils';
 
 // Not nice.
-// dmitmel: This injection (what am I saying, this isn't CrossCode...) is done because as 20kdc said
+// dmitmel: First of all, how is it possible that "nice" is written here with no signs of Emi around?
+// Secondly, this injection (what am I saying, this isn't CrossCode...) is done because as 20kdc said
 // "the TypeScript definitions for Commando are broken". See, in the definitions the class CommandDispatcher
 // is not only declared, but also exported in the namespace, which is not the case on the JS side of
 // things, thus this statement "fixes" Commando's definitions.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
+
+declare module 'discord.js-commando' {
+    interface CommandoMessage {
+        initCommand(command: commando.Command, argString: string, patternMatches?: string[]): this;
+    }
+}
 
 // NOTE: Here's how you make the TS compiler shut up about overriding and calling private methods:
 //
@@ -42,30 +49,27 @@ import {mentionRegex} from './utils';
 // }
 
 async function cleanupMessage(client: CCBot, message: discord.Message): Promise<void> {
-    client.entities.killEntity('message-' + message.id, true);
-    for (const r of message.reactions.values())
+    client.entities.killEntity(`message-${message.id}`, true);
+    for (const r of message.reactions.cache.values())
         if (r.me)
             await r.remove();
 }
 
-/// A modified version of CommandMessage that performs better cleanup.
-class CCBotCommandMessage extends commando.CommandMessage {
-    constructor(message: discord.Message, command?: commando.Command, text?: string) {
-        super(message, command, text); // eslint-disable-line constructor-super
-    }
+/// A modified version of initCommand that patches CommandoMessage in order to perform better cleanup.
+function initCCBotCommandoMessage(
+    message: discord.Message,
+    command: commando.Command,
+    argString: string,
+    patternMatches?: string[]
+): commando.CommandoMessage {
+    // Why the heck doesn't the commando.CommandoMessage class inherit discord.Message in the type
+    // definitions??? Why the heck isn't the method initCommand defined???
+    const self = (message as unknown as commando.CommandoMessage).initCommand(command, argString, patternMatches);
 
-    reply(content: unknown, options?: discord.MessageOptions): Promise<discord.Message | discord.Message[]> {
-        // check for error message and block it
-        // don't let it "spam" a channel
-        // dmitmel: See <https://github.com/discordjs/Commando/blob/deff2eb9bfc8308f0bfa6ee8ddbc847fec9ddadb/src/commands/message.js#L166-L174>
-        if (typeof content === 'string' && /You may not use the/.test(content))
-            return null!;
-        return super.reply(content, options);
-    }
-
+    const editResponse = self['editResponse'];
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
-    private async ['editResponse' as string](a: (discord.Message | discord.Message[]), b?: { options: discord.MessageOptions }): Promise<discord.Message | discord.Message[]> {
+    self['editResponse'] = async function editResponse(a: (discord.Message | discord.Message[]), b?: { options: discord.MessageOptions }): Promise<discord.Message | discord.Message[]> {
         // Kill involved entities
         if (Array.isArray(a)) {
             for (const msg of a)
@@ -82,20 +86,21 @@ class CCBotCommandMessage extends commando.CommandMessage {
                 b.options = {embed: undefined};
             }
         }
-        return super['editResponse'](a, b);
-    }
+        return editResponse.call(this, a, b);
+    };
 
+    return self;
 }
 
-/// A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandMessage.
-class CCBotCommandDispatcher extends commando.CommandDispatcher {
+/// A modified version of the CommandDispatcher to apply custom parsing rules and the new CommandoMessage.
+export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
     client!: CCBot;
 
-    constructor(c: CCBot, r: commando.CommandRegistry) {
-        super(c, r); // eslint-disable-line constructor-super
+    constructor(c: CCBot, r: commando.CommandoRegistry) {
+        super(c, r);
     }
 
-    private ['parseMessage' as string](message: discord.Message): commando.CommandMessage | null {
+    private ['parseMessage' as string](message: discord.Message): commando.CommandoMessage | null {
         // Stage 1: Prefix removal, cleanup
         let text: string = message.content;
 
@@ -113,8 +118,8 @@ class CCBotCommandDispatcher extends commando.CommandDispatcher {
         }
 
         // TODO: rewrite this to use an array of prefixes
-        const commandPrefixMention1 = `<@!${this.client.user.id}>`;
-        const commandPrefixMention2 = `<@${this.client.user.id}>`;
+        const commandPrefixMention1 = `<@!${this.client.user!.id}>`;
+        const commandPrefixMention2 = `<@${this.client.user!.id}>`;
 
         if (commandPrefix && text.startsWith(commandPrefix)) {
             text = text.substring(commandPrefix.length);
@@ -175,10 +180,10 @@ class CCBotCommandDispatcher extends commando.CommandDispatcher {
         if (!commandInst)
             return this.parseUnknownCommand(message, text);
 
-        return new CCBotCommandMessage(message, commandInst, text);
+        return initCCBotCommandoMessage(message, commandInst, text);
     }
 
-    private parseUnknownCommand(message: discord.Message, text: string): commando.CommandMessage | null {
+    private parseUnknownCommand(message: discord.Message, text: string): commando.CommandoMessage | null {
         // This is imitating the Commando master behavior.
         // But we use it as a method for overriding the unknown-command.
         let cmd: commando.Command | undefined = undefined;
@@ -187,8 +192,8 @@ class CCBotCommandDispatcher extends commando.CommandDispatcher {
             cmd = utilGroup.commands.find((cmd: commando.Command): boolean => {
                 return cmd.memberName == 'unknown-command';
             });
-        return new CCBotCommandMessage(message, cmd, text);
+        if (!cmd)
+            return null;
+        return initCCBotCommandoMessage(message, cmd, text);
     }
 }
-
-export default CCBotCommandDispatcher;

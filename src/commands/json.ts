@@ -24,14 +24,13 @@ import {userAwareGetEmote} from '../entities/user-datablock';
 /// Copies an object while also formatting it.
 /// Don't ask me how the type conversions are supposed to make sense.
 /// They don't.
-async function copyAndFormat(vm: VM, embed: string | {[k: string]: string | object | number | undefined}): Promise<string | object> {
-    if (embed.constructor == String)
-        return await runFormat(embed as string, vm);
-    if (embed.constructor == Object) {
-        const embobj = embed as {[k: string]: string | {[k: string]: string | object}};
-        const o: {[k: string]: string | object} = {};
-        for (const k in embobj)
-            o[k] = await copyAndFormat(vm, embobj[k]);
+async function copyAndFormat(vm: VM, embed: unknown): Promise<unknown> {
+    if (typeof embed === 'string')
+        return await runFormat(embed, vm);
+    if (typeof embed === 'object') {
+        const o: Record<string, unknown> = {};
+        for (const k in embed)
+            o[k] = await copyAndFormat(vm, (embed as Record<string, unknown>)[k]);
         return o;
     }
     return embed;
@@ -45,7 +44,7 @@ export default class JSONCommand extends CCBotCommand {
 
     public constructor(client: CCBot, group: string, name: string, json: structures.Command) {
         const opt = {
-            name: '-' + group.toLowerCase() + ' ' + name.toLowerCase(),
+            name: `-${group.toLowerCase()} ${name.toLowerCase()}`,
             description: json.description || 'No description.',
             group: group.toLowerCase(),
             memberName: name.toLowerCase()
@@ -58,7 +57,7 @@ export default class JSONCommand extends CCBotCommand {
         this.command = json;
     }
 
-    public async run(message: commando.CommandMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {args: string[]}): Promise<discord.Message|discord.Message[]> {
         if (this.command.nsfw && !nsfw(message.channel))
             return await message.say('That command is NSFW, and this is not an NSFW channel.');
 
@@ -75,6 +74,7 @@ export default class JSONCommand extends CCBotCommand {
 
         // VM Arguments Init
         if (args && args.args) {
+            // TODO: when can args.args be not an array?
             if (args.args.constructor === Array) {
                 vmContext.args = args.args;
             } else {
@@ -82,7 +82,7 @@ export default class JSONCommand extends CCBotCommand {
             }
         }
         for (const arg of vmContext.args)
-            if (arg.constructor !== String)
+            if (typeof arg !== 'string')
                 return await message.say('That command can only eat strings, but it was given non-strings.');
 
         // VM Execution
@@ -93,7 +93,7 @@ export default class JSONCommand extends CCBotCommand {
             formatText = await runFormat(this.command.format || '', vm);
             // MO/JSON-supplied Embed
             if (this.command.embed)
-                vmContext.embed = await copyAndFormat(vm, this.command.embed) as object;
+                vmContext.embed = await copyAndFormat(vm, this.command.embed) as discord.MessageEmbedOptions;
         }
 
         // Message Options

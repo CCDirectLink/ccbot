@@ -39,19 +39,18 @@ export default class PurgeCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {seconds: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {seconds: number}): Promise<discord.Message|discord.Message[]> {
         // Get the database
-        const database = this.client.entities.getEntity<PurgeDatabaseChannelEntity>('purge-channel-' + message.channel.id);
+        const database = this.client.entities.getEntity<PurgeDatabaseChannelEntity>(`purge-channel-${message.channel.id}`);
         if (!database)
             return await message.say('The purge database doesn\'t exist.');
         if (args.seconds <= 1)
             return await message.say('Too short to be practical.');
 
-        if (!localRPCheck(message, ['READ_MESSAGES', 'MANAGE_MESSAGES'], 'purgers')) {
+        if (!localRPCheck(message, ['VIEW_CHANNEL', 'MANAGE_MESSAGES'], 'purgers')) {
             return await message.say('You aren\'t authorized to do that.\nYou need READ\\_MESSAGES & MANAGE\\_MESSAGES, or you need to be in the `purgers` role group.');
         } else {
-            // Typing information is wrong
-            if (!message.channel.bulkDelete)
+            if (message.channel instanceof discord.DMChannel)
                 return await message.say('That can\'t be done here. (DM channel?)');
             // Nuke it. I hope you intended this...
             const collated: string[] = [];
@@ -59,7 +58,7 @@ export default class PurgeCommand extends CCBotCommand {
             for (let i = database.messages.length - 1; i >= 0; i--) {
                 const msgID = database.messages[i];
                 if (discord.SnowflakeUtil.deconstruct(msgID).date.getTime() >= targetTimestamp) {
-                    this.client.entities.killEntity('message-' + msgID, true);
+                    this.client.entities.killEntity(`message-${msgID}`, true);
                     collated.push(msgID);
                     if (collated.length >= 200)
                         break;

@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {naturalComparison, localAdminCheck, emoteSafe, mdEsc} from '../utils';
+import {naturalComparison, localAdminCheck, emoteSafe, mdEsc, TextBasedChannel} from '../utils';
 import {outputElements, PageSwitcherOutputElement} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -44,7 +44,7 @@ export class ListEmotesCommand extends CCBotCommand {
         this.sfw = sfw;
     }
 
-    public async run(message: commando.CommandMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {search: string}): Promise<discord.Message|discord.Message[]> {
         if (args.search == 'overrides')
             if (!message.guild)
                 return await message.say('Cannot get overrides for a guild that doesn\'t exist.');
@@ -62,19 +62,19 @@ export class ListEmotesCommand extends CCBotCommand {
                 const overrideType = this.client.emoteRegistry.isOverride(message.guild || null, eref);
                 if (!overrideType)
                     continue;
-                details = '**' + overrideType + ' override:**';
+                details = `**${overrideType} override:**`;
             } else {
                 // ".cc lsemotes <guild ID>" : emotes per guild
                 // ".cc lsemotes XYZ" : Text search "XYZ"
-                if (((!emote.guild) || (emote.guild.id !== args.search)) && (eref.indexOf(args.search) == -1))
+                if ((!(emote instanceof discord.GuildEmoji) || (emote.guild.id !== args.search)) && !eref.includes(args.search))
                     continue;
                 // Use this to diagnose problematic emotes
-                if (emote.guild)
-                    details = '**' + mdEsc(emote.guild.name) + ' [' + emote.guild.id + ']:**';
+                if (emote instanceof discord.GuildEmoji)
+                    details = `**${mdEsc(emote.guild.name)} [${emote.guild.id}]:**`;
             }
             elements.push({
                 category: details,
-                text: mdEsc(eref) + ' ' + emote.toString()
+                text: `${mdEsc(eref)} ${emote.toString()}`
             });
         }
 
@@ -102,7 +102,7 @@ export class EmoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if ((args.emotes.length > 0) && (args.emotes[0] == 'emote_reset')) {
             if (localAdminCheck(message)) {
                 this.client.emoteRegistry.updateGlobalEmoteRegistry();
@@ -159,27 +159,27 @@ export class ReactCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {emotes: string[]}): Promise<discord.Message|discord.Message[]> {
         if (args.emotes.length > 8)
             return await message.say('Why?');
         // NOTE: To prevent NSFW emote leakage, that check is done based on the target channel.
         // However, the *emote lookup* is based on the source channel (otherwise things don't make sense)
-        let targetChannel: discord.Channel & discord.TextBasedChannelFields = message.channel;
+        let targetChannel: TextBasedChannel = message.channel;
         let targetMessage: discord.Message = message.message;
         let start = 0;
         if (args.emotes[start].startsWith('chan=')) {
             let place = args.emotes[start].substring(5);
             if (place.startsWith('<#') && place.endsWith('>'))
                 place = place.substring(2, place.length - 1);
-            const part = this.client.channels.get(place);
-            if ((!part) || (part.type !== 'text'))
+            const part = this.client.channels.cache.get(place);
+            if ((!part) || !(part instanceof discord.TextChannel))
                 return await message.say('The channel doesn\'t seem to exist or isn\'t valid for reaction.');
-            targetChannel = part as discord.TextChannel;
+            targetChannel = part;
             start++;
         }
         if (args.emotes[start].startsWith('id=')) {
             try {
-                targetMessage = await targetChannel.fetchMessage(args.emotes[start].substring(3));
+                targetMessage = await targetChannel.messages.fetch(args.emotes[start].substring(3));
             } catch (e) {
                 return await message.say('The message doesn\'t seem to exist.');
             }
@@ -191,7 +191,7 @@ export class ReactCommand extends CCBotCommand {
             const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, args.emotes[i]);
             if (!emoteSafe(emote, targetChannel))
                 continue;
-            await targetMessage.react(emote);
+            await targetMessage.react(emote.identifier);
         }
         return [];
     }

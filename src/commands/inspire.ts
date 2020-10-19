@@ -29,7 +29,7 @@ export class InspireCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const lastQuote: number = this.client.provider.get('global', 'lastQuote', -1);
         if (quotes.length == 0)
@@ -37,7 +37,7 @@ export class InspireCommand extends CCBotCommand {
         if (quotes.length == 1) {
             if (lastQuote != 0)
                 await this.client.provider.set('global', 'lastQuote', 0);
-            return message.say('0: ' + quotes[0]);
+            return message.say(`0: ${quotes[0]}`);
         }
         const effectiveLength: number = ((lastQuote >= 0) && (lastQuote < quotes.length)) ? (quotes.length - 1) : quotes.length;
         let target = Math.floor(Math.random() * effectiveLength);
@@ -45,7 +45,7 @@ export class InspireCommand extends CCBotCommand {
             if (target >= lastQuote)
                 target++;
         await this.client.provider.set('global', 'lastQuote', target);
-        return message.say(target + ': ' + quotes[target]);
+        return message.say(`${target}: ${quotes[target]}`);
     }
 }
 
@@ -69,12 +69,12 @@ export class AddQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {quote: string}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: string}): Promise<discord.Message|discord.Message[]> {
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         newQuotes.push(args.quote);
         await this.client.provider.set('global', 'quotes', newQuotes);
-        return message.say('Done, this is quote ' + quotes.length); // *not* newQuotes, then it'd have to -1
+        return message.say(`Done, this is quote ${quotes.length}`); // *not* newQuotes, then it'd have to -1
     }
 }
 
@@ -98,7 +98,7 @@ export class RmQuoteCommand extends CCBotCommand {
         super(client, opt);
     }
 
-    public async run(message: commando.CommandMessage, args: {quote: number}): Promise<discord.Message|discord.Message[]> {
+    public async run(message: commando.CommandoMessage, args: {quote: number}): Promise<discord.Message|discord.Message[]> {
         const quotes: string[] = this.client.provider.get('global', 'quotes', []);
         const newQuotes: string[] = JSON.parse(JSON.stringify(quotes));
         if (args.quote < 0)
@@ -107,6 +107,6 @@ export class RmQuoteCommand extends CCBotCommand {
             return message.say('Can\'t, the *other* Curly Brace would be mad.');
         newQuotes.splice(args.quote, 1);
         await this.client.provider.set('global', 'quotes', newQuotes);
-        return message.say('Done, this is quote ' + quotes.length); // *not* newQuotes, then it'd have to -1
+        return message.say(`Done, this is quote ${quotes.length}`); // *not* newQuotes, then it'd have to -1
     }
 }

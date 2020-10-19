@@ -15,7 +15,7 @@
 
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
-import {silence, channelAsTBF, guildOf} from '../utils';
+import {silence, isChannelTextBased, TextBasedChannel} from '../utils';
 import {WatcherEntityData, WatcherEntity, StreamProviderEntity} from '../watchers';
 
 // All the kinds of stream provider we care about
@@ -30,11 +30,11 @@ export interface StreamWatcherData extends WatcherEntityData {
 
 /// Watches the streams go by.
 class StreamWatcherEntity extends WatcherEntity {
-    private channel: discord.Channel & discord.TextBasedChannelFields;
+    private channel: TextBasedChannel;
     private message: discord.Message;
 
-    public constructor(c: CCBot, channel: discord.Channel & discord.TextBasedChannelFields, message: discord.Message, data: StreamWatcherData) {
-        super(c, 'message-' + message.id, data, 10000);
+    public constructor(c: CCBot, channel: TextBasedChannel, message: discord.Message, data: StreamWatcherData) {
+        super(c, `message-${message.id}`, data, 10000);
         this.channel = channel;
         this.message = message;
     }
@@ -44,38 +44,38 @@ class StreamWatcherEntity extends WatcherEntity {
             name: string;
             value: string;
         }[] = [];
-        const guild = guildOf(this.channel);
+        const guild = this.channel instanceof discord.GuildChannel ? this.channel.guild : undefined;
         for (const providerType of streamProviders) {
-            const provider = this.client.entities.getEntity<StreamProviderEntity>('stream-provider-' + providerType);
+            const provider = this.client.entities.getEntity<StreamProviderEntity>(`stream-provider-${providerType}`);
             if (provider) {
                 if (provider.lastError !== null)
                     streams.push({
-                        name: '<error from ' + provider.id + '>',
+                        name: `<error from ${provider.id}>`,
                         value: provider.lastError.toString()
                     });
                 for (const stream of provider.streams) {
                     let langTag = '';
                     if (stream.language)
-                        langTag = '(' + stream.language.toUpperCase() + ')';
+                        langTag = `(${stream.language.toUpperCase()})`;
 
                     let titleTag = '';
                     if (stream.title)
-                        titleTag = ': ' + stream.title;
+                        titleTag = `: ${stream.title}`;
 
                     const streamLongTail: string[] = [stream.url];
                     if (stream.started)
-                        streamLongTail.push('Started at ' + stream.started + '.');
+                        streamLongTail.push(`Started at ${stream.started}.`);
                     if (guild) {
-                        const foundMember = guild.members.find((member: discord.GuildMember): boolean => {
+                        const foundMember = guild.members.cache.find((member: discord.GuildMember): boolean => {
                             if (member.user.username.toLowerCase() === stream.userName.toLowerCase())
                                 return true;
                             return false;
                         });
                         if (foundMember)
-                            streamLongTail.push('Possibly here as ' + foundMember.nickname);
+                            streamLongTail.push(`Possibly here as ${foundMember.nickname}`);
                     }
                     streams.push({
-                        name: stream.userName + ' ' + langTag + ' on ' + stream.service + titleTag,
+                        name: `${stream.userName} ${langTag} on ${stream.service}${titleTag}`,
                         value: streamLongTail.join('\n')
                     });
                 }
@@ -106,8 +106,8 @@ class StreamWatcherEntity extends WatcherEntity {
 
 /// Creates a stream watcher.
 export default async function load(c: CCBot, data: StreamWatcherData): Promise<CCBotEntity> {
-    const channel = channelAsTBF(c.channels.get(data.channel));
-    if (!channel)
+    const channel = c.channels.cache.get(data.channel);
+    if (!channel || !isChannelTextBased(channel))
         throw Error('involved channel no longer exists');
     let message: discord.Message;
     if (!data.message) {
@@ -115,7 +115,7 @@ export default async function load(c: CCBot, data: StreamWatcherData): Promise<C
         message = await channel.send('Did you know that it takes at least one second for a stream watcher to initialize?') as discord.Message;
     } else {
         // Reused
-        message = await channel.fetchMessage(data.message);
+        message = await channel.messages.fetch(data.message);
     }
     return new StreamWatcherEntity(c, channel, message, data);
 }

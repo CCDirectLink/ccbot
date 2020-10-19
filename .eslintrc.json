@@ -18,6 +18,8 @@
         "quotes": ["error", "single"],
         "no-empty-function": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-explicit-any": "error"
+        "@typescript-eslint/no-explicit-any": "error",
+        "prefer-template": "warn",
+        "@typescript-eslint/no-non-null-assertion": "off"
     }
 }

@@ -16,11 +16,11 @@
 import * as discord from 'discord.js';
 import {CCBotEntity, CCBot} from '../ccbot';
 import {EntityData} from '../entity-registry';
-import {getGuildTextChannel, silence} from '../utils';
+import {getGuildTextChannel, silence, TextBasedChannel} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
-async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting: string, channel: discord.Channel & discord.TextBasedChannelFields): Promise<void> {
+async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting: string, channel: TextBasedChannel): Promise<void> {
     const result = await say(greeting, {
         client: client,
         channel: channel,
@@ -53,19 +53,19 @@ class GreeterEntity extends CCBotEntity {
             if (dmGreeting)
                 silence(m.createDM().then(dmChannel => sendGreeting(c, m, dmGreeting, dmChannel)));
             const denied = getUserDeniedRoles(this.client, m);
-            const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, 'auto-user-' + m.id));
+            const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, `auto-user-${m.id}`));
             // Check for explicitly denied roles here to avoid infighting
             const addRoles: string[] = allAutoRoles.filter((v: string): boolean => !denied.includes(v));
             if (addRoles.length > 0)
-                silence(m.addRoles(addRoles));
+                silence(m.roles.add(addRoles));
         };
         this.memberUpdateListener = (_: discord.GuildMember, m: discord.GuildMember): void => {
             if (this.killed)
                 return;
             const denied = getUserDeniedRoles(this.client, m);
-            const rmRoles = m.roles.keyArray().filter((v: string): boolean => denied.includes(v));
+            const rmRoles = m.roles.cache.keyArray().filter((v: string): boolean => denied.includes(v));
             if (rmRoles.length > 0)
-                silence(m.removeRoles(rmRoles));
+                silence(m.roles.remove(rmRoles));
         };
         this.client.on('guildMemberAdd', this.memberListener);
         this.client.on('guildMemberUpdate', this.memberUpdateListener);

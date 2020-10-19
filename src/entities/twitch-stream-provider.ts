@@ -58,31 +58,31 @@ const gameId = '491243';
 
 /// Scans for CrossCode Twitch streams.
 export class TwitchStreamProviderEntity extends StreamProviderEntity {
-    private requestMaker: (endpoint: string) => Promise<object>;
+    private requestMaker: <T>(endpoint: string) => Promise<T>;
 
     public constructor(c: CCBot, data: StreamProviderEntityData, clientId: string) {
         super(c, 'twitch', data);
-        this.requestMaker = async (endpoint: string): Promise<object> => {
+        this.requestMaker = async <T>(endpoint: string): Promise<T> => {
             if (!endpoint.startsWith('helix/'))
                 throw new Error('You sure about that?');
-            return await getJSON('https://api.twitch.tv/' + endpoint, {
+            return await getJSON(`https://api.twitch.tv/${endpoint}`, {
                 'Client-ID': clientId
             });
         };
     }
 
     public async watcherTick(): Promise<void> {
-        const streams = (await this.requestMaker('helix/streams?game_id=' + gameId)) as TwitchPaginated<TwitchStream>;
+        const streams = await this.requestMaker<TwitchPaginated<TwitchStream>>(`helix/streams?game_id=${gameId}`);
 
         // Twitch requires we have a user's "login" (username) for their stream URL.
         // So we need to grab those.
         // Additional note: Each index here corresponds with a streams.data index.
         const userGrabComponents: string[] = [];
         for (const stream of streams.data)
-            userGrabComponents.push('id=' + stream.user_id);
+            userGrabComponents.push(`id=${stream.user_id}`);
         let users: TwitchPaginated<TwitchUser> = {data: []};
         if (userGrabComponents.length > 0)
-            users = (await this.requestMaker('helix/users?' + userGrabComponents.join('&'))) as TwitchPaginated<TwitchUser>;
+            users = await this.requestMaker<TwitchPaginated<TwitchUser>>(`helix/users?${userGrabComponents.join('&')}`);
 
         this.streams = [];
         for (let index = 0; index < users.data.length; index++) {
@@ -92,7 +92,7 @@ export class TwitchStreamProviderEntity extends StreamProviderEntity {
                 userName: stream.user_name,
                 service: 'Twitch',
                 title: stream.title,
-                url: 'https://www.twitch.tv/' + user.login,
+                url: `https://www.twitch.tv/${user.login}`,
                 language: stream.language,
                 started: new Date(stream.started_at)
             });

@@ -58,17 +58,17 @@ const searchTerm = 'CrossCode';
 
 /// Scans for CrossCode Twitch streams.
 export class YouTubeStreamProviderEntity extends StreamProviderEntity {
-    private requestMaker: () => Promise<object>;
+    private requestMaker: <T = unknown>() => Promise<T>;
 
     public constructor(c: CCBot, data: StreamProviderEntityData, clientId: string) {
         super(c, 'youtube', data);
-        this.requestMaker = async (): Promise<object> => {
-            return await getJSON('https://www.googleapis.com/youtube/v3/search?part=snippet&eventType=live&q=' + searchTerm + '&type=video&key=' + clientId, {});
+        this.requestMaker = async <T = unknown>(): Promise<T> => {
+            return await getJSON(`https://www.googleapis.com/youtube/v3/search?part=snippet&eventType=live&q=${searchTerm}&type=video&key=${clientId}`, {});
         };
     }
 
     public async watcherTick(): Promise<void> {
-        const streams = (await this.requestMaker()) as YouTubeSearchListResponse;
+        const streams = await this.requestMaker<YouTubeSearchListResponse>();
         this.streams = [];
         // eslint-disable-next-line no-useless-catch
         try {
@@ -78,7 +78,7 @@ export class YouTubeStreamProviderEntity extends StreamProviderEntity {
                     title: stream.snippet.title,
                     started: new Date(stream.snippet.publishedAt),
                     service: 'YouTube',
-                    url: 'https://www.youtube.com/watch?v=' + stream.id.videoId
+                    url: `https://www.youtube.com/watch?v=${stream.id.videoId}`
                 });
         } catch (e) {
             // console.log(JSON.stringify(streams));

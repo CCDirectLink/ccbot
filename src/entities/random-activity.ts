@@ -44,9 +44,8 @@ class RandomActivityEntity extends CCBotEntity {
 
     public onKill(transferOwnership: boolean): void {
         if (!transferOwnership)
-            silence(this.client.user.setPresence({
-                status: 'online',
-                game: null
+            silence(this.client.user!.setPresence({
+                status: 'online'
             }));
     }
 
@@ -54,10 +53,10 @@ class RandomActivityEntity extends CCBotEntity {
         if (this.killed)
             return;
         const element = randomArrayElement(this.activities);
-        this.client.user.setPresence({
+        this.client.user!.setPresence({
             status: element.status || 'online',
-            game: {
-                type: element.type as ActivityType,
+            activity: {
+                type: element.type,
                 name: element.name
             }
         });

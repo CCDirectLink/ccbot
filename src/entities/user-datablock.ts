@@ -38,7 +38,7 @@ export class UserDatablockEntity extends CCBotEntity {
             data.killTime = Date.now() + userDatablockTTL + ((data.createTime || 0) % 16000);
             data.killTimeout = userDatablockTTL;
         }
-        super(c, 'user-datablock-' + data.who, data);
+        super(c, `user-datablock-${data.who}`, data);
         this.who = data.who;
         this.content = data.content;
     }
@@ -50,7 +50,7 @@ export class UserDatablockEntity extends CCBotEntity {
     public set(updated: Record<string, object>): void {
         const res = JSON.stringify(updated, null, '\t');
         if (res.length > userDatablockMaxLength)
-            throw new Error('User Datablock cannot be above ' + userDatablockMaxLength + ' characters.');
+            throw new Error(`User Datablock cannot be above ${userDatablockMaxLength} characters.`);
         this.content = res;
         this.postponeDeathAndUpdate();
     }
@@ -68,12 +68,9 @@ export async function loadUserDatablock(c: CCBot, data: UserDatablockEntityData)
 }
 
 export async function getUserDatablock(c: CCBot, user: discord.User | string): Promise<UserDatablockEntity> {
-    if (user.constructor === String) {
-        user = user as string;
-    } else {
-        user = (user as discord.User).id;
-    }
-    const entity = c.entities.getEntity<UserDatablockEntity>('user-datablock-' + user);
+    if (user instanceof discord.User)
+        user = user.id;
+    const entity = c.entities.getEntity<UserDatablockEntity>(`user-datablock-${user}`);
     if (entity) {
         return entity;
     } else {
@@ -90,7 +87,7 @@ export async function getUserDatablock(c: CCBot, user: discord.User | string): P
 export async function userAwareGetEmote(c: CCBot, user: discord.User | string | null, guild: discord.Guild | null, name: string): Promise<discord.Emoji> {
     if (user) {
         const datablock = await getUserDatablock(c, user);
-        const res = datablock.get()['emote-' + name];
+        const res = datablock.get()[`emote-${name}`];
         if (res)
             return c.emoteRegistry.getEmote(null, String(res));
     }

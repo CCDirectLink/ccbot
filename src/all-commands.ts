@@ -34,46 +34,48 @@ export default function registerAllCommands(cr: CCBot): void {
     cr.registry.registerDefaultCommands({
         help: false, // not compatible with the new dispatcher
         prefix: true,
-        eval_: true,
+        eval: true,
         ping: false,
-        commandState: true
+        commandState: true,
+        unknownCommand: false // we have our own implementation in commands.json
     });
 
     // util
-    cr.registry.registerCommand(new ReloadCommand(cr));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Global));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Global));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Global));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Local));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Local));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Local));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.User));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.User));
-    cr.registry.registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.User));
-    cr.registry.registerCommand(new ShowUserSettingsCommand(cr));
-    cr.registry.registerCommand(new CounterCommand(cr));
-    // part of inspire
-    cr.registry.registerCommand(new AddQuoteCommand(cr));
-    cr.registry.registerCommand(new RmQuoteCommand(cr));
+    cr.registry
+        .registerCommand(new ReloadCommand(cr))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Global))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Global))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Global))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.Local))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.Local))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.Local))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Get, SettingsContext.User))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Set, SettingsContext.User))
+        .registerCommand(new SettingsCommand(cr, SettingsOperation.Rm, SettingsContext.User))
+        .registerCommand(new ShowUserSettingsCommand(cr))
+        .registerCommand(new CounterCommand(cr))
+        // part of inspire
+        .registerCommand(new AddQuoteCommand(cr))
+        .registerCommand(new RmQuoteCommand(cr))
 
-    cr.registry.registerGroup('general');
-    cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'cheesearmy'));
-    cr.registry.registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'));
-    cr.registry.registerCommand(new PingCommand(cr));
-    cr.registry.registerCommand(new ListEmotesCommand(cr, false));
-    cr.registry.registerCommand(new ListEmotesCommand(cr, true));
-    cr.registry.registerCommand(new EmoteCommand(cr));
-    cr.registry.registerCommand(new ReactCommand(cr));
-    cr.registry.registerCommand(new SayCommand(cr));
-    cr.registry.registerCommand(new HugCommand(cr));
-    cr.registry.registerCommand(new PurgeCommand(cr));
-    cr.registry.registerCommand(new InspireCommand(cr));
+        .registerGroup('general')
+        .registerCommand(new ArmyCommand(cr, 'general', 'cheesearmy'))
+        .registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'))
+        .registerCommand(new PingCommand(cr))
+        .registerCommand(new ListEmotesCommand(cr, false))
+        .registerCommand(new ListEmotesCommand(cr, true))
+        .registerCommand(new EmoteCommand(cr))
+        .registerCommand(new ReactCommand(cr))
+        .registerCommand(new SayCommand(cr))
+        .registerCommand(new HugCommand(cr))
+        .registerCommand(new PurgeCommand(cr))
+        .registerCommand(new InspireCommand(cr))
 
-    cr.registry.registerGroup('roles');
-    cr.registry.registerCommand(new RolesAddCommand(cr));
-    cr.registry.registerCommand(new RolesRmCommand(cr));
-    cr.registry.registerCommand(new RolesListCommand(cr));
+        .registerGroup('roles')
+        .registerCommand(new RolesAddCommand(cr))
+        .registerCommand(new RolesRmCommand(cr))
+        .registerCommand(new RolesListCommand(cr))
 
-    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'general', 'mods', false));
-    cr.registry.registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true));
+        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'mods', false))
+        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true));
 }

@@ -33,9 +33,9 @@ export function asBoolean(v: Value): boolean {
 }
 
 export function asString(v: Value): string {
-    if (v.constructor === String)
-        return v as string;
-    throw new Error('Value of kind ' + v.constructor + ' not convertible to string');
+    if (typeof v === 'string')
+        return v;
+    throw new Error(`Value of kind ${v.constructor} not convertible to string`);
 }
 
 export function asInteger(v: Value): number {
@@ -43,9 +43,9 @@ export function asInteger(v: Value): number {
 }
 
 export function asList(v: Value): Value[] {
-    if (v.constructor === Array)
-        return v as Value[];
-    throw new Error('Value of kind ' + v.constructor + ' not convertible to list');
+    if (Array.isArray(v))
+        return v;
+    throw new Error(`Value of kind ${v.constructor} not convertible to list`);
 }
 
 export type VMFunction = (arg: Value[], scope: VMScope) => Promise<Value>;
@@ -54,7 +54,7 @@ export function wrapFunc(name: string, argCount: number, fun: (args: Value[], sc
     return async (args: Value[], scope: VMScope): Promise<Value> => {
         if (argCount != -1)
             if ((argCount + 1) != args.length)
-                throw new Error('Incorrect form for function ' + name);
+                throw new Error(`Incorrect form for function ${name}`);
         const resArgs: Value[] = [];
         for (let i = 1; i < args.length; i++)
             resArgs.push(await scope.vm.run(args[i], scope));
@@ -129,19 +129,19 @@ export class VM {
         this.consumeTime(vmEvalTime);
 
         // arg.length == 0 is also known as "nil"
-        if (arg.constructor === Array) {
-            const args = arg as Value[];
+        if (Array.isArray(arg)) {
+            const args = arg;
             if (args.length != 0) {
-                if (args[0].constructor === String) {
-                    const fname = args[0] as string;
+                if (typeof args[0] === 'string') {
+                    const fname = args[0];
                     const fun = scope.getFunction(fname);
                     if (!fun)
-                        throw new Error('No such function ' + fname);
+                        throw new Error(`No such function ${fname}`);
                     const res = await fun(args, scope);
                     if (res.toString().length > vmMaxAnythingLength)
                         throw new Error('Returned value above max size');
                     return res;
-                } else if (args[0].constructor === Array) {
+                } else if (Array.isArray(args[0])) {
                     // NON-LISP rule: As function names have to be constant strings,
                     //  a list of statements is now possible.
                     // The way this works is that if the first arg is an *array*,
@@ -250,7 +250,7 @@ export async function runFormatInternal(text: string, runner: (a: Value) => Prom
         }
     }
     if (emoteMode != null)
-        throw new Error('Unterminated Emote (state: ' + emoteMode + ')');
+        throw new Error(`Unterminated Emote (state: ${emoteMode})`);
     if (escapeMode)
         throw new Error('Unterminated Escape');
     if (stringMode)

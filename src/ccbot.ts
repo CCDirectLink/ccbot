@@ -33,8 +33,8 @@ export abstract class CCBot extends commando.CommandoClient {
     public emoteRegistry: CCBotEmoteRegistry;
 
     // THE FOLLOWING EVENTS ARE EXTENSIONS:
-    // 'ccbotMessageDeletes', discord.Channel & discord.TextBasedChannelFields, string[]
-    // 'ccbotMessageUpdateUnchecked', discord.Channel & discord.TextBasedChannelFields, string
+    // 'ccbotMessageDeletes', TextBasedChannel, string[]
+    // 'ccbotMessageUpdateUnchecked', TextBasedChannel, string
     // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
 
     protected constructor(co: commando.CommandoClientOptions) {
@@ -83,25 +83,26 @@ export abstract class CCBot extends commando.CommandoClient {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
             // WTF
-            const user = this.users.get(event.d.user_id);
+            const user = this.users.cache.get(event.d.user_id);
             if (!user)
                 return;
-            const entity = this.entities.getEntity('message-' + event.d.message_id);
+            const entity = this.entities.getEntity(`message-${event.d.message_id}`);
             if (!entity)
                 return;
             const emojiDetails: {id?: string; name: string} = event.d.emoji;
             let emoji: discord.Emoji;
             if (emojiDetails.id) {
-                const emojiX = this.emojis.get(emojiDetails.id);
+                const emojiX = this.emojis.cache.get(emojiDetails.id);
                 if (!emojiX)
                     return;
                 emoji = emojiX;
             } else {
+                // TODO: this is a unicode emoji, simply use emojiDetails.name here
                 emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name);
             }
             entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
         } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {
-            const channel = this.channels.get(event.d.channel_id);
+            const channel = this.channels.cache.get(event.d.channel_id);
             // No channel means no guild, so nowhere to route
             if (!channel)
                 return;
@@ -113,7 +114,7 @@ export abstract class CCBot extends commando.CommandoClient {
                 this.emit('ccbotMessageDeletes', channel, event.d.ids);
             }
         } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
-            const guild = this.guilds.get(event.d.guild_id);
+            const guild = this.guilds.cache.get(event.d.guild_id);
             // No guild, no idea who to inform
             if (!guild)
                 return;
@@ -137,6 +138,14 @@ export class CCBotCommand extends commando.Command {
                 duration: 45
             };
         }
+    }
+
+    public async onBlock(
+        message: commando.CommandoMessage, reason: string, data?: object
+    ): Promise<discord.Message | discord.Message[]> {
+        if (reason === 'throttling')
+            return [];
+        return super.onBlock(message, reason, data);
     }
 }
 

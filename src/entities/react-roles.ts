@@ -37,7 +37,7 @@ class ReactRolesEntity extends CCBotEntity {
     private reactions: {[react: string]: string[]};
 
     public constructor(c: CCBot, g: discord.Guild, data: ReactRolesData) {
-        super(c, 'message-' + data.message, data);
+        super(c, `message-${data.message}`, data);
         this.guild = g;
         this.messageId = data.message;
         this.reactions = data.reactions;
@@ -63,8 +63,8 @@ class ReactRolesEntity extends CCBotEntity {
 }
 
 export default async function load(c: CCBot, data: ReactRolesData): Promise<CCBotEntity> {
-    const guild = c.guilds.get(data.guild);
+    const guild = c.guilds.cache.get(data.guild);
     if (!guild)
-        throw new Error('unable to find the guild ' + data.guild);
+        throw new Error(`unable to find the guild ${data.guild}`);
     return new ReactRolesEntity(c, guild, data);
 }

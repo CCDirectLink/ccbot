@@ -36,7 +36,7 @@ class OldBehaviorsEntity extends CCBotEntity {
             } else if (lowerContent.startsWith('?release')) {
                 // Might need to be part of a relevant activity manager
                 silence(m.channel.send('Watching the final countdown'));
-            } else if ((m.channel as discord.TextChannel).name === 'media') {
+            } else if (m.channel instanceof discord.GuildChannel && m.channel.name === 'media') {
                 // Yes, the continued requirement of using any to do things is awkward.
                 //const cc = m.guild.channels.find('name', 'crosscode');
             }
