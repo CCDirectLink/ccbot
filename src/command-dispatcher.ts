@@ -52,7 +52,7 @@ async function cleanupMessage(client: CCBot, message: discord.Message): Promise<
     client.entities.killEntity(`message-${message.id}`, true);
     for (const r of message.reactions.cache.values())
         if (r.me)
-            await r.remove();
+            await r.users.remove();
 }
 
 /// A modified version of initCommand that patches CommandoMessage in order to perform better cleanup.
@@ -66,7 +66,6 @@ function initCCBotCommandoMessage(
     // definitions??? Why the heck isn't the method initCommand defined???
     const self = (message as unknown as commando.CommandoMessage).initCommand(command, argString, patternMatches);
 
-    const editResponse = self['editResponse'];
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
     self['editResponse'] = async function editResponse(a: (discord.Message | discord.Message[]), b?: { options: discord.MessageOptions }): Promise<discord.Message | discord.Message[]> {
@@ -86,7 +85,7 @@ function initCCBotCommandoMessage(
                 b.options = {embed: undefined};
             }
         }
-        return editResponse.call(this, a, b);
+        return commando.CommandoMessage.prototype['editResponse'].call(this, a, b);
     };
 
     return self;

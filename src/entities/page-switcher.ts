@@ -238,7 +238,7 @@ class PageSwitcherEntity extends CCBotEntity {
             // Alwinfy's Plan: Shut down...
             for (const r of this.message.reactions.cache.values())
                 if (r.me)
-                    silence(r.remove());
+                    silence(r.users.remove());
             this.kill(true);
         }
 
