@@ -66,6 +66,9 @@ function initCCBotCommandoMessage(
     // definitions??? Why the heck isn't the method initCommand defined???
     const self = (message as unknown as commando.CommandoMessage).initCommand(command, argString, patternMatches);
 
+    // Might as well just fork Commando and make proper definitions myself where CommandoMessage extends Message.
+    self.message = message;
+
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
     // eslint-disable-next-line dot-notation

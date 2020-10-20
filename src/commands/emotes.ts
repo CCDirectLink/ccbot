@@ -165,7 +165,7 @@ export class ReactCommand extends CCBotCommand {
         // NOTE: To prevent NSFW emote leakage, that check is done based on the target channel.
         // However, the *emote lookup* is based on the source channel (otherwise things don't make sense)
         let targetChannel: TextBasedChannel = message.channel;
-        let targetMessage: discord.Message = message.message;
+        let targetMessage: discord.Message = (await message.channel.messages.fetch({ before: message.id, limit: 1 })).first() || message.message;
         let start = 0;
         if (args.emotes[start].startsWith('chan=')) {
             let place = args.emotes[start].substring(5);
