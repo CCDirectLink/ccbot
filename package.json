@@ -28,7 +28,7 @@
     "mocha": "^6.2.3",
     "nodemon": "^1.19.4",
     "ts-node": "^8.9.0",
-    "typescript": "^3.9.7"
+    "typescript": "~3.8.3"
   },
   "dependencies": {
     "bufferutil": "^4.0.1",

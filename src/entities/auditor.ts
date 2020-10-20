@@ -46,13 +46,15 @@ class AuditorEntity extends CCBotEntity {
                     }
                 }
                 await channel.send({
-                    title: `Ban ${added ? 'Added' : 'Removed'}`,
-                    description: reason,
-                    timestamp: new Date(),
-                    footer: {
-                        text: `${u.username}#${u.discriminator} (${u.id})`,
-                        // As a string to get ESLint to ignore it
-                        'icon_url': calculatedIcon
+                    embed: {
+                        title: `Ban ${added ? 'Added' : 'Removed'}`,
+                        description: reason,
+                        timestamp: new Date(),
+                        footer: {
+                            text: `${u.username}#${u.discriminator} (${u.id})`,
+                            // As a string to get ESLint to ignore it
+                            'icon_url': calculatedIcon
+                        }
                     }
                 });
             })());

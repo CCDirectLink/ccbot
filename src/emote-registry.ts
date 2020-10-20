@@ -207,7 +207,7 @@ export default class CCBotEmoteRegistry {
                     ref,
                     id: emote.id,
                     name: emote.name,
-                    requires_colons: emote.requiresColons,
+                    requires_colons: emote.requiresColons || false,
                     animated: emote.animated,
                     url: emote.url,
                     safe: emoteSafe(emote, null, true),
