@@ -72,15 +72,20 @@ function initCCBotCommandoMessage(
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
     // eslint-disable-next-line dot-notation
-    self['editResponse'] = async function editResponse(a: (discord.Message | discord.Message[]), b?: { options: discord.MessageOptions }): Promise<discord.Message | discord.Message[]> {
-        // Kill involved entities
-        if (Array.isArray(a)) {
-            for (const msg of a)
-                await cleanupMessage(this.client as CCBot, msg);
-        } else {
-            await cleanupMessage(this.client as CCBot, a);
+    self['editResponse'] = async function editResponse(
+        reply: discord.Message | discord.Message[], b?: { options: discord.MessageOptions }
+    ): Promise<discord.Message | discord.Message[]> {
+        if (reply) {
+            // Kill involved entities
+            if (Array.isArray(reply)) {
+                for (const msg of reply)
+                    await cleanupMessage(this.client as CCBot, msg);
+            } else {
+                await cleanupMessage(this.client as CCBot, reply);
+            }
         }
         // Get rid of embed
+        // TODO: is this necessary?
         if (b) {
             if (b.options) {
                 if (!b.options.embed)
@@ -90,7 +95,7 @@ function initCCBotCommandoMessage(
             }
         }
         // eslint-disable-next-line dot-notation
-        return commando.CommandoMessage.prototype['editResponse'].call(this, a, b);
+        return commando.CommandoMessage.prototype['editResponse'].call(this, reply, b);
     };
 
     return self;
