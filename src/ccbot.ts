@@ -38,6 +38,18 @@ export abstract class CCBot extends commando.CommandoClient {
     // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
 
     protected constructor(co: commando.CommandoClientOptions) {
+        // TODO: get rid of this by always fetching guild members explicitly when needed???
+        co.fetchAllMembers = true;
+        co.ws = {
+            intents: [
+                'GUILDS', 'GUILD_EMOJIS',   // these should go without saying
+                'GUILD_MEMBERS',            // (privileged) required for greeter, react-roles and a few other things
+                'GUILD_BANS',               // required for auditor
+                // messages and reactions
+                 'GUILD_MESSAGES',  'GUILD_MESSAGE_REACTIONS',
+                'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS'
+            ]
+        };
         super(co);
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
