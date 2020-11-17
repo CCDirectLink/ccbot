@@ -167,12 +167,14 @@ export default class CCBotEmoteRegistry {
         if (direct)
             return direct;
         // Is it a written custom emote?
-        if (text.startsWith('<') && text.includes(':')) {
-            let text2 = text.substring(1);
-            text2 = text2.substring(0, text2.indexOf(':'));
-            const direct = this.client.emojis.cache.get(text2);
-            if (direct)
-                return direct;
+        if (text.startsWith('<') && text.endsWith('>')) {
+            let match = /^<a?:[^:\s]+:([0-9]+)>$/.exec(text);
+            console.log(match);
+            if (match) {
+                const direct = this.client.emojis.cache.get(match[1]);
+                if (direct)
+                    return direct;
+            }
         }
         // Is it a unicode emote?
         return new discord.Emoji(this.client, {
