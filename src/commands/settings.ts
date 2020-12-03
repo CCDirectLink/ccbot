@@ -25,6 +25,7 @@ const limitLocalEmote = 128;
 const limitLocalChannelName = 128;
 const limitLocalEmotesArray = 2000;
 const limitLocalRoleGroup = 2000;
+const limitPrefix = 16;
 
 export enum SettingsOperation {
     Get,
@@ -44,7 +45,10 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     let maxLength = 0;
     let doneCallback = async (): Promise<void> => {};
     const startsWithRG = name.startsWith('roles-group-');
-    if (name === 'nsfw') {
+    if (name === 'prefix') {
+        if ((value === undefined) || (typeof value === 'string'))
+            maxLength = limitPrefix;
+    } else if (name === 'nsfw') {
         if ((value === undefined) || (typeof value === 'boolean'))
             maxLength = 16;
     } else if (name === 'headerless-say') {
@@ -105,7 +109,15 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
     } else {
         if (JSON.stringify(value).length > maxLength)
             return 'The setting is too long.';
-        await provider.set(context, name, value);
+        if (name === 'prefix') {
+            // dmitmel: While debugging this I blamed every encountered bug on
+            // Commando. I WASN'T WRONG!
+            // TODO: Maybe the special case for the prefix can be moved into
+            // the SaneSettingProvider.
+            context.commandPrefix = value as string;
+        } else {
+            await provider.set(context, name, value);
+        }
     }
     await doneCallback();
     return null;
