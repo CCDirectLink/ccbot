@@ -5,8 +5,8 @@ nbproject
 # secrets!
 secrets.json
 # dynamics!
-dynamic-data/emote-registry.json
 dynamic-data/entities.json
 dynamic-data/settings.json
+dynamic-data/public/emote-registry.json
 
 init.sh

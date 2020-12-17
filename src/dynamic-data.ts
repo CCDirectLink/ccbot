@@ -222,7 +222,7 @@ export class DynamicDataDump<T> extends DynamicTextFile {
 export default class DynamicDataManager {
     public commands = new DynamicData<structures.CommandSet>('commands', false, true, {});
     public settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
-    public emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('emote-registry');
+    public emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('public/emote-registry');
 
     public initialLoad: Promise<void> = Promise.all<void>([
         this.commands.initialLoad,
