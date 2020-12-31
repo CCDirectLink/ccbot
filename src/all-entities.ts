@@ -26,6 +26,7 @@ import {loadPurgeDatabase, loadPurgeDatabaseChannel} from './entities/purge-data
 import {loadUserDatablock} from './entities/user-datablock';
 import {newTwitchStreamProviderLoader} from './entities/twitch-stream-provider';
 import {newYouTubeStreamProviderLoader} from './entities/youtube-stream-provider';
+import loadCountdownActivity from './entities/countdown-activity';
 import {CCBot} from './ccbot';
 
 /// Registers all the entities. (More or less.)
@@ -42,7 +43,8 @@ export default function registerAllEntities(cr: CCBot, twitchClientId: string | 
         .registerEntityType('tool-database', loadToolDatabase)
         .registerEntityType('purge-database', loadPurgeDatabase)
         .registerEntityType('purge-database-channel', loadPurgeDatabaseChannel)
-        .registerEntityType('user-datablock', loadUserDatablock);
+        .registerEntityType('user-datablock', loadUserDatablock)
+        .registerEntityType('countdown-activity', loadCountdownActivity);
     if (twitchClientId)
         cr.entities.registerEntityType('twitch-stream-provider', newTwitchStreamProviderLoader(twitchClientId));
     if (ytClientId)
