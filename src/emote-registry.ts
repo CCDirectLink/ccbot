@@ -60,7 +60,7 @@ export default class CCBotEmoteRegistry {
             const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
             const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
             for (const emote of guild.emojis.cache.values()) {
-                if ((globalBlockList && globalBlockList.includes(emote.id)) || (blockList && blockList.includes(emote.id)))
+                if ((globalBlockList?.includes(emote.id)) || (blockList?.includes(emote.id)))
                     continue;
                 if ((globalAllowList && !globalAllowList.includes(emote.id)) || (allowList && !allowList.includes(emote.id)))
                     continue;

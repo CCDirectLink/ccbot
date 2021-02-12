@@ -59,7 +59,7 @@ export abstract class DynamicTextFile {
                 await this.saveImmediate();
             })();
         }
-        return this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: unknown) => void) => {
+        this.inMiddleOfSI = new Promise((resolve: () => void, reject: (err: unknown) => void) => {
             console.log(`saving ${this.path}`);
             const npath = `${this.path}.new.${Date.now()}.${Math.random()}`;
             fs.writeFile(npath, this.serialize(), (err) => {
@@ -78,6 +78,7 @@ export abstract class DynamicTextFile {
                 }
             });
         });
+        return this.inMiddleOfSI;
     }
 
     /// Indicates that the data should be saved eventually (unless this is an immediate object)
@@ -224,11 +225,17 @@ export default class DynamicDataManager {
     public settings = new DynamicData<structures.GuildIndex>('settings', true, false, {});
     public emoteRegistryDump = new DynamicDataDump<structures.EmoteRegistryDump>('public/emote-registry');
 
-    public initialLoad: Promise<void> = Promise.all<void>([
-        this.commands.initialLoad,
-        this.settings.initialLoad,
-        this.emoteRegistryDump.initialLoad
-    ]).then(() => {});
+    public initialLoad: Promise<void>;
+
+    public constructor() {
+        // NOTE(dmitmel): The last then with an empty closure is needed to
+        // change the return type of the promise from void[] to void.
+        this.initialLoad = Promise.all<void>([
+            this.commands.initialLoad,
+            this.settings.initialLoad,
+            this.emoteRegistryDump.initialLoad
+        ]).then(() => {})
+    }
 
     public async destroy(): Promise<void> {
         await Promise.all([

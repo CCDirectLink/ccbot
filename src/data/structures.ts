@@ -13,7 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {MessageEmbedOptions, Snowflake} from 'discord.js';
+import * as discord from 'discord.js';
+import * as commando from 'discord.js-commando';
 // commands.json
 export interface Command {
     // The description. Defaults to 'No Description'.
@@ -22,13 +23,13 @@ export interface Command {
     // Uses a different definition of NSFW channel to Commando.
     nsfw?: boolean;
     // Commando command info override.
-    options?: object;
+    options?: commando.CommandInfo;
 
     // The text. May contain traces of format directives, prefixed with %.
     // See formatter.ts for more details.
     format?: string;
     // Embed (Note, however, that all strings here are valid targets for format directives!)
-    embed?: MessageEmbedOptions;
+    embed?: discord.MessageEmbedOptions;
     // Reactions to the command.
     commandReactions?: string[];
 }
@@ -57,7 +58,7 @@ export interface Secrets {
 }
 
 // Implements the persistence backend.
-export interface GuildData {[setting: string]: object}
+export interface GuildData {[setting: string]: unknown}
 
 export interface GuildIndex {[guildID: string]: GuildData}
 
@@ -75,7 +76,7 @@ export interface CCModDBPackage {
 
 // Discord API (we bypass discord.js for some event receipts because it's unreliable)
 export interface DiscordAPIUser {
-    id: Snowflake;
+    id: discord.Snowflake;
     username: string;
     discriminator: string;
     avatar?: string;
@@ -90,13 +91,13 @@ export interface DiscordAPIUser {
 
 export interface EmoteRegistryDumpEntry {
     ref: string;
-    id: Snowflake;
+    id: discord.Snowflake;
     name: string;
     requires_colons: boolean;
     animated: boolean;
     url: string;
     safe: boolean;
-    guild_id: Snowflake;
+    guild_id: discord.Snowflake;
     guild_name: string;
 }
 
