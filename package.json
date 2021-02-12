@@ -9,10 +9,9 @@
     "clean": "rm -r dist",
     "build": "tsc",
     "watch": "tsc --watch",
-    "start": "$NODE --inspect dist/main.js",
+    "start": "\"$NODE\" --inspect dist/main.js",
     "lint": "eslint src --ext .js,.ts --ignore-path .gitignore",
-    "test": "\"$npm_execpath\" run lint && mocha -r ts-node/register tests/**/*.spec.ts",
-    "dist": "\"$npm_execpath\" run test && \"$npm_execpath\" build"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
