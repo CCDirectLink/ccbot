@@ -228,8 +228,8 @@ export default class DynamicDataManager {
     public initialLoad: Promise<void>;
 
     public constructor() {
-        // NOTE(dmitmel): The last then with an empty closure is needed to
-        // change the return type of the promise from void[] to void.
+        // dmitmel: The last then with an empty closure is needed to change the
+        // return type of the promise from void[] to void.
         this.initialLoad = Promise.all<void>([
             this.commands.initialLoad,
             this.settings.initialLoad,

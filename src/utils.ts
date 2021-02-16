@@ -19,6 +19,9 @@ import * as https from 'https';
 import * as http from 'http';
 import * as url from 'url';
 
+// dmitmel: Needed for running tests because of Commando extensions
+import './ccbot';
+
 /// Alias that's simpler to access
 export const mdEsc = discord.Util.escapeMarkdown;
 
