@@ -23,7 +23,7 @@ import {getUserDatablock} from '../entities/user-datablock';
 export interface SayResult {
     error: boolean;
     text: string;
-    opts: discord.MessageOptions;
+    opts: discord.MessageOptions & { split: false };
 }
 
 // External interface for cases where we want a "say-like interface" (say, greeting, ...?)
@@ -36,11 +36,11 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
         return {
             error: true,
             text: `**Formatting error**: \`${ex.toString()}\` (was the code correct?)`,
-            opts: {}
+            opts: { split: false }
         };
     }
     // Message Options [
-    const opts: discord.MessageOptions = {};
+    const opts: discord.MessageOptions & { split: false } = { split: false };
     let hasMeta = false;
     if (vmContext.embed) {
         opts.embed = vmContext.embed;

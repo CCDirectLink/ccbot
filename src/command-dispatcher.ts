@@ -18,21 +18,6 @@ import * as commando from 'discord.js-commando';
 import {CCBot} from './ccbot';
 import {mentionRegex} from './utils';
 
-// Not nice.
-// dmitmel: First of all, how is it possible that "nice" is written here with no signs of Emi around?
-// Secondly, this injection (what am I saying, this isn't CrossCode...) is done because as 20kdc said
-// "the TypeScript definitions for Commando are broken". See, in the definitions the class CommandDispatcher
-// is not only declared, but also exported in the namespace, which is not the case on the JS side of
-// things, thus this statement "fixes" Commando's definitions.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(commando as any).CommandDispatcher = require('discord.js-commando/src/dispatcher');
-
-declare module 'discord.js-commando' {
-    interface CommandoMessage {
-        initCommand(command: commando.Command, argString: string, patternMatches?: string[]): this;
-    }
-}
-
 // NOTE: Here's how you make the TS compiler shut up about overriding and calling private methods:
 //
 // class A {
@@ -62,19 +47,16 @@ function initCCBotCommandoMessage(
     argString: string,
     patternMatches?: string[]
 ): commando.CommandoMessage {
-    // Why the heck doesn't the commando.CommandoMessage class inherit discord.Message in the type
-    // definitions??? Why the heck isn't the method initCommand defined???
-    const self = (message as unknown as commando.CommandoMessage).initCommand(command, argString, patternMatches);
-
-    // Might as well just fork Commando and make proper definitions myself where CommandoMessage extends Message.
-    self.message = message;
+    const self = (message as commando.CommandoMessage).initCommand(command, argString as unknown as string[] | undefined, patternMatches);
 
     /// Prepares to edit a response.
     /// This modified version cleans up after whatever was happening before.
     // eslint-disable-next-line dot-notation
     self['editResponse'] = async function editResponse(
-        reply: discord.Message | discord.Message[], b?: { options: discord.MessageOptions }
-    ): Promise<discord.Message | discord.Message[]> {
+        reply: commando.CommandoMessage | commando.CommandoMessage[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        b: any
+    ): Promise<commando.CommandoMessage | commando.CommandoMessage[]> {
         if (reply) {
             // Kill involved entities
             if (Array.isArray(reply)) {
@@ -121,7 +103,7 @@ export default class CCBotCommandDispatcher extends commando.CommandDispatcher {
         //  Get & remove the prefix
         let commandPrefix: string | undefined;
         if (message.guild) {
-            commandPrefix = message.guild.commandPrefix;
+            commandPrefix = (message.guild as commando.CommandoGuild).commandPrefix;
         } else {
             commandPrefix = this.client.commandPrefix;
         }

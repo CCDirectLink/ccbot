@@ -114,7 +114,7 @@ async function runLocalSettingTransaction(provider: commando.SettingProvider, co
             // Commando. I WASN'T WRONG!
             // TODO: Maybe the special case for the prefix can be moved into
             // the SaneSettingProvider.
-            context.commandPrefix = value as string;
+            (context as commando.CommandoGuild).commandPrefix = value as string;
         } else {
             await provider.set(context, name, value);
         }

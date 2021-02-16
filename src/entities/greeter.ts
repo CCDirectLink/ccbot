@@ -36,7 +36,7 @@ async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting
 /// Implements greetings and automatic role assignment.
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;
-    private memberUpdateListener: (a: discord.GuildMember, b: discord.GuildMember) => void;
+    private memberUpdateListener: (a: discord.GuildMember | discord.PartialGuildMember, b: discord.GuildMember) => void;
 
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'greeter-manager', data);
@@ -59,7 +59,7 @@ class GreeterEntity extends CCBotEntity {
             if (addRoles.length > 0)
                 silence(m.roles.add(addRoles));
         };
-        this.memberUpdateListener = (_: discord.GuildMember, m: discord.GuildMember): void => {
+        this.memberUpdateListener = (_: discord.GuildMember | discord.PartialGuildMember, m: discord.GuildMember): void => {
             if (this.killed)
                 return;
             const denied = getUserDeniedRoles(this.client, m);

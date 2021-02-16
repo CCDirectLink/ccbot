@@ -18,12 +18,6 @@ import * as commando from 'discord.js-commando';
 import * as structures from './data/structures';
 import {DynamicData} from './dynamic-data';
 
-declare module 'discord.js' {
-    interface Guild {
-        commandPrefix: string;
-    }
-}
-
 declare module 'discord.js-commando' {
     interface CommandGroup {
         // Why is every other private field and method defined, but this one isn't???
@@ -33,7 +27,7 @@ declare module 'discord.js-commando' {
 
 /// The setting bindings are *in the provider* for some reason.
 /// This fixes SettingProvider to handle this properly.
-class SaneSettingProvider extends commando.SettingProvider {
+abstract class SaneSettingProvider extends commando.SettingProvider {
     public client!: commando.CommandoClient;
 
     private listenerCommandPrefixChange: (guild: discord.Guild | string, value: string) => void;
@@ -62,7 +56,7 @@ class SaneSettingProvider extends commando.SettingProvider {
         // -- Prefixes
         this.client.commandPrefix = this.get('global', 'prefix', this.client.commandPrefix).toString();
         for (const guild of this.client.guilds.cache.values())
-            guild.commandPrefix = this.get(guild, 'prefix', null);
+            (guild as commando.CommandoGuild).commandPrefix = this.get(guild, 'prefix', null);
         // -- Groups
         for (const group of this.client.registry.groups.values()) {
             const settingName = `grp-${group.id}`;

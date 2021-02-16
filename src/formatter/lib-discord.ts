@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
+import * as commando from 'discord.js-commando';
 import {VM, Value, asString, falseValue, wrapFunc} from './core';
 import {TextBasedChannel, emoteSafe, findMemberByRef, isChannelTextBased} from '../utils';
 import {CCBot} from '../ccbot';
@@ -142,7 +143,7 @@ export function installDiscord(vm: VM, context: VMContext): void {
         'args': wrapFunc('args', 0, async (): Promise<Value> => context.args),
         'prefix': wrapFunc('prefix', 0, async (): Promise<Value> => {
             const guild = guildOfChannel(context.channel);
-            return (guild && guild.commandPrefix) || context.client.commandPrefix || context.client.user!.toString();
+            return (guild && (guild as commando.CommandoGuild).commandPrefix) || context.client.commandPrefix || context.client.user!.toString();
         }),
         'cause': wrapFunc('cause', 0, async (): Promise<Value> => context.cause.id),
         'emote': wrapFunc('emote', 1, async (args: Value[]): Promise<Value> => {

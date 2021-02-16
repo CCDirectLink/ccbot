@@ -97,7 +97,7 @@ export default class JSONCommand extends CCBotCommand {
         }
 
         // Message Options
-        const opts: discord.MessageOptions = {};
+        const opts: discord.MessageOptions & { split: false } = { split: false };
         let hasMeta = false;
         {
             // Embed
@@ -110,9 +110,12 @@ export default class JSONCommand extends CCBotCommand {
         // Side-effects
         {
             // Reactions to original command message
-            if (this.command.commandReactions)
-                for (const react of this.command.commandReactions)
-                    await message.react(await userAwareGetEmote(this.client, message.author, message.guild || null, react));
+            if (this.command.commandReactions) {
+                for (const react of this.command.commandReactions) {
+                    const emote = await userAwareGetEmote(this.client, message.author, message.guild || null, react);
+                    await message.react(emote instanceof discord.BaseGuildEmoji ? emote : emote.name);
+                }
+            }
         }
 
         // Actually send resulting message if necessary

@@ -18,6 +18,24 @@ import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
+import {DiscordAPIUser} from './data/structures';
+import {GuildTextBasedChannel, TextBasedChannel} from './utils';
+
+declare module 'discord.js' {
+    interface ClientEvents {
+        raw: [RawEvent];
+        ccbotMessageDeletes: [TextBasedChannel, discord.Snowflake[]];
+        ccbotMessageUpdateUnchecked: [TextBasedChannel, discord.Snowflake];
+        ccbotBanAddRemove: [discord.Guild, DiscordAPIUser, boolean]
+    }
+
+}
+
+declare module 'discord.js-commando' {
+    interface CommandoMessage {
+        client: commando.Client;
+    }
+}
 
 // TODO: is this worth defining properly?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,11 +137,11 @@ export abstract class CCBot extends commando.CommandoClient {
             if (!channel)
                 return;
             if (event.t == 'MESSAGE_UPDATE') {
-                this.emit('ccbotMessageUpdateUnchecked', channel, event.d.id);
+                this.emit('ccbotMessageUpdateUnchecked', channel as TextBasedChannel, event.d.id);
             } else if (event.t == 'MESSAGE_DELETE') {
-                this.emit('ccbotMessageDeletes', channel, [event.d.id]);
+                this.emit('ccbotMessageDeletes', channel as TextBasedChannel, [event.d.id]);
             } else if (event.t == 'MESSAGE_DELETE_BULK') {
-                this.emit('ccbotMessageDeletes', channel, event.d.ids);
+                this.emit('ccbotMessageDeletes', channel as GuildTextBasedChannel, event.d.ids);
             }
         } else if ((event.t == 'GUILD_BAN_ADD') || (event.t == 'GUILD_BAN_REMOVE')) {
             const guild = this.guilds.cache.get(event.d.guild_id);
@@ -137,7 +155,7 @@ export abstract class CCBot extends commando.CommandoClient {
 
 /// *All commands in the project should be based off of this class, directly or indirectly.*
 /// A version of commando.Command with CCBot taking the place of the client field.
-export class CCBotCommand extends commando.Command {
+export abstract class CCBotCommand extends commando.Command {
     public client!: CCBot;
     public constructor(client: CCBot, options: commando.CommandInfo) {
         super(client, options);

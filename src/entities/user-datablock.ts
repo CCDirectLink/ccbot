@@ -84,7 +84,7 @@ export async function getUserDatablock(c: CCBot, user: discord.User | string): P
     }
 }
 
-export async function userAwareGetEmote(c: CCBot, user: discord.User | string | null, guild: discord.Guild | null, name: string): Promise<discord.Emoji> {
+export async function userAwareGetEmote(c: CCBot, user: discord.User | string | null, guild: discord.Guild | null, name: string): Promise<discord.GuildEmoji | discord.Emoji> {
     if (user) {
         const datablock = await getUserDatablock(c, user);
         const res = datablock.get()[`emote-${name}`];
