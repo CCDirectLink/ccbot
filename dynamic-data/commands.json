@@ -261,7 +261,7 @@
     "formatter": {
         "help-syntax": {
             "description": "Information about the formatter system",
-            "format": "**Format Syntax**\n\nThe formatter has a few rules.\n`%/%/` outside of any invocation are repeated verbatim and will ignore `%` and `%/` until the next space. This is for URL compatibility.\n`%%` will cause the next character to ignore these rules, except `(` outside of an invocation. This rule overrides any later rule, and can override the previous rule if the start gets escaped.\n`%%(` will begin an invocation, space separates arguments within an invocation, `)` ends it, and invocations can nest with further `()` - without the `%%`.\n`/ABC/` is equivalent to `%%(emote ABC)` outside of lists and anything between `%/%/` and a space, for the sake of URLs.\nPrefixing a value with `'` wraps it as so: `(%%' value)`\nIt is important to note that it *does* work to put invocations in a list, as so: `%%((thing1) (thing2))`; the result of the last invocation will be returned.\nThis can be used to silence invocations.\nFinally, double-quotes (\") around some text escapes everything except other double-quotes.\n\nFor further details, please see the other commands in the -formatter group."
+            "format": "**Format Syntax**\n\nThe formatter has a few rules.\n`%/%/` outside of any invocation are repeated verbatim and will ignore `%%` and `%/` until the next space. This is for URL compatibility.\n`%%` will cause the next character to ignore these rules, except `(` outside of an invocation. This rule overrides any later rule, and can override the previous rule if the start gets escaped.\n`%%(` will begin an invocation, space separates arguments within an invocation, `)` ends it, and invocations can nest with further `()` - without the `%%`.\n`/ABC/` is equivalent to `%%(emote ABC)` outside of lists and anything between `%/%/` and a space, for the sake of URLs.\nPrefixing a value with `'` wraps it as so: `(%%' value)`\nIt is important to note that it *does* work to put invocations in a list, as so: `%%((thing1) (thing2))`; the result of the last invocation will be returned.\nThis can be used to silence invocations.\nFinally, double-quotes (\") around some text escapes everything except other double-quotes.\n\nFor further details, please see the other commands in the -formatter group."
         },
         "help-execution": {
             "description": "About invocation execution and recursion",
@@ -298,7 +298,7 @@
         },
         "help-maths": {
             "description": "The maths invocations (+, -, \\*)",
-            "format": "**The maths invocations**\n\n+ and \\* take an arbitrary amount of numeric parameters, and add/multiply them together respectively.\nGiven no input, + will return 0 and \\* will return 1.\n- meanwhile requires 2 numeric parameters, subtracting the second from the first and returning the result."
+            "format": "**The maths invocations**\n\n+ and \\* take an arbitrary amount of numeric parameters, and add%/multiply them together respectively.\nGiven no input, + will return 0 and \\* will return 1.\n- meanwhile requires 2 numeric parameters, subtracting the second from the first and returning the result."
         },
         "help-random-element": {
             "description": "The 'random-element' invocation",
