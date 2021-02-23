@@ -265,8 +265,6 @@ export class ShowUserSettingsCommand extends CCBotCommand {
 
     public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
         const res = (await getUserDatablock(this.client, message.author)).content;
-        return message.embed(new discord.MessageEmbed({
-            description: `\`\`\`json\n${res}\n\`\`\``
-        }));
+        return message.say(`\`\`\`json\n${discord.Util.cleanCodeBlockContent(res)}\n\`\`\``);
     }
 }

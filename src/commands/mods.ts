@@ -56,13 +56,11 @@ export class ModsToolsGetCommand extends CCBotCommand {
                 let possibleError = '';
                 if (modDB.lastError)
                     possibleError += `\n${modDB.lastError.name}: ${modDB.lastError.message}\n${modDB.lastError.stack || 'no stack'}`;
-                return await message.embed(new discord.MessageEmbed({
-                    description: `Mod information isn't available (has the bot just started up? is the modlist updater dead?).\nPlease see the CCDirectLink website for more information: https://c2dl.info/cc/mods${  possibleError}`
-                }));
+                return message.say(
+                    `Mod information isn't available (has the bot just started up? is the modlist updater dead?).\nPlease see the CCDirectLink website for more information: https://c2dl.info/cc/mods${possibleError}`
+                );
             }
         }
-        return await message.embed(new discord.MessageEmbed({
-            description: `ooo! you haven't added the initial entities! (no ${entityName})`
-        }));
+        return message.say(`ooo! you haven't added the initial entities! (no ${entityName})`);
     }
 }

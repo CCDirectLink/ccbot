@@ -31,7 +31,7 @@ export default class HelpCommand extends CCBotCommand {
 
     public async run(message: commando.CommandoMessage): Promise<discord.Message|discord.Message[]> {
         const lines = [
-            `__ ** ${this.group.name} Commands ** __`,
+            `__**${this.group.name} Commands**__`,
             ''
         ];
 
@@ -63,7 +63,7 @@ export default class HelpCommand extends CCBotCommand {
         let index = 0;
         while (index < text.length) {
             let didSomethingThisRound = false;
-            while (text[index].length > 2048) {
+            while (text[index].length > 2000) {
                 const target = text[index];
                 let breakp = target.lastIndexOf('\n');
                 if (breakp == -1)
@@ -81,14 +81,15 @@ export default class HelpCommand extends CCBotCommand {
         if (message.channel instanceof discord.DMChannel) {
             const array: discord.Message[] = [];
             for (const str of text)
-                array.push(await message.say('', {embed: {description: str}}) as discord.Message);
+                array.push(await message.say(str));
             return array;
         } else {
             try {
                 for (const str of text)
-                    await message.author.send('', {embed: {description: str}});
+                    await message.author.send(str);
                 return await message.say('The help page has been sent to your DMs.');
             } catch (_e) {
+                console.log(_e);
                 return await message.say('Tried to send help information to DMs, but... are your DMs blocked?');
             }
         }
