@@ -149,6 +149,22 @@ function isAuthorized(message: commando.CommandoMessage, operation: SettingsOper
         return false;
     }
 }
+
+function isAuthorizedToChange(message: commando.CommandoMessage, name: string): boolean {
+    if (message.client.isOwner(message.author))
+        return true;
+    // Owner-only settings
+    if (name === 'nsfw')
+        return false;
+    // ...
+
+    if (localAdminCheck(message))
+        return true;
+    // Admin-only settings
+    // ...
+
+    return true;
+}
 // </editor-fold>
 
 /// A command to configure bot systems.
@@ -216,6 +232,9 @@ export class SettingsCommand extends CCBotCommand {
             return message.say(`Done:\n\`\`\`json\n${JSON.stringify(value)}\n\`\`\``);
         } else {
             // Writing
+            if (!isAuthorizedToChange(message, args.key))
+                return message.say('You aren\'t authorized to change that.');
+
             if (this.operation == SettingsOperation.Set) {
                 try {
                     value = JSON.parse(args.value);
