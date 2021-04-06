@@ -14,15 +14,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import {CCBot, CCBotEntity} from '../ccbot';
-import {EntityData} from '../entity-registry';
 import {silence} from '../utils';
+import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 /// Updates a visible date every 10 seconds.
 /// Additional fields: None.
-class DateActivityEntity extends CCBotEntity {
-    public constructor(c: CCBot, data: EntityData) {
-        super(c, 'activity-manager', data);
-        this.updateDate();
+class DateActivityEntity extends WatcherEntity {
+    public constructor(c: CCBot, data: WatcherEntityData) {
+        super(c, 'activity-manager', {
+            ...data,
+            refreshMs: 10000
+        });
     }
 
     public onKill(transferOwnership: boolean): void {
@@ -32,22 +34,17 @@ class DateActivityEntity extends CCBotEntity {
             }));
     }
 
-    private updateDate(): void {
-        if (this.killed)
-            return;
-        silence(this.client.user!.setPresence({
+    public async watcherTick(): Promise<void> {
+        this.client.user!.setPresence({
             status: 'online',
             activity: {
                 type: 'WATCHING',
                 name: new Date().toString()
             }
-        }));
-        setTimeout((): void => {
-            this.updateDate();
-        }, 10000);
+        });
     }
 }
 
-export default async function load(c: CCBot, data: EntityData): Promise<CCBotEntity> {
+export default async function load(c: CCBot, data: WatcherEntityData): Promise<CCBotEntity> {
     return new DateActivityEntity(c, data);
 }

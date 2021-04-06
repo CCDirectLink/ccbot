@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import {CCBot, CCBotEntity} from '../ccbot';
-import {EntityData} from '../entity-registry';
 import {randomArrayElement, silence} from '../utils';
+import {WatcherEntity, WatcherEntityData} from '../watchers';
 
 type ActivityType = ('PLAYING' | 'STREAMING' | 'LISTENING' | 'WATCHING');
 type ActivityStatus = ('online' | 'idle' | 'dnd' | 'invisible');
@@ -26,20 +26,16 @@ export interface Activity {
     name: string;
 }
 
-export interface RandomActivityData extends EntityData {
+export interface RandomActivityData extends WatcherEntityData {
     activities: Activity[];
-    intervalMs: number;
 }
 
-class RandomActivityEntity extends CCBotEntity {
+class RandomActivityEntity extends WatcherEntity {
     public readonly activities: Activity[];
-    public readonly interMessageTime: number;
 
     public constructor(c: CCBot, data: RandomActivityData) {
         super(c, 'activity-manager', data);
         this.activities = data.activities;
-        this.interMessageTime = data.intervalMs;
-        this.updateText();
     }
 
     public onKill(transferOwnership: boolean): void {
@@ -49,9 +45,7 @@ class RandomActivityEntity extends CCBotEntity {
             }));
     }
 
-    public updateText(): void {
-        if (this.killed)
-            return;
+    public async watcherTick(): Promise<void> {
         const element = randomArrayElement(this.activities);
         this.client.user!.setPresence({
             status: element.status || 'online',
@@ -60,15 +54,11 @@ class RandomActivityEntity extends CCBotEntity {
                 name: element.name
             }
         });
-        setTimeout((): void => {
-            this.updateText();
-        }, this.interMessageTime);
     }
 
     public toSaveData(): RandomActivityData {
         return Object.assign(super.toSaveData(), {
-            activities: this.activities,
-            intervalMs: this.interMessageTime
+            activities: this.activities
         });
     }
 }

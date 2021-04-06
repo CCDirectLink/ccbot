@@ -14,22 +14,24 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import {CCBot, CCBotEntity} from '../ccbot';
-import {EntityData} from '../entity-registry';
 import {silence} from '../utils';
+import {WatcherEntity, WatcherEntityData} from '../watchers';
 
-export interface CountdownActivityData extends EntityData {
+export interface CountdownActivityData extends WatcherEntityData {
     // Can be obtained with the Date.UTC(year, month, date, hours, minutes, seconds, ms) function.
     // Note that the month paraameter are zero-indexed.
     countdownTimestampMs: number;
 }
 
-class CountdownActivityEntity extends CCBotEntity {
+class CountdownActivityEntity extends WatcherEntity {
     public readonly countdownTimestampMs: number;
 
     public constructor(c: CCBot, data: CountdownActivityData) {
-        super(c, 'activity-manager', data);
+        super(c, 'activity-manager', {
+            ...data,
+            refreshMs: 10000
+        });
         this.countdownTimestampMs = data.countdownTimestampMs;
-        this.updateCountdown();
     }
 
     public onKill(transferOwnership: boolean): void {
@@ -39,19 +41,14 @@ class CountdownActivityEntity extends CCBotEntity {
             }));
     }
 
-    private updateCountdown(): void {
-        if (this.killed)
-            return;
-        silence(this.client.user!.setPresence({
+    public async watcherTick(): Promise<void> {
+        this.client.user!.setPresence({
             status: 'online',
             activity: {
                 type: 'WATCHING',
                 name: this.getCountdownText()
             }
-        }));
-        setTimeout((): void => {
-            this.updateCountdown();
-        }, 10000);
+        });
     }
 
     private getCountdownText(): string {
