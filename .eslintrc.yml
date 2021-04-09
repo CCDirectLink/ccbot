@@ -1,6 +1,4 @@
 extends: eslint-config-dmitmel/presets/node
-env:
-    browser: true
 
 settings:
     node:
