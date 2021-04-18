@@ -224,7 +224,7 @@
             "description": "Information on how to install mods.",
             "embed": {
                 "title": "Installation Guide",
-                "description": "CCLoader's guide to modloader installation: https://github.com/CCDirectLink/CCLoader/wiki/Installing-CCLoader\nCCLoader's guide to mod installation: https://github.com/CCDirectLink/CCLoader/wiki/Install-mods\n20kdc's guide to modloader installation: https://20kdc.duckdns.org/ccmodloader/"
+                "description": "CCLoader's guide to modloader installation: https://github.com/CCDirectLink/CCLoader/wiki/Installing-CCLoader\nCCLoader's guide to mod installation: https://github.com/CCDirectLink/CCLoader/wiki/Install-mods"
             }
         }
     },
