@@ -16,7 +16,7 @@
 import * as discord from 'discord.js';
 import * as commando from 'discord.js-commando';
 import {CCBot, CCBotCommand} from '../ccbot';
-import {TextBasedChannel, emoteSafe, localAdminCheck, mdEsc, naturalComparison} from '../utils';
+import {TextBasedChannel, emoteSafe, isGuildChannelTextBased, localAdminCheck, mdEsc, naturalComparison} from '../utils';
 import {PageSwitcherOutputElement, outputElements} from '../entities/page-switcher';
 import {userAwareGetEmote} from '../entities/user-datablock';
 
@@ -150,7 +150,7 @@ export class ReactCommand extends CCBotCommand {
             args: [
                 {
                     key: 'emotes',
-                    prompt: 'Emote names. Can start with "chan=<channel id> id=<message id>" to target a specific message. In this case, "chan=<channel id>" can be omitted if the message is in the current channel.',
+                    prompt: 'Emote names. Can start with "chan=<channel id> id=<message id>" to target a specific message. In this case, "chan=<channel id>" can be omitted if the message is in the current channel. Can be used by replying to a different message.',
                     type: 'string',
                     infinite: true
                 }
@@ -164,26 +164,44 @@ export class ReactCommand extends CCBotCommand {
             return await message.say('Why?');
         // NOTE: To prevent NSFW emote leakage, that check is done based on the target channel.
         // However, the *emote lookup* is based on the source channel (otherwise things don't make sense)
-        let targetChannel: TextBasedChannel = message.channel;
-        let targetMessage: discord.Message = (await message.channel.messages.fetch({ before: message.id, limit: 1 })).first() || message;
+        let targetChannel: TextBasedChannel;
+        let targetMessage: discord.Message;
         let start = 0;
-        if (args.emotes[start].startsWith('chan=')) {
-            let place = args.emotes[start].substring(5);
-            if (place.startsWith('<#') && place.endsWith('>'))
-                place = place.substring(2, place.length - 1);
-            const part = this.client.channels.cache.get(place);
-            if ((!part) || !(part instanceof discord.TextChannel))
-                return await message.say('The channel doesn\'t seem to exist or isn\'t valid for reaction.');
-            targetChannel = part;
-            start++;
-        }
-        if (args.emotes[start].startsWith('id=')) {
-            try {
-                targetMessage = await targetChannel.messages.fetch(args.emotes[start].substring(3));
-            } catch (_e) {
-                return await message.say('The message doesn\'t seem to exist.');
+        if (
+            (message.type === 'DEFAULT' || message.type as string === 'REPLY') && message.reference != null &&
+            message.reference.guildID === message.guild.id && message.reference.messageID != null
+        ) {
+            let referencedChannel = message.guild.channels.cache.get(message.reference.channelID);
+            if (referencedChannel == null || !isGuildChannelTextBased(referencedChannel)) {
+                return await message.say('That\'s surprising. How did you manage to reply to a message from an invalid channel?');
             }
-            start++;
+            targetChannel = referencedChannel;
+            try {
+                targetMessage = await targetChannel.messages.fetch(message.reference.messageID);
+            } catch (_e) {
+                return await message.say('The message you replied to most likely was deleted.');
+            }
+        } else {
+            targetChannel = message.channel;
+            targetMessage = (await targetChannel.messages.fetch({ before: message.id, limit: 1 })).first() || message;
+            if (args.emotes[start].startsWith('chan=')) {
+                let place = args.emotes[start].substring(5);
+                if (place.startsWith('<#') && place.endsWith('>'))
+                    place = place.substring(2, place.length - 1);
+                const part = this.client.channels.cache.get(place);
+                if ((!part) || !(part instanceof discord.TextChannel))
+                    return await message.say('The channel doesn\'t seem to exist or isn\'t valid for reaction.');
+                targetChannel = part;
+                start++;
+            }
+            if (args.emotes[start].startsWith('id=')) {
+                try {
+                    targetMessage = await targetChannel.messages.fetch(args.emotes[start].substring(3));
+                } catch (_e) {
+                    return await message.say('The message doesn\'t seem to exist.');
+                }
+                start++;
+            }
         }
         if (targetMessage.channel !== targetChannel)
             return await message.say('Lea bye.');
