@@ -79,6 +79,11 @@ export async function outputElements(client: CCBot, msg: commando.CommandoMessag
     const textFooter = options.textFooter || '';
     pageLength -= textFooter.length;
 
+    // Don't send empty embeds.
+    if (elements.length === 0) {
+        return msg.say('Nothing found!');
+    }
+
     // The algorithm begins...
     const pages: Array<discord.MessageEmbedOptions & {description: string}> = [];
     let elementsOnPage = 0;

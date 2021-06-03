@@ -78,7 +78,10 @@ export class ListEmotesCommand extends CCBotCommand {
             });
         }
 
-        return outputElements(this.client, message, elements, 20, 2000);
+        if (elements.length > 0)
+            return outputElements(this.client, message, elements, 20, 2000);
+        else
+            return await message.say('No emotes found!');
     }
 }
 
