@@ -68,6 +68,7 @@ export abstract class CCBot extends commando.CommandoClient {
                 'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS'
             ]
         };
+        co.messageEditHistoryMaxSize = 0;
         super(co);
         this.emoteRegistry = new CCBotEmoteRegistry(this);
         this.dynamicData = new DynamicDataManager();
