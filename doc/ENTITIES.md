@@ -119,7 +119,7 @@ There is a risk that entities that do not have some kill condition could be
 
 `old-behaviors-manager`: Meant to be an instance of the `old-behaviors` entity.
 
-`greeter-manager`: An instance of the `greeter` entity. Greets people & assigns them roles.
+`greeter-manager`: An instance of the `greeter` entity. Greets people, assigns them roles and says farewells.
 
 `auditor-manager`: An instance of the `auditor` entity. Responsible for message/action logging channels.
 

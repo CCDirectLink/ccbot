@@ -41,6 +41,8 @@ They can be controlled globally only by bot owners.
 
 `dm-greeting`: Specifies the greeting sent to DMs.
 
+`farewell`: Specifies the message to post into `channel-greet` when a member leaves (very logical and totally not ad-hoc, I know).
+
 ## Both (local, global)
 
 `prefix`: Part of Commando

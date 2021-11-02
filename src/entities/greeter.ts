@@ -20,11 +20,11 @@ import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
 import {convertRoleGroup, getUserDeniedRoles} from '../role-utils';
 import {say} from '../commands/say';
 
-async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting: string, channel: TextBasedChannel): Promise<void> {
+async function sendGreeting(client: CCBot, member: discord.User, greeting: string, channel: TextBasedChannel): Promise<void> {
     const result = await say(greeting, {
         client,
         channel,
-        cause: member.user,
+        cause: member,
         writer: null,
         protectedContent: false,
         args: []
@@ -33,10 +33,11 @@ async function sendGreeting(client: CCBot, member: discord.GuildMember, greeting
         await channel.send(result.text, result.opts);
 }
 
-/// Implements greetings and automatic role assignment.
+/// Implements greetings, farewells and automatic role assignment.
 class GreeterEntity extends CCBotEntity {
     private memberListener: (m: discord.GuildMember) => void;
     private memberUpdateListener: (a: discord.GuildMember | discord.PartialGuildMember, b: discord.GuildMember) => void;
+    private memberRemoveListener: (m: discord.GuildMember | discord.PartialGuildMember) => void;
 
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'greeter-manager', data);
@@ -47,11 +48,11 @@ class GreeterEntity extends CCBotEntity {
             if (channel) {
                 const greeting = c.provider.get(m.guild, 'greeting');
                 if (greeting)
-                    silence(sendGreeting(c, m, greeting, channel));
+                    silence(sendGreeting(c, m.user, greeting, channel));
             }
             const dmGreeting = c.provider.get(m.guild, 'dm-greeting');
             if (dmGreeting)
-                silence(m.createDM().then(dmChannel => sendGreeting(c, m, dmGreeting, dmChannel)));
+                silence(m.createDM().then(dmChannel => sendGreeting(c, m.user, dmGreeting, dmChannel)));
             const denied = getUserDeniedRoles(this.client, m);
             const allAutoRoles: string[] = convertRoleGroup(c, m.guild, 'auto-role').concat(convertRoleGroup(c, m.guild, `auto-user-${m.id}`));
             // Check for explicitly denied roles here to avoid infighting
@@ -67,14 +68,28 @@ class GreeterEntity extends CCBotEntity {
             if (rmRoles.length > 0)
                 silence(m.roles.remove(rmRoles));
         };
+        this.memberRemoveListener = async (m: discord.GuildMember | discord.PartialGuildMember): Promise<void> => {
+            if (this.killed)
+                return;
+            const channel = getGuildTextChannel(c, m.guild, 'greet');
+            if (channel) {
+                const farewell = c.provider.get(m.guild, 'farewell');
+                if (farewell) {
+                    const user = m.user ?? m.client.users.cache.get(m.id) ?? await m.client.users.fetch(m.id);
+                    silence(sendGreeting(c, user, farewell, channel));
+                }
+            }
+        };
         this.client.on('guildMemberAdd', this.memberListener);
         this.client.on('guildMemberUpdate', this.memberUpdateListener);
+        this.client.on('guildMemberRemove', this.memberRemoveListener);
     }
 
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('guildMemberAdd', this.memberListener);
         this.client.removeListener('guildMemberUpdate', this.memberUpdateListener);
+        this.client.removeListener('guildMemberRemove', this.memberRemoveListener);
     }
 }
 
