@@ -18,15 +18,16 @@ import * as commando from 'discord.js-commando';
 import CCBotEmoteRegistry from './emote-registry';
 import DynamicDataManager from './dynamic-data';
 import {Entity, EntityData, EntityRegistry} from './entity-registry';
-import {DiscordAPIUser} from './data/structures';
 import {GuildTextBasedChannel, TextBasedChannel} from './utils';
+import * as discordAPI from 'discord-api-types/v8';
 
 declare module 'discord.js' {
+    // THE FOLLOWING EVENTS ARE EXTENSIONS:
     interface ClientEvents {
-        raw: [RawEvent];
+        raw: [discordAPI.GatewayDispatchPayload];
         ccbotMessageDeletes: [TextBasedChannel, discord.Snowflake[]];
         ccbotMessageUpdateUnchecked: [TextBasedChannel, discord.Snowflake];
-        ccbotBanAddRemove: [discord.Guild, DiscordAPIUser, boolean]
+        ccbotBanAddRemove: [discord.Guild, discordAPI.APIUser, boolean]
     }
 
 }
@@ -37,10 +38,6 @@ declare module 'discord.js-commando' {
     }
 }
 
-// TODO: is this worth defining properly?
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface RawEvent { t: string; d: any }
-
 /// The modified CommandoClient used by this bot.
 /// This contains all of the fields and methods for the extension,
 /// but not the full constructor, and must not be constructed.
@@ -49,11 +46,6 @@ export abstract class CCBot extends commando.CommandoClient {
     public dynamicData: DynamicDataManager;
     public entities: EntityRegistry<CCBot, CCBotEntity>;
     public emoteRegistry: CCBotEmoteRegistry;
-
-    // THE FOLLOWING EVENTS ARE EXTENSIONS:
-    // 'ccbotMessageDeletes', TextBasedChannel, string[]
-    // 'ccbotMessageUpdateUnchecked', TextBasedChannel, string
-    // 'ccbotBanAddRemove', discord.Guild, <structures.DiscordUserObject>, boolean
 
     protected constructor(co: commando.CommandoClientOptions) {
         // TODO: get rid of this by always fetching guild members explicitly when needed???
@@ -78,7 +70,7 @@ export abstract class CCBot extends commando.CommandoClient {
             this.entities.start();
             this.emoteRegistry.updateGlobalEmoteRegistry();
         });
-        this.on('raw', (event: RawEvent): void => {
+        this.on('raw', (event: discordAPI.GatewayDispatchPayload): void => {
             this.handleRawEvent(event);
         });
         const callbackUpdateGER = (): void => {
@@ -109,7 +101,7 @@ export abstract class CCBot extends commando.CommandoClient {
     /// You really, really shouldn't have to add something here.
     /// As far as I know the only kinds of events that need this kind of thing are reaction events,
     /// and I have already solved those... well enough.
-    private handleRawEvent(event: RawEvent): void {
+    private handleRawEvent(event: discordAPI.GatewayDispatchPayload): void {
         if (event.t == 'MESSAGE_REACTION_ADD' || event.t == 'MESSAGE_REACTION_REMOVE') {
             // Ew ew ew WHY IS THIS NECESSARY TO MAKE REACTIONS WORK
             // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
@@ -120,7 +112,7 @@ export abstract class CCBot extends commando.CommandoClient {
             const entity = this.entities.getEntity(`message-${event.d.message_id}`);
             if (!entity)
                 return;
-            const emojiDetails: {id?: string; name: string} = event.d.emoji;
+            const emojiDetails: discordAPI.APIEmoji = event.d.emoji;
             let emoji: discord.Emoji;
             if (emojiDetails.id) {
                 const emojiX = this.emojis.cache.get(emojiDetails.id);
@@ -129,7 +121,7 @@ export abstract class CCBot extends commando.CommandoClient {
                 emoji = emojiX;
             } else {
                 // TODO: this is a unicode emoji, simply use emojiDetails.name here
-                emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name);
+                emoji = this.emoteRegistry.emojiResolverNina(emojiDetails.name!);
             }
             entity.emoteReactionTouched(emoji, user, event.t == 'MESSAGE_REACTION_ADD');
         } else if ((event.t == 'MESSAGE_UPDATE') || (event.t == 'MESSAGE_DELETE') || (event.t == 'MESSAGE_DELETE_BULK')) {

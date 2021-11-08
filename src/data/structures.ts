@@ -74,21 +74,6 @@ export interface CCModDBPackage {
     page: CCModDBPackagePage[];
 }
 
-// Discord API (we bypass discord.js for some event receipts because it's unreliable)
-export interface DiscordAPIUser {
-    id: discord.Snowflake;
-    username: string;
-    discriminator: string;
-    avatar?: string;
-    bot?: boolean;
-    mfa_enabled?: boolean;
-    locale?: string;
-    verified?: boolean;
-    email?: string;
-    flags?: number;
-    premium_type?: number;
-}
-
 export interface EmoteRegistryDumpEntry {
     ref: string;
     id: discord.Snowflake;

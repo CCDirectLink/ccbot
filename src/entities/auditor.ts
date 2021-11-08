@@ -14,26 +14,25 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import * as discord from 'discord.js';
+import * as discordAPI from 'discord-api-types/v8';
 import {CCBot, CCBotEntity} from '../ccbot';
 import {EntityData} from '../entity-registry';
 import {TextBasedChannel, getGuildTextChannel, silence} from '../utils';
-import {DiscordAPIUser} from '../data/structures';
 
 /// Implements greetings and automatic role assignment.
 class AuditorEntity extends CCBotEntity {
-    private banListener: (g: discord.Guild, u: DiscordAPIUser, arm: boolean) => void;
+    private banListener: (g: discord.Guild, u: discordAPI.APIUser, arm: boolean) => void;
     private updateListener: (c: TextBasedChannel, id: string) => void;
     private deletesListener: (c: TextBasedChannel, id: string[]) => void;
 
     public constructor(c: CCBot, data: EntityData) {
         super(c, 'auditor-manager', data);
-        this.banListener = (g: discord.Guild, u: DiscordAPIUser, added: boolean): void => {
-            const channel = getGuildTextChannel(c, g, 'editlog');
+
+        this.banListener = (g: discord.Guild, userRaw: discordAPI.APIUser, added: boolean): void => {
+            const channel = getGuildTextChannel(c, g, 'ban-log');
             if (!channel)
                 return;
-            let calculatedIcon = 'https://discordapp.com/assets/6e054ab8981d3f1ce8debfd1235d3ea3.svg';
-            if (u.avatar)
-                calculatedIcon = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png`;
+            let u = new discord.User(g.client, userRaw);
             // Ok, well now we have all the details to make a post. Let's see if we can get additional info.
             silence((async (): Promise<void> => {
                 let reason = '';
@@ -53,22 +52,25 @@ class AuditorEntity extends CCBotEntity {
                         footer: {
                             text: `${u.username}#${u.discriminator} (${u.id})`,
                             // As a string to get ESLint to ignore it
-                            'icon_url': calculatedIcon
+                            'icon_url': u.displayAvatarURL()
                         }
                     }
                 });
             })());
         };
+
         this.updateListener = (frm: TextBasedChannel, id: string): void => {
             this.updateAndDeletionMachine(frm, [id], false);
         };
         this.deletesListener = (frm: TextBasedChannel, id: string[]): void => {
             this.updateAndDeletionMachine(frm, id, true);
         };
+
         this.client.on('ccbotBanAddRemove', this.banListener);
         this.client.on('ccbotMessageUpdateUnchecked', this.updateListener);
         this.client.on('ccbotMessageDeletes', this.deletesListener);
     }
+
     private updateAndDeletionMachine(frm: TextBasedChannel, id: string[], deletion: boolean): void {
         // IT IS VITAL THAT THIS ROUTINE IS NOT ASYNC, OR WE WILL LOSE ACCESS TO ANY CACHED MESSAGE COPIES.
         if (!(frm instanceof discord.GuildChannel))
@@ -105,7 +107,7 @@ class AuditorEntity extends CCBotEntity {
                 // If it's our own message, don't listen, since embeds create edits.
                 if (message.author.id == this.client.user!.id)
                     return;
-                resultingEmbed.description += `Information on the message before changes:\n${this.summarize(message)}`;
+                resultingEmbed.description += `Information on the message before changes:\n${this.summarizeMessage(message)}`;
             } else {
                 resultingEmbed.description += 'Further information about the old version of the message is unavailable.';
                 weNeedToCheckMessageZero = true;
@@ -128,14 +130,15 @@ class AuditorEntity extends CCBotEntity {
             if (weNeedToCheckMessageZero) {
                 try {
                     const result = await frm.messages.fetch(id[0]);
-                    await targetChannel.send(`Current (after edits) information on ${id[0]}:${this.summarize(result)}`);
+                    await targetChannel.send(`Current (after edits) information on ${id[0]}:${this.summarizeMessage(result)}`);
                 } catch (_e) {
                     //await targetChannel.send('Could not get after-edits information on the message.\n' + e.toString());
                 }
             }
         })());
     }
-    private summarize(message: discord.Message): string {
+
+    private summarizeMessage(message: discord.Message): string {
         let summary = `\nAuthor: ${message.author.username}#${message.author.discriminator} (${message.author.id})`;
         summary += `\nContent:\n\`\`\`\n${discord.Util.cleanCodeBlockContent(message.content)}\n\`\`\``;
         for (const attachment of message.attachments.values())
@@ -147,6 +150,7 @@ class AuditorEntity extends CCBotEntity {
             summary += `\nFor current details, see https://discordapp.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
         return summary;
     }
+
     public onKill(transferOwnership: boolean): void {
         super.onKill(transferOwnership);
         this.client.removeListener('ccbotBanAddRemove', this.banListener);
