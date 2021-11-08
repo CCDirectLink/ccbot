@@ -55,7 +55,7 @@ export class ModsToolsGetCommand extends CCBotCommand {
             } else {
                 let possibleError = '';
                 if (modDB.lastError)
-                    possibleError += `\n${modDB.lastError.name}: ${modDB.lastError.message}\n${modDB.lastError.stack || 'no stack'}`;
+                    possibleError += `\n${modDB.lastErrorString()}`;
                 return message.say(
                     `Mod information isn't available (has the bot just started up? is the modlist updater dead?).\nPlease see the CCDirectLink website for more information: https://c2dl.info/cc/mods${possibleError}`
                 );

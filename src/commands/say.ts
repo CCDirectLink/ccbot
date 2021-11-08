@@ -35,7 +35,7 @@ export async function say(code: string, vmContext: VMContext): Promise<SayResult
     } catch (ex) {
         return {
             error: true,
-            text: `**Formatting error**: \`${ex.toString()}\` (was the code correct?)`,
+            text: `**Formatting error**: \`${ex}\` (was the code correct?)`,
             opts: { split: false }
         };
     }

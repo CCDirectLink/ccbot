@@ -118,7 +118,7 @@ class AuditorEntity extends CCBotEntity {
                 await targetChannel.send('', {embed: resultingEmbed});
             } catch (e) {
                 try {
-                    await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\n${e.toString()}`);
+                    await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\n${e}`);
                 } catch (_e2) {
                     try {
                         await targetChannel.send(`Unable to state details on ${resultingEmbed.title}\nUnable to state why either`);

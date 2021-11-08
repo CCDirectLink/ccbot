@@ -27,7 +27,7 @@ export interface WatcherEntityData extends EntityData {
 /// A WatcherEntity periodically updates to 'watch' something or apply some effect.
 export abstract class WatcherEntity extends CCBotEntity {
     public refreshMs: number;
-    public lastError: Error | null;
+    public lastError: unknown;
 
     public constructor(c: CCBot, id: string, data: WatcherEntityData, earlyDelay?: number) {
         super(c, id, data);
@@ -35,6 +35,13 @@ export abstract class WatcherEntity extends CCBotEntity {
         this.lastError = null;
         earlyDelay = earlyDelay || 0;
         setTimeout((): void => {this.startWatcherTick();}, earlyDelay);
+    }
+
+    public lastErrorString(): string {
+        let e = this.lastError;
+        if (e instanceof Error && typeof e.stack === 'string')
+            return e.stack;
+        return String(e);
     }
 
     private async startWatcherTick(): Promise<void> {

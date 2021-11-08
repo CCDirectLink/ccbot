@@ -48,7 +48,7 @@ class StreamWatcherEntity extends WatcherEntity {
                 if (provider.lastError !== null)
                     streams.push({
                         name: `<error from ${provider.id}>`,
-                        value: provider.lastError.toString()
+                        value: provider.lastErrorString()
                     });
                 for (const stream of provider.streams) {
                     let langTag = '';
