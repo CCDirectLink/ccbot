@@ -25,6 +25,7 @@ import {SettingsCommand, SettingsContext, SettingsOperation, ShowUserSettingsCom
 import {EmoteCommand, ListEmotesCommand, ReactCommand} from './commands/emotes';
 import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
+import InviteCommand from './commands/invite';
 import {CCBot} from './ccbot';
 
 /// Registers all the commands. (More or less.)
@@ -70,6 +71,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new HugCommand(cr))
         .registerCommand(new PurgeCommand(cr))
         .registerCommand(new InspireCommand(cr))
+        .registerCommand(new InviteCommand(cr))
 
         .registerGroup('roles')
         .registerCommand(new RolesAddCommand(cr))
