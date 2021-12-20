@@ -21,6 +21,16 @@ import {Secrets} from './data/structures'
 import * as fs from 'fs';
 import * as net from 'net';
 
+declare global {
+    // Using var declarations is the only way to get away from weird hacks.
+    /* eslint-disable no-var */
+    var ccbot: CCBotMain;
+    var client: CCBot;
+    var discord: typeof import('discord.js');
+    var commando: typeof import('discord.js-commando');
+    /* eslint-enable no-var */
+}
+
 /// The one and only main class, that initializes everything.
 class CCBotMain {
     public readonly client: CCBot;
@@ -132,6 +142,11 @@ class CCBotMain {
 }
 
 const ccbot = new CCBotMain();
+global.ccbot = ccbot;
+global.client = ccbot.client;
+global.discord = discord;
+global.commando = commando;
+
 let shuttingDown = false;
 
 async function shutdown(): Promise<void> {
