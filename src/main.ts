@@ -165,5 +165,3 @@ async function shutdown(): Promise<void> {
 process.on('exit', shutdown);
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-process.on('SIGUSR1', shutdown);
-process.on('SIGUSR2', shutdown);
