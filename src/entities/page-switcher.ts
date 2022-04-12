@@ -115,7 +115,6 @@ export async function outputElements(client: CCBot, msg: commando.CommandoMessag
         let element = elementFull.text;
         let elementPrependedCategory = '';
         // Reset category prepended indicator
-        // eslint-disable-next-line no-loop-func
         const prependCategoryIfNecessary = (): void => {
             if (currentCategory != elementFull.category) {
                 element = `${elementFull.category}\n${elementFull.text}`;
