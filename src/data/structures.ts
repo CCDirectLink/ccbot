@@ -55,6 +55,10 @@ export interface Secrets {
     // YouTube Data API v3 API key, if you have one.
     // If not, youtube-stream-provider is not registered as a valid entity
     youtubeData3Key?: string;
+    // GitHub api token.
+    // Create at https://github.com/settings/tokens?type=beta
+    // requires permissions: contents:write, Pull requests: read and write
+    githubTokenCCModDB?: string
 }
 
 // Implements the persistence backend.
