@@ -240,6 +240,7 @@ export class EntityRegistry<C, T extends Entity<C>> extends DynamicTextFile {
         if (this.started)
             return;
         this.started = true;
+        this.cachedJSON = '[]'
         this.deserialize(this.cachedJSON);
         this.cachedJSON = 'XXX_ALREADY_STARTED_XXX';
     }
