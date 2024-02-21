@@ -51,7 +51,8 @@ class CCBotMain {
         }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
         this.dataCollector = null;
 
-        if (this.secrets.githubTokenCCModDB) OctokitUtil.initOctokit(this.secrets.githubTokenCCModDB)
+        if (this.secrets.githubCCModDB)
+            OctokitUtil.initOctokit(this.secrets.githubCCModDB.token, this.secrets.githubCCModDB.owner, this.secrets.githubCCModDB.repo)
         
         const kickstart = async (): Promise<void> => {
             try {

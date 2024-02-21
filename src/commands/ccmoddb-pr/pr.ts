@@ -70,8 +70,6 @@ function addOrUpdateUrl(inputs: InputLocations, url: string) {
     inputs.push(obj)
 }
 
-const owner = 'krypciak'
-const repo = 'CCModDB'
 const baseBranch = 'master'
 const botBranchPrefix = 'ccbot/'
 const inputLocationsPath = 'input-locations.json'
@@ -81,20 +79,20 @@ async function createPr(url: string, author: string) {
         return 'Invalid url :('
     }
 
-    const branches: string[] = (await OctokitUtil.getBranchList(owner, repo)).filter(name => name.startsWith(botBranchPrefix))
+    const branches: string[] = (await OctokitUtil.getBranchList()).filter(name => name.startsWith(botBranchPrefix))
     const branchIds: number[] = branches.map(name => name.substring(botBranchPrefix.length)).map(Number)
     const maxBranchId: number = branchIds.reduce((acc, v) => (v > acc ? v : acc), -1)
     const newBranchName: string = `${botBranchPrefix}${maxBranchId + 1}`
 
-    await OctokitUtil.createBranch(owner, repo, baseBranch, newBranchName)
-    const inputLocationsStr = await OctokitUtil.fetchFile(owner, repo, baseBranch, inputLocationsPath)
+    await OctokitUtil.createBranch(baseBranch, newBranchName)
+    const inputLocationsStr = await OctokitUtil.fetchFile(baseBranch, inputLocationsPath)
     const inputLocationsJson: InputLocations = JSON.parse(inputLocationsStr)
     addOrUpdateUrl(inputLocationsJson, url)
 
     const newContent = await prettierJson(inputLocationsJson)
 
-    await OctokitUtil.commitFile(owner, repo, newBranchName, inputLocationsPath, newContent, `CCBot: ${newBranchName}`)
-    const prUrl = await OctokitUtil.createPullRequest(owner, repo, baseBranch, newBranchName, `CCBot: ${newBranchName}`, `Submitted by: <br>${author}`)
+    await OctokitUtil.commitFile(newBranchName, inputLocationsPath, newContent, `CCBot: ${newBranchName}`)
+    const prUrl = await OctokitUtil.createPullRequest(baseBranch, newBranchName, `CCBot: ${newBranchName}`, `Submitted by: <br>${author}`)
     return `PR submitted!\n${prUrl}`
 }
 
