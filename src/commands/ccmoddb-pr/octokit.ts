@@ -15,37 +15,41 @@
 
 import { Octokit } from '@octokit/rest'
 
-let owner: string
-let repo: string
-let octokit: Octokit | undefined
-
 export class OctokitUtil {
+    static octokit: Octokit | undefined
+    static owner: string
+    static repo: string
+
     static isInited(): boolean {
-        return !!octokit
+        return !!this.octokit
     }
 
     static initOctokit(token: string, owner: string, repo: string) {
-        octokit = new Octokit({ auth: token })
-        owner = owner
-        repo = repo
+        this.octokit = new Octokit({ auth: token })
+        this.owner = owner
+        this.repo = repo
     }
 
     static async getBranchList(): Promise<string[]> {
-        const res = await octokit!.repos.listBranches({
-            owner,
-            repo,
+        const res = await this.octokit!.repos.listBranches({
+            owner: this.owner,
+            repo: this.repo,
         })
         return res.data.map(branch => branch.name)
     }
 
     static async createBranch(baseBranch: string, newBranch: string) {
         try {
-            const { data: baseBranchData } = await octokit!.request('GET /repos/{owner}/{repo}/git/refs/heads/{branch}', { owner, repo, branch: baseBranch })
+            const { data: baseBranchData } = await this.octokit!.request('GET /repos/{owner}/{repo}/git/refs/heads/{branch}', {
+                owner: this.owner,
+                repo: this.repo,
+                branch: baseBranch,
+            })
             const baseBranchSha = baseBranchData.object.sha
 
-            await octokit!.request('POST /repos/{owner}/{repo}/git/refs', {
-                owner,
-                repo,
+            await this.octokit!.request('POST /repos/{owner}/{repo}/git/refs', {
+                owner: this.owner,
+                repo: this.repo,
                 ref: `refs/heads/${newBranch}`,
                 sha: baseBranchSha,
             })
@@ -57,7 +61,7 @@ export class OctokitUtil {
 
     static async fetchFile(branch: string, filePath: string): Promise<string> {
         try {
-            const res = (await octokit!.repos.getContent({ owner, repo, path: filePath, ref: branch })) as any
+            const res = (await this.octokit!.repos.getContent({ owner: this.owner, repo: this.repo, path: filePath, ref: branch })) as any
             return Buffer.from(res.data.content, 'base64').toString()
         } catch (error: any) {
             console.error(`Error fetching file: ${error.message}`)
@@ -68,12 +72,12 @@ export class OctokitUtil {
     static async commitFile(branch: string, filePath: string, content: string, message: string) {
         const {
             data: { sha },
-        } = (await octokit!.repos.getContent({ owner, repo, path: filePath, ref: branch })) as any
+        } = (await this.octokit!.repos.getContent({ owner: this.owner, repo: this.repo, path: filePath, ref: branch })) as any
 
         const newContent = Buffer.from(content).toString('base64')
-        await octokit!.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-            owner,
-            repo,
+        await this.octokit!.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+            owner: this.owner,
+            repo: this.repo,
             path: filePath,
             message,
             content: newContent,
@@ -84,7 +88,14 @@ export class OctokitUtil {
 
     static async createPullRequest(baseBranch: string, newBranch: string, title: string, body: string) {
         try {
-            const res = await octokit!.request('POST /repos/{owner}/{repo}/pulls', { owner, repo, title, body, head: newBranch, base: baseBranch })
+            const res = await this.octokit!.request('POST /repos/{owner}/{repo}/pulls', {
+                owner: this.owner,
+                repo: this.repo,
+                title,
+                body,
+                head: newBranch,
+                base: baseBranch,
+            })
             const url: string = res.data._links.html.href
             return url
         } catch (error: any) {

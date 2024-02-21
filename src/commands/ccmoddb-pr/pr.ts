@@ -75,25 +75,34 @@ const botBranchPrefix = 'ccbot/'
 const inputLocationsPath = 'input-locations.json'
 
 async function createPr(url: string, author: string) {
-    if (!url.startsWith('https://github.com/') || !(url.endsWith('.zip') || url.endsWith('.ccmod')) || (await checkUrlFileType(url)) != 'application/zip') {
+    if (!url.startsWith('https://github.com/') || !(url.endsWith('.zip') || url.endsWith('.ccmod'))) {
+        return 'Invalid url :('
+    }
+    const fileType = await checkUrlFileType(url)
+    if (!(fileType == 'application/zip' || fileType == 'application/octet-stream')) {
         return 'Invalid url :('
     }
 
-    const branches: string[] = (await OctokitUtil.getBranchList()).filter(name => name.startsWith(botBranchPrefix))
-    const branchIds: number[] = branches.map(name => name.substring(botBranchPrefix.length)).map(Number)
-    const maxBranchId: number = branchIds.reduce((acc, v) => (v > acc ? v : acc), -1)
-    const newBranchName: string = `${botBranchPrefix}${maxBranchId + 1}`
+    try {
+        const branches: string[] = (await OctokitUtil.getBranchList()).filter(name => name.startsWith(botBranchPrefix))
+        const branchIds: number[] = branches.map(name => name.substring(botBranchPrefix.length)).map(Number)
+        const maxBranchId: number = branchIds.reduce((acc, v) => (v > acc ? v : acc), -1)
+        const newBranchName: string = `${botBranchPrefix}${maxBranchId + 1}`
 
-    await OctokitUtil.createBranch(baseBranch, newBranchName)
-    const inputLocationsStr = await OctokitUtil.fetchFile(baseBranch, inputLocationsPath)
-    const inputLocationsJson: InputLocations = JSON.parse(inputLocationsStr)
-    addOrUpdateUrl(inputLocationsJson, url)
+        await OctokitUtil.createBranch(baseBranch, newBranchName)
+        const inputLocationsStr = await OctokitUtil.fetchFile(baseBranch, inputLocationsPath)
+        const inputLocationsJson: InputLocations = JSON.parse(inputLocationsStr)
+        addOrUpdateUrl(inputLocationsJson, url)
 
-    const newContent = await prettierJson(inputLocationsJson)
+        const newContent = await prettierJson(inputLocationsJson)
 
-    await OctokitUtil.commitFile(newBranchName, inputLocationsPath, newContent, `CCBot: ${newBranchName}`)
-    const prUrl = await OctokitUtil.createPullRequest(baseBranch, newBranchName, `CCBot: ${newBranchName}`, `Submitted by: <br>${author}`)
-    return `PR submitted!\n${prUrl}`
+        await OctokitUtil.commitFile(newBranchName, inputLocationsPath, newContent, `CCBot: ${newBranchName}`)
+        const prUrl = await OctokitUtil.createPullRequest(baseBranch, newBranchName, `CCBot: ${newBranchName}`, `Submitted by: <br>${author}`)
+        return `PR submitted!\n${prUrl}`
+    } catch (err) {
+        console.log(err)
+        throw err
+    }
 }
 
 export default class ModsPrCommand extends CCBotCommand {
