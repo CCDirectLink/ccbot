@@ -79,7 +79,8 @@ async function createPr(url: string, author: string) {
         return 'Invalid url :('
     }
     const fileType = await checkUrlFileType(url)
-    if (!(fileType == 'application/zip' || fileType == 'application/octet-stream')) {
+    const okFileTypes = new Set(['application/zip', 'application/x-zip-compressed', 'application/octet-stream' /* <- ccmod */])
+    if (!fileType || !okFileTypes.has(fileType)) {
         return 'Invalid url :('
     }
 
