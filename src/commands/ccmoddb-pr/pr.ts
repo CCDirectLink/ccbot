@@ -109,10 +109,10 @@ async function createPr(url: string, author: string) {
 export default class ModsPrCommand extends CCBotCommand {
     public constructor(client: CCBot) {
         const opt = {
-            name: 'add-mod',
-            description: 'add mod',
+            name: 'publish-mod',
+            description: 'Publish a mod to CCModDB',
             group: 'general',
-            memberName: 'add-mod',
+            memberName: 'publish-mod',
             args: [
                 {
                     key: 'url',
