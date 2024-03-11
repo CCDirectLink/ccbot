@@ -27,6 +27,7 @@ import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import InviteCommand from './commands/invite';
 import {CCBot} from './ccbot';
+import ModsPrCommand from './commands/ccmoddb-pr/pr';
 
 /// Registers all the commands. (More or less.)
 export default function registerAllCommands(cr: CCBot): void {
@@ -79,5 +80,6 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new RolesListCommand(cr))
 
         .registerCommand(new ModsToolsGetCommand(cr, 'general', 'mods', false))
-        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true));
+        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true))
+        .registerCommand(new ModsPrCommand(cr));
 }

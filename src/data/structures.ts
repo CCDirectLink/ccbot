@@ -55,6 +55,17 @@ export interface Secrets {
     // YouTube Data API v3 API key, if you have one.
     // If not, youtube-stream-provider is not registered as a valid entity
     youtubeData3Key?: string;
+    // CCModDB mod adding
+    githubCCModDB?: {
+        // GitHub api token.
+        // Create at https://github.com/settings/tokens?type=beta
+        // requires permissions: contents:write, Pull requests: read and write
+        token: string
+        // for example: "CCDirectLink"
+        owner: string
+        // for example: "CCModDB"
+        repo: string
+    }
 }
 
 // Implements the persistence backend.
