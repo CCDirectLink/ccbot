@@ -39,7 +39,7 @@ export default class CCBotEmoteRegistry {
     public readonly client: CCBot;
 
     // NOTE: This does *not* include per-guild settings or global settings.
-    public globalEmoteRegistry: Map<string, discord.GuildEmoji> = new Map();
+    public globalEmoteRegistry = new Map<string, discord.GuildEmoji>();
     public globalConflicts = 0;
 
     public constructor(c: CCBot) {
@@ -55,7 +55,7 @@ export default class CCBotEmoteRegistry {
         const safetyList: string[] | undefined = this.client.provider.get('global', 'emotePath', []);
         const globalAllowList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-allowList');
         const globalBlockList: string[] | undefined = this.client.provider.get('global', 'emotes-registry-blockList');
-        const localRegistryCollation: Map<string, discord.GuildEmoji[]> = new Map();
+        const localRegistryCollation = new Map<string, discord.GuildEmoji[]>();
         for (const guild of this.client.guilds.cache.values()) {
             const allowList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-allowList');
             const blockList: string[] | undefined = this.client.provider.get(guild, 'emotes-registry-blockList');
@@ -72,7 +72,7 @@ export default class CCBotEmoteRegistry {
                 emotes.push(emote);
             }
         }
-        const localRegistry: Map<string, discord.GuildEmoji> = new Map();
+        const localRegistry = new Map<string, discord.GuildEmoji>();
         // Start tallying conflicts
         this.globalConflicts = 0;
         for (const pair of localRegistryCollation) {

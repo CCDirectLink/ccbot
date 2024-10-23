@@ -23,3 +23,5 @@ overrides:
           require-await: off
           '@typescript-eslint/no-dynamic-delete': off
           no-undefined: off
+          'node/no-unpublished-import': off
+          no-lone-blocks: off
