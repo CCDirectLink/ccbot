@@ -23,3 +23,9 @@ overrides:
           require-await: off
           '@typescript-eslint/no-dynamic-delete': off
           no-undefined: off
+          dot-notation: off
+          node/no-unpublished-import: off
+          node/no-missing-import:
+            - error
+            - allowModules:
+                - "@octokit/rest"

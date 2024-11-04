@@ -20,6 +20,7 @@ import CCBotImpl from './ccbot-impl';
 import {Secrets} from './data/structures'
 import * as fs from 'fs';
 import * as net from 'net';
+import * as octokitUtil from './commands/ccmoddb-pr/octokit';
 
 declare global {
     // Using var declarations is the only way to get away from weird hacks.
@@ -45,10 +46,23 @@ class CCBotMain {
         // See ccbot-impl.ts for more details on what's going on here.
         // Use CCBot to refer to the class.
         this.client = new CCBotImpl({
-            owner: this.secrets.owner,
-            commandPrefix: this.secrets.commandPrefix
-        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key);
+            owners: typeof this.secrets.owner === "string" ? [this.secrets.owner] : this.secrets.owner,
+            prefix: this.secrets.commandPrefix,
+            intents: [
+                'MessageContent', 'Guilds', 'GuildEmojisAndStickers',   // these should go without saying
+                'GuildMembers',                                         // (privileged) required for greeter, react-roles and a few other things
+                'GuildBans',                                            // required for auditor
+                // messages and reactions
+                'GuildMessages',  'GuildMessageReactions',
+                'DirectMessages', 'DirectMessageReactions'
+            ]
+        }, this.secrets.twitchClientId, this.secrets.youtubeData3Key, this.secrets.githubCCModDB?.publishChannelId);
         this.dataCollector = null;
+
+        if (this.secrets.githubCCModDB) {
+            const { token, owner, repo } = this.secrets.githubCCModDB
+            octokitUtil.initOctokit(token, owner, repo)
+        }
 
         const kickstart = async (): Promise<void> => {
             try {
@@ -77,7 +91,7 @@ class CCBotMain {
             this.client.on('raw', (): void => {
                 tallyRaw++;
             });
-            this.client.on('message', (msg: discord.Message): void => {
+            this.client.on('messageCreate', (msg: commando.CommandoifiedMessage): void => {
                 if (msg.author == this.client.user)
                     tallyCreatedMessages++;
             });
@@ -140,6 +154,31 @@ class CCBotMain {
         return this.client.destroy();
     }
 }
+
+// Please don't pay attention. {{{
+const oldValidateInfo = commando.Command['validateInfo'];
+commando.Command['validateInfo'] = function (client: commando.CommandoClient, info: commando.CommandInfo): void {
+    try {
+        oldValidateInfo(client, info);
+    } catch (error) {
+        if (!(error instanceof Error)) throw error;
+        if (error.message === 'Command name must not include spaces.') return;
+        throw error;
+    }
+};
+const oldValidateAndParseSlashInfo = commando.Command['validateAndParseSlashInfo'];
+commando.Command['validateAndParseSlashInfo'] = function (info: commando.CommandInfo, slashInfo?: commando.SlashCommandInfo): commando.APISlashCommand | null {
+    const commandInfo = commando.Util.deepCopy(info);
+    commandInfo.name = commandInfo.name.split(' ').at(-1)!;
+    return oldValidateAndParseSlashInfo(commandInfo, slashInfo);
+};
+const oldValidateAndParseContextMenuInfo = commando.Command['validateAndParseContextMenuInfo'];
+commando.Command['validateAndParseContextMenuInfo'] = function (info: commando.CommandInfo): discord.RESTPostAPIContextMenuApplicationCommandsJSONBody[] {
+    const commandInfo = commando.Util.deepCopy(info);
+    commandInfo.name = commandInfo.name.split(' ').at(-1)!;
+    return oldValidateAndParseContextMenuInfo(commandInfo);
+};
+// }}}
 
 const ccbot = new CCBotMain();
 global.ccbot = ccbot;

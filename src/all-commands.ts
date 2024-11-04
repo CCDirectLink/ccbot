@@ -27,9 +27,10 @@ import {ModsToolsGetCommand} from './commands/mods';
 import SayCommand from './commands/say';
 import InviteCommand from './commands/invite';
 import {CCBot} from './ccbot';
+import ModsPrCommand from './commands/ccmoddb-pr/pr';
 
 /// Registers all the commands. (More or less.)
-export default function registerAllCommands(cr: CCBot): void {
+export default function registerAllCommands(cr: CCBot, ccmoddbPublishChannelId: string[] | undefined): void {
     cr.registry.registerDefaultTypes();
     cr.registry.registerDefaultGroups();
     cr.registry.registerDefaultCommands({
@@ -59,7 +60,7 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new AddQuoteCommand(cr))
         .registerCommand(new RmQuoteCommand(cr))
 
-        .registerGroup('general')
+        .registerGroup({ id: 'general' })
         .registerCommand(new ArmyCommand(cr, 'general', 'cheesearmy'))
         .registerCommand(new ArmyCommand(cr, 'general', 'leacheesearmy', 'leaCheeseAngry'))
         .registerCommand(new PingCommand(cr))
@@ -73,11 +74,12 @@ export default function registerAllCommands(cr: CCBot): void {
         .registerCommand(new InspireCommand(cr))
         .registerCommand(new InviteCommand(cr))
 
-        .registerGroup('roles')
+        .registerGroup({ id: 'roles' })
         .registerCommand(new RolesAddCommand(cr))
         .registerCommand(new RolesRmCommand(cr))
         .registerCommand(new RolesListCommand(cr))
 
         .registerCommand(new ModsToolsGetCommand(cr, 'general', 'mods', false))
-        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true));
+        .registerCommand(new ModsToolsGetCommand(cr, 'general', 'tools', true))
+        .registerCommand(new ModsPrCommand(cr, ccmoddbPublishChannelId));
 }

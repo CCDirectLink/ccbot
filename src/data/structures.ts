@@ -29,7 +29,7 @@ export interface Command {
     // See formatter.ts for more details.
     format?: string;
     // Embed (Note, however, that all strings here are valid targets for format directives!)
-    embed?: discord.MessageEmbedOptions;
+    embed?: discord.EmbedData;
     // Reactions to the command.
     commandReactions?: string[];
 }
@@ -55,6 +55,18 @@ export interface Secrets {
     // YouTube Data API v3 API key, if you have one.
     // If not, youtube-stream-provider is not registered as a valid entity
     youtubeData3Key?: string;
+    githubCCModDB?: {
+        // GitHub api token.
+        // Create at https://github.com/settings/tokens?type=beta
+        // requires permissions: contents:write, Pull requests: read and write
+        token: string;
+        // for example: "CCDirectLink"
+        owner: string;
+        // for example: "CCModDB"
+        repo: string;
+        // for example: 1265622108526247900
+        publishChannelId: string[];
+    };
 }
 
 // Implements the persistence backend.
@@ -62,16 +74,27 @@ export interface GuildData {[setting: string]: unknown}
 
 export interface GuildIndex {[guildID: string]: GuildData}
 
-/// see https://github.com/CCDirectLink/CCModDB
-export interface CCModDBPackagePage {
-    name: string;
-    url: string;
-}
-export interface CCModDBPackage {
-    name: string;
-    version: string;
-    description?: string;
-    page: CCModDBPackagePage[];
+export interface SettingsStructure {
+    prefix?: string | null;
+    emotes?: string[];
+    emotePath?: string[];
+    farewell?: string;
+    greeting?: string;
+    quotes: string[];
+    lastQuote: number;
+    nsfw?: boolean;
+    'dm-greeting'?: string;
+    'emotes-registry-allowList'?: string[];
+    'emotes-registry-blockList'?: string[];
+    'emotes-sfw'?: string[];
+    'headerless-say'?: boolean;
+    'optin-roles'?: 'yes' | 'no' | 'both';
+    [k: `channel-${string}`]: string;
+    [k: `cmd-${string}-${string}`]: boolean;
+    [k: `emote-${string}`]: number;
+    [k: `grp-${string}`]: boolean;
+    [k: `nsfw-${string}`]: boolean;
+    [k: `roles-${string}`]: string[];
 }
 
 export interface EmoteRegistryDumpEntry {
